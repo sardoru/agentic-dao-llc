@@ -1,7 +1,8 @@
 "use client";
 
 import { createContext, useCallback, useContext, useEffect, useState } from "react";
-import { useAccount, useSignMessage } from "wagmi";
+import { useAccount, useSignMessage, useSwitchChain } from "wagmi";
+import { baseSepolia } from "wagmi/chains";
 import { createSiweMessage } from "viem/siwe";
 
 export interface Session {
@@ -31,6 +32,7 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const { address, chainId, isConnected } = useAccount();
   const { signMessageAsync } = useSignMessage();
+  const { switchChainAsync } = useSwitchChain();
   const [session, setSession] = useState<Session | null>(null);
   const [status, setStatus] = useState<AuthStatus>("loading");
   const [signingIn, setSigningIn] = useState(false);
@@ -60,12 +62,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
     setSigningIn(true);
     try {
+      // Make sure the wallet is on Base Sepolia so the user can also transact.
+      // Best-effort: the SIWE message below is bound to Base Sepolia regardless,
+      // so sign-in still succeeds even if the connector can't switch chains.
+      if (chainId !== baseSepolia.id) {
+        try {
+          await switchChainAsync({ chainId: baseSepolia.id });
+        } catch {
+          /* keep going — message chainId is fixed to Base Sepolia */
+        }
+      }
+
       const nonceRes = await fetch("/api/auth/nonce", { cache: "no-store" });
       const { nonce } = (await nonceRes.json()) as { nonce: string };
 
       const message = createSiweMessage({
         address,
-        chainId: chainId ?? 84532,
+        chainId: baseSepolia.id,
         domain: window.location.host,
         uri: window.location.origin,
         nonce,
@@ -94,7 +107,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } finally {
       setSigningIn(false);
     }
-  }, [address, chainId, isConnected, signMessageAsync, refresh]);
+  }, [address, chainId, isConnected, signMessageAsync, switchChainAsync, refresh]);
 
   const signOut = useCallback(async () => {
     try {

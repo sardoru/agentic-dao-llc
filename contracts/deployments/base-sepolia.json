@@ -1,0 +1,38 @@
+{
+  "network": "base-sepolia",
+  "chainId": 84532,
+  "deployedAt": "2026-06-24",
+  "profile": "pilot",
+  "note": "Testnet pilot deployment (CGP-001 Working Committee DAO). Demo governance timings; not the production 48h window. Guardian is a generated demo key — replace with a real multisig for a live pilot.",
+  "params": {
+    "timelockMinDelaySeconds": 900,
+    "votingDelaySeconds": 300,
+    "votingPeriodSeconds": 3600,
+    "proposalThreshold": 1,
+    "quorumNumerator": 30
+  },
+  "contracts": {
+    "MembershipToken": "0x6521A771CA57fD2e22C76486FE17830E3D742c01",
+    "GuardedTimelock": "0xCCea7837Ae5C555c13F9bb984A39C39d4C8736CD",
+    "DaoGovernor": "0xcf7F6de0D63e8E239dd959b6aa8582F9Ce5465B5",
+    "AgentRegistry": "0xCc6A8ADd07B1fD670Da953750d8eFDa599186319",
+    "RolesModifier": "0xf3CBebdD405031c4BA0806aF62a796a78084afFc",
+    "RationaleAnchor": "0x84F19BA66D0a779C38FF14102ddd448996136037",
+    "Treasury": "0x902f219A170240218D022b35d58B4328B44562D3"
+  },
+  "roles": {
+    "guardian": "0x924C2CF41cc502EfA98416EE42A8a05e3923baDB",
+    "guardianHolds": ["DEFAULT_ADMIN_ROLE", "MEMBERSHIP_ADMIN", "REGISTRY_ADMIN", "ROLES_ADMIN", "TIMELOCK_ADMIN", "CANCELLER_ROLE"],
+    "governorHolds": ["PROPOSER_ROLE", "EXECUTOR_ROLE"],
+    "deployerRenouncedAll": true
+  },
+  "verifiedOnChain": {
+    "governorTimelock": "0xCCea7837Ae5C555c13F9bb984A39C39d4C8736CD",
+    "timelockMinDelay": 900,
+    "guardianHasDefaultAdmin": true,
+    "deployerHasDefaultAdmin": false,
+    "governorHasDefaultAdmin": false
+  },
+  "explorer": "https://sepolia.basescan.org/address/0xcf7F6de0D63e8E239dd959b6aa8582F9Ce5465B5",
+  "dashboard": "https://agentic-dao-pilot.vercel.app"
+}
