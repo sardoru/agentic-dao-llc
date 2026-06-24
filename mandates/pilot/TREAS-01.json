@@ -1,0 +1,39 @@
+{
+  "version": "1.0",
+  "agentId": "TREAS-01",
+  "principal": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
+  "agentAccount": "0x976EA74026E726554dB657fA54763abd0C3a0aa9",
+  "scope": {
+    "canPropose": true,
+    "canVote": true,
+    "proposalTypes": ["TREASURY_PAYMENT", "OPERATING_EXPENSE", "TEXT_SIGNAL"],
+    "allowedTargets": ["0x036CbD53842c5426634e7929541eC2318f3dCF7e"],
+    "forbiddenSelectors": [
+      "0x2f2ff15d",
+      "0xd547741f",
+      "0x36568abe",
+      "0x64d62353",
+      "0xd8804832",
+      "0x6a3722c5",
+      "0xacb5cb8e",
+      "0xb51e77d5",
+      "0x23d91713",
+      "0xe5961754",
+      "0x3659cfe6",
+      "0x4f1ef286"
+    ],
+    "spendingCap": {
+      "token": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+      "perTx": "1000000000",
+      "perEpoch": "5000000000",
+      "epochSeconds": 604800
+    }
+  },
+  "votingPolicy": "ipfs://bafyTREAS01votingPolicyPLACEHOLDER",
+  "humanRatification": { "valueUsdGte": 2500, "impact": ["HIGH"] },
+  "requireSimulation": true,
+  "rationaleStorage": "ipfs",
+  "guardian": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+  "createdAt": "2026-06-24T00:00:00Z",
+  "expiresAt": "2026-09-24T00:00:00Z"
+}

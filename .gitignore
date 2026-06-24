@@ -26,6 +26,8 @@ indexer/generated/
 .env
 .env.local
 .env.*.local
+# Pilot address book — commit the .example, keep the real (deploy) one local
+config/pilot.addresses.json
 *.keystore
 keystore/
 .keystore/

@@ -1,6 +1,10 @@
 import type { Address, Hex } from "viem";
 
-export type ProposalType = "TREASURY_PAYMENT" | "PARAM_TUNE_NONRESERVED" | "TEXT_SIGNAL";
+export type ProposalType =
+  | "TREASURY_PAYMENT"
+  | "PARAM_TUNE_NONRESERVED"
+  | "TEXT_SIGNAL"
+  | "OPERATING_EXPENSE";
 export type Impact = "LOW" | "MED" | "HIGH";
 export type RationaleStorage = "ipfs" | "arweave";
 
@@ -77,6 +81,14 @@ export interface EvalContext {
   now: number;
   /** On-chain AgentRegistry active flag; defaults to true when omitted. */
   mandateActive?: boolean;
+  /**
+   * Extra reserved (ring-fenced) target addresses, layered on top of the
+   * generated RESERVED_TARGET_SET. Used to inject deploy-time-resolved targets
+   * (the RESERVED_TARGET_PLACEHOLDERS — e.g. the CougarDAO governance/treasury
+   * addresses) so the runtime denies them by target. See reserved-matters.yaml
+   * RM-PILOT-002.
+   */
+  reservedTargets?: readonly Address[];
 }
 
 export type DecisionRule =

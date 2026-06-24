@@ -223,6 +223,26 @@ Enforced in all three layers: **on-chain** (each role is guardian-held; the Gove
 **runtime** (the policy engine denies any action touching a reserved tuple; the MCP/CLI cannot
 construct one), and **legal** (the schedule + code-deference carve-outs mirror this list).
 
+### Profiles — the pilot (Working Committee DAO) vs production
+
+`reserved-matters.yaml` carries two **profiles**. The committed artifacts are the **`pilot`**
+profile — a separate, ring-fenced sandbox sub-entity (see
+[`governance/CGP-001`](governance/CGP-001-working-committee-dao-pilot.md)). The pilot keeps the
+eight constitutional matters above (a **byte-identical selector set**) and **adds two sandbox
+guards** with new enforcement mechanisms:
+
+- **`RM-PILOT-001` — no funds beyond the float.** Cap-enforced by the RolesModifier; the ceiling
+  is also recorded as a hard Reserved Matter (the metered selectors stay callable within caps).
+- **`RM-PILOT-002` — no touching CougarDAO.** A **deny-by-target** ring-fence: the engine denies
+  any action whose target is a CougarDAO production asset (`$COUG`, baked in, plus the deploy-time
+  governance / treasury / deed addresses) **before** any per-mandate allow-list is consulted.
+
+The four pilot agents live in [`mandates/pilot/`](mandates/pilot/) (OPS-01, TREAS-01, GOV-01,
+DILIGENCE-01); the deploy-time address book is
+[`config/pilot.addresses.example.json`](config/pilot.addresses.example.json). Generate a profile
+with `pnpm gen:reserved` (pilot) or `node scripts/gen-reserved-matters.mjs --profile production`
+(adds the $COUG token-supply and RWA/deed/debt matters).
+
 ## The policy engine — the heart of the system
 
 [`packages/policy`](packages/policy) is the single source of allow/deny truth, imported by the

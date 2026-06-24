@@ -33,7 +33,12 @@
           "type": "array",
           "items": {
             "type": "string",
-            "enum": ["TREASURY_PAYMENT", "PARAM_TUNE_NONRESERVED", "TEXT_SIGNAL"]
+            "enum": [
+              "TREASURY_PAYMENT",
+              "PARAM_TUNE_NONRESERVED",
+              "TEXT_SIGNAL",
+              "OPERATING_EXPENSE"
+            ]
           },
           "uniqueItems": true
         },
@@ -88,5 +93,33 @@
     "address": { "type": "string", "pattern": "^0x[a-fA-F0-9]{40}$" },
     "selector": { "type": "string", "pattern": "^0x[a-fA-F0-9]{8}$" },
     "uint256": { "type": "string", "pattern": "^[0-9]+$" }
-  }
+  },
+  "examples": [
+    {
+      "version": "1.0",
+      "agentId": "OPS-01",
+      "principal": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
+      "agentAccount": "0x14dC79964da2C08b23698B3D3cc7Ca32193d9955",
+      "scope": {
+        "canPropose": true,
+        "canVote": false,
+        "proposalTypes": ["OPERATING_EXPENSE", "TEXT_SIGNAL"],
+        "allowedTargets": ["0x036CbD53842c5426634e7929541eC2318f3dCF7e"],
+        "forbiddenSelectors": ["0x2f2ff15d", "0x64d62353", "0xb51e77d5"],
+        "spendingCap": {
+          "token": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+          "perTx": "500000000",
+          "perEpoch": "2000000000",
+          "epochSeconds": 604800
+        }
+      },
+      "votingPolicy": "ipfs://bafyOPS01votingPolicyPLACEHOLDER",
+      "humanRatification": { "valueUsdGte": 1000, "impact": ["HIGH"] },
+      "requireSimulation": true,
+      "rationaleStorage": "ipfs",
+      "guardian": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+      "createdAt": "2026-06-24T00:00:00Z",
+      "expiresAt": "2026-09-24T00:00:00Z"
+    }
+  ]
 }

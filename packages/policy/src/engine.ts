@@ -1,8 +1,20 @@
 import type { Hex } from "viem";
 import type { Decision, DecisionRule, EvalContext, Mandate, ProposedAction } from "./types";
-import { RESERVED_SELECTOR_SET } from "./reservedMatters.generated";
+import { RESERVED_SELECTOR_SET, RESERVED_TARGET_SET } from "./reservedMatters.generated";
 
 const lc = (s: string): string => s.toLowerCase();
+
+/**
+ * The set of reserved (ring-fenced) target addresses for this evaluation: the
+ * generated baseline (RESERVED_TARGET_SET — e.g. $COUG) plus any deploy-time
+ * targets the caller injected via ctx.reservedTargets (the resolved
+ * RESERVED_TARGET_PLACEHOLDERS). Any action against one of these is a Reserved
+ * Matter (RM-PILOT-002), denied BEFORE the per-mandate allow-list is consulted.
+ */
+function reservedTargetsFor(ctx: EvalContext): ReadonlySet<string> {
+  if (!ctx.reservedTargets?.length) return RESERVED_TARGET_SET;
+  return new Set([...RESERVED_TARGET_SET, ...ctx.reservedTargets.map(lc)]);
+}
 
 function deny(
   rule: DecisionRule,
@@ -71,6 +83,17 @@ export function evaluate(mandate: Mandate, action: ProposedAction, ctx: EvalCont
           return deny("FORBIDDEN_SELECTOR", `Selector ${sel} is forbidden by the mandate.`);
         }
       }
+      // 4. Reserved targets (ring-fence): denied BEFORE the allow-list, so even a
+      // mis-configured mandate that allow-listed a CougarDAO address still fails.
+      const reservedT = reservedTargetsFor(ctx);
+      for (const target of action.targets) {
+        if (reservedT.has(lc(target))) {
+          return deny(
+            "RESERVED_MATTER",
+            `Target ${target} is a ring-fenced (CougarDAO) asset and is never permitted.`,
+          );
+        }
+      }
       // 3. Targets must all be allow-listed.
       const allowed = new Set(mandate.scope.allowedTargets.map(lc));
       for (const target of action.targets) {
@@ -123,6 +146,13 @@ export function evaluate(mandate: Mandate, action: ProposedAction, ctx: EvalCont
         return deny(
           "FORBIDDEN_SELECTOR",
           `Selector ${action.selector} is forbidden by the mandate.`,
+        );
+      }
+      // Reserved target (ring-fence) guard — denied regardless of cap/allow-list.
+      if (reservedTargetsFor(ctx).has(lc(action.target))) {
+        return deny(
+          "RESERVED_MATTER",
+          `Target ${action.target} is a ring-fenced (CougarDAO) asset and is never permitted.`,
         );
       }
       // 2. Capability: bounded ops require a spending cap.

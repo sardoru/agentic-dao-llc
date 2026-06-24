@@ -5,6 +5,34 @@ Format follows [Keep a Changelog](https://keepachangelog.com/); the project is *
 
 ## [Unreleased]
 
+### Added — Working Committee DAO pilot (CGP-001)
+
+- **Profiled Reserved Matters.** `reserved-matters.yaml` now carries `pilot` / `production`
+  profiles. The generator (`scripts/gen-reserved-matters.mjs`) takes `--profile` (default
+  `pilot`), classifies each matter's enforcement (`selector` / `target` / `cap` / `legal`), and
+  emits the pilot artifacts. The pilot selector set is **byte-identical** to the prior set; the
+  pilot only _adds_ a target ring-fence and a cap guard.
+- **Deny-by-target enforcement (RM-PILOT-002).** The policy engine now denies any action whose
+  target is a ring-fenced CougarDAO asset, **before** the per-mandate allow-list is consulted.
+  New generated exports `RESERVED_TARGETS` / `RESERVED_TARGET_SET` (with `$COUG` baked in) and
+  `RESERVED_TARGET_PLACEHOLDERS` (deploy-time targets to resolve); new optional
+  `EvalContext.reservedTargets` to inject resolved addresses at runtime.
+- **Cap guard (RM-PILOT-001).** The ring-fenced float ceiling is documented as a hard Reserved
+  Matter while remaining cap-enforced (metered selectors stay callable within caps).
+- **The four pilot agents.** `mandates/pilot/{OPS-01,TREAS-01,GOV-01,DILIGENCE-01}.json` — each
+  validates against the (enriched) `mandates/schema.json` + `validateMandate`, forbids every
+  reserved selector, and allow-lists no CougarDAO target. Added the `OPERATING_EXPENSE` proposal
+  type across the type/schema/validator. OPS-01 + TREAS-01 carry USDC caps; GOV-01 + DILIGENCE-01
+  are execution-free (DILIGENCE-01 is read/propose-only).
+- **Charter, config, legal.** `governance/CGP-001-working-committee-dao-pilot.md` (the pilot
+  charter, adapted to this repo's stack), `config/pilot.addresses.example.json` (the deploy-time
+  address book), and `legal/pilot-sandbox-addendum.md` (sandbox/subsidiary operating-agreement
+  addendum).
+- **Tests.** +24 policy tests: deny-by-target behaviour (RM-PILOT-002, incl. precedence over the
+  allow-list and runtime injection) and a CI check that runs the real pilot mandates through
+  `validateMandate` + reserved-selector coverage + ring-fence checks. Full gate stays green:
+  `pnpm verify`, `check:reserved`, `forge test` (29), `pnpm e2e:local` (52 assertions).
+
 ### Added — Phase 0: scaffold + policy engine + Reserved Matters source of truth
 
 - pnpm monorepo (workspaces, tsconfig, eslint, prettier, turbo) + CI (TypeScript + Foundry jobs).

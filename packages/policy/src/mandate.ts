@@ -5,6 +5,7 @@ const PROPOSAL_TYPES: ProposalType[] = [
   "TREASURY_PAYMENT",
   "PARAM_TUNE_NONRESERVED",
   "TEXT_SIGNAL",
+  "OPERATING_EXPENSE",
 ];
 const RATIONALE_STORAGE: RationaleStorage[] = ["ipfs", "arweave"];
 

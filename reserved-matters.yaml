@@ -12,27 +12,76 @@
 #
 # The on-chain layer enforces the same set structurally: each guardian role below
 # is held by the guardian multisig, and the DaoGovernor holds NONE of them
-# (constitutional separation, proven by contracts/test adversarial tests).
+# (constitutional separation, proven by contracts/test/Adversarial.t.sol).
 #
 # Keep all three layers in sync THROUGH THIS FILE ONLY. Never hand-edit the
 # generated artifacts.
+#
+# ── PROFILES ─────────────────────────────────────────────────────────────────
+# The generator filters `matters` by the active profile (`--profile`, default
+# `pilot`). The committed generated artifacts are the **pilot** profile.
+#   • pilot      → the separate Working Committee DAO sandbox (most conservative).
+#                  See governance/CGP-001-working-committee-dao-pilot.md.
+#   • production → the eventual CougarDAO adoption (full RWA + token set).
+# A matter with `profiles: [pilot, production]` applies to both.
+#
+# ── ENFORCEMENT ──────────────────────────────────────────────────────────────
+# Each matter declares how the runtime denies it (the generator infers a default
+# when `enforcement` is omitted):
+#   • selector  → its 4-byte selectors join RESERVED_SELECTOR_SET; the policy
+#                 engine denies any action carrying one. (default when selectors
+#                 are concrete signatures)
+#   • target    → ALL selectors on its target addresses are forbidden; the engine
+#                 denies any action whose target is in RESERVED_TARGET_SET, BEFORE
+#                 the per-mandate allow-list is consulted (defense-in-depth).
+#                 (default when `selectors: ["*"]`)
+#   • cap       → enforced by the agent-account allowance cap (RolesModifier),
+#                 NOT by selector denial — the metered selectors must stay
+#                 callable within caps. The Reserved Matter makes the ceiling a
+#                 hard floor. (selectors are shown for the schedule but NOT added
+#                 to RESERVED_SELECTOR_SET)
+#   • legal     → no single on-chain selector; enforced by the operating agreement
+#                 + a member supermajority + guardian-held roles. (default when
+#                 `legal_only: true`)
+#
+# SELECTORS: write human-readable signatures. The generator computes the 4-byte
+# selector (keccak256(sig)[0:4]) at build time. Signatures are reconciled to the
+# ACTUAL functions in contracts/src (AccessControl guardian + in-house
+# RolesModifier), NOT the Safe/Zodiac canonical names.
+#
+# TARGETS: literal 0x addresses are resolved into RESERVED_TARGET_SET. ${PLACEHOLDERS}
+# are deploy-time symbols (see config/pilot.addresses.example.json); the generator
+# emits them as RESERVED_TARGET_PLACEHOLDERS that ops must resolve before mainnet.
 # ─────────────────────────────────────────────────────────────────────────────
 
 version: "1.0"
+default_profile: pilot
+
+metadata:
+  name: "Reserved Matters"
+  entities:
+    pilot: "CougarDAO Working Committee DAO (sandbox)"
+    production: "CougarDAO LLC"
+  enforcement_layers: [contracts, runtime, legal]
 
 # AccessControl roles that gate reserved matters on-chain. Each is held by the
 # guardian multisig; the DaoGovernor holds none of them.
 roles:
-  GUARDIAN_ADMIN: "DEFAULT_ADMIN_ROLE across constitutional contracts; manages the guardian set."
+  GUARDIAN_ADMIN: "DEFAULT_ADMIN_ROLE across constitutional contracts; manages the guardian set and every role grant/revoke."
   MEMBERSHIP_ADMIN: "Mint/burn the soulbound membership token (admit/remove members)."
   REGISTRY_ADMIN: "Update agent mandates bound in the AgentRegistry."
-  ROLES_ADMIN: "Configure agent spending caps and target/selector allowlists (Roles modifier)."
+  ROLES_ADMIN: "Configure agent spending caps and target/selector allowlists (RolesModifier)."
   TIMELOCK_ADMIN: "Change the timelock minDelay (the guardian veto window)."
-  UPGRADE_ADMIN: "Authorize upgrades of upgradeable constitutional contracts."
+  UPGRADE_ADMIN: "Authorize upgrades of upgradeable constitutional contracts (forward-looking; see issue: UUPS upgradeability)."
 
 matters:
-  - id: CHANGE_GUARDIAN_SET
+  # ───────────────────────────────────────────────────────────────────────────
+  # CONSTITUTIONAL — the governance floor (applies to BOTH pilot and production)
+  # ───────────────────────────────────────────────────────────────────────────
+  - id: RM-CONST-001
     title: "Change the guardian set"
+    category: constitutional
+    profiles: [pilot, production]
     role: GUARDIAN_ADMIN
     description: "Add, remove, or replace guardian signers, or transfer any constitutional admin role. Every AccessControl role grant/revoke is reserved."
     selectors:
@@ -40,55 +89,187 @@ matters:
       - "revokeRole(bytes32,address)"
       - "renounceRole(bytes32,address)"
 
-  - id: CHANGE_TIMELOCK_DELAY
+  - id: RM-CONST-002
     title: "Change the timelock minimum delay"
+    category: constitutional
+    profiles: [pilot, production]
     role: TIMELOCK_ADMIN
-    description: "Alter the execution delay that gives the guardian its veto window."
+    description: "Alter the execution delay that gives the guardian its veto window (GuardedTimelock.updateDelay, re-gated to TIMELOCK_ADMIN)."
     selectors:
       - "updateDelay(uint256)"
 
-  - id: CHANGE_AGENT_CAPS_OR_ROLES
+  - id: RM-CONST-003
     title: "Change agent spending caps or Roles configuration"
+    category: constitutional
+    profiles: [pilot, production]
     role: ROLES_ADMIN
-    description: "Modify any agent's allowed targets, allowed selectors, or per-tx / per-epoch spending allowances."
+    description: "Modify any agent's allowed targets, allowed selectors, active flag, or per-tx / per-epoch spending allowances in the RolesModifier."
     selectors:
       - "setSpendingCap(address,address,uint256,uint256)"
       - "setTargetAllowed(address,address,bytes4,bool)"
       - "setAgentActive(address,bool)"
 
-  - id: CHANGE_AGENT_MANDATE
+  - id: RM-CONST-004
     title: "Change an agent mandate"
+    category: constitutional
+    profiles: [pilot, production]
     role: REGISTRY_ADMIN
-    description: "Update the mandate hash/URI bound to an agent account in the AgentRegistry."
+    description: "Update the mandate hash/URI bound to an agent account in the AgentRegistry. (registerAgent / deactivateAgent are principal- or REGISTRY_ADMIN-gated and recorded in the schedule, but the enforced runtime selector is updateMandate.)"
     selectors:
       - "updateMandate(address,bytes32,string)"
 
-  - id: MINT_OR_BURN_MEMBERSHIP
+  - id: RM-CONST-005
     title: "Admit or remove members (mint/burn membership)"
+    category: constitutional
+    profiles: [pilot, production]
     role: MEMBERSHIP_ADMIN
-    description: "Mint or burn the soulbound membership token, i.e. admit or remove members."
+    description: "Mint or burn the soulbound membership token, i.e. admit or remove members of the entity."
     selectors:
       - "mintMembership(address,uint256)"
       - "burnMembership(uint256)"
 
-  - id: UPGRADE_CONTRACTS
+  - id: RM-CONST-006
     title: "Upgrade a constitutional contract"
+    category: constitutional
+    profiles: [pilot, production]
     role: UPGRADE_ADMIN
-    description: "Replace the implementation of an upgradeable constitutional contract. Wyoming algorithmic management requires upgradeability; the upgrade authority is itself reserved and triggers an articles-amendment obligation."
+    status: planned
+    description: "Replace the implementation of an upgradeable constitutional contract. Wyoming algorithmic management requires upgradeability; the upgrade authority is itself reserved and triggers an articles-amendment obligation. Forward-looking: no UUPS proxy is wired yet (the runtime denies these selectors defensively in advance)."
     selectors:
       - "upgradeTo(address)"
       - "upgradeToAndCall(address,bytes)"
 
-  # Legal-only reserved matters: no single on-chain selector. Enforced by the
-  # operating agreement + a high-threshold human-member vote (and guardian roles).
-  - id: AMEND_CONSTITUTION
+  - id: RM-CONST-007
     title: "Amend the articles / operating agreement / Reserved Matters schedule"
+    category: constitutional
+    profiles: [pilot, production]
     role: GUARDIAN_ADMIN
-    legalOnly: true
+    legal_only: true
     description: "Amend the articles of organization, the operating agreement, the code-deference clause, or this Reserved Matters schedule."
 
-  - id: DISSOLUTION
-    title: "Dissolve the company"
+  - id: RM-CONST-008
+    title: "Dissolve the entity"
+    category: constitutional
+    profiles: [pilot, production]
     role: GUARDIAN_ADMIN
-    legalOnly: true
-    description: "Wind up and dissolve the DAO LLC."
+    legal_only: true
+    description: "Wind up and dissolve the DAO LLC (or, for the pilot, the sandbox sub-entity)."
+
+  # ───────────────────────────────────────────────────────────────────────────
+  # CONSTITUTIONAL (production refinement) — voting parameters
+  # Reconciled to the OZ Governor's onlyGovernance setters. Production-only for
+  # now: in the pilot these are already protected by the timelock + guardian veto
+  # and the tiny committee; promoting them to the pilot runtime deny-set is a
+  # tracked follow-up (see issue: promote RM-CONST-009 voting params to pilot).
+  # ───────────────────────────────────────────────────────────────────────────
+  - id: RM-CONST-009
+    title: "Change voting parameters (quorum, voting period/delay, proposal threshold)"
+    category: constitutional
+    profiles: [production]
+    role: GUARDIAN_ADMIN
+    description: "Alter quorum numerator, voting period, voting delay, or proposal threshold on the Governor."
+    selectors:
+      - "updateQuorumNumerator(uint256)"
+      - "setVotingPeriod(uint32)"
+      - "setVotingDelay(uint48)"
+      - "setProposalThreshold(uint256)"
+
+  # ───────────────────────────────────────────────────────────────────────────
+  # TOKEN — ownership-token integrity (PRODUCTION ONLY: $COUG is fungible and
+  # mintable. In the PILOT the committee token IS the soulbound MembershipToken,
+  # whose integrity is already covered by RM-CONST-005; it is permanently
+  # soulbound, so transferability toggles do not exist.)
+  # ───────────────────────────────────────────────────────────────────────────
+  - id: RM-TOKEN-001
+    title: "Mint, burn, or change supply of the ownership token"
+    category: token
+    profiles: [production]
+    role: MEMBERSHIP_ADMIN
+    targets: ["${OWNERSHIP_TOKEN}"]
+    description: "Change the supply of the $COUG ownership token."
+    selectors:
+      - "mint(address,uint256)"
+      - "burn(address,uint256)"
+
+  - id: RM-TOKEN-002
+    title: "Change ownership-token transferability"
+    category: token
+    profiles: [production]
+    role: MEMBERSHIP_ADMIN
+    targets: ["${OWNERSHIP_TOKEN}"]
+    description: "Pause/unpause or otherwise alter $COUG transfer rules."
+    selectors:
+      - "setTransferability(bool)"
+      - "pause()"
+      - "unpause()"
+
+  # ───────────────────────────────────────────────────────────────────────────
+  # RWA / ASSETS — real-world-asset integrity (PRODUCTION ONLY: CougarDAO holds
+  # the deeds/debt; the pilot sandbox holds NO property — see PILOT-ONLY below).
+  # Targets are deploy-time placeholders resolved at CougarDAO adoption.
+  # ───────────────────────────────────────────────────────────────────────────
+  - id: RM-ASSET-001
+    title: "Sell, transfer, or encumber any property or its Fabrica deed NFT"
+    category: rwa
+    profiles: [production]
+    role: GUARDIAN_ADMIN
+    targets: ["${FABRICA_DEED_NFT}", "${PROPERTY_HOLDER}"]
+    description: "Any transfer, sale, lien, or encumbrance of a property or its Fabrica deed NFT / TaterDAO title."
+    selectors:
+      - "transferFrom(address,address,uint256)"
+      - "safeTransferFrom(address,address,uint256)"
+      - "safeTransferFrom(address,address,uint256,bytes)"
+      - "approve(address,uint256)"
+      - "setApprovalForAll(address,bool)"
+
+  - id: RM-ASSET-002
+    title: "Burn or re-title a Fabrica deed / TaterDAO title"
+    category: rwa
+    profiles: [production]
+    role: GUARDIAN_ADMIN
+    targets: ["${FABRICA_DEED_NFT}", "${TATERDAO_TITLE}"]
+    description: "Destroying or re-issuing an on-chain title to a property."
+    selectors:
+      - "burn(uint256)"
+      - "retitle(uint256,address)"
+
+  - id: RM-DEBT-001
+    title: "Take on new debt above threshold or above LTV ceiling"
+    category: rwa
+    profiles: [production]
+    role: GUARDIAN_ADMIN
+    targets: ["${METASTREET_POOL}", "${PROPERTY_HOLDER}"]
+    description: "Drawing new MetaStreet (or other) loans collateralized by tokenized assets above the debt threshold or LTV ceiling. Monitoring/alerting on existing positions is permitted to read-only agents; drawing debt is not."
+    selectors:
+      - "borrow(uint256,uint64,address,uint256,uint128[],bytes)"
+      - "refinance(bytes,uint256,uint64,uint256)"
+
+  # ───────────────────────────────────────────────────────────────────────────
+  # PILOT-ONLY — extra-conservative guards for the sandbox Working Committee DAO
+  # ───────────────────────────────────────────────────────────────────────────
+  - id: RM-PILOT-001
+    title: "Move funds beyond the ring-fenced pilot float"
+    category: pilot_guard
+    profiles: [pilot]
+    role: ROLES_ADMIN
+    enforcement: cap
+    targets: ["${PILOT_TREASURY}"]
+    description: "Any treasury movement exceeding the capped sandbox float (${PILOT_FLOAT_CAP}) or to an address outside the pilot allowlist. The sandbox is funded with a small, capped budget only."
+    enforcement_note: "Primary enforcement is the agent-account allowance cap in the RolesModifier (PER_TX_CAP_EXCEEDED / PER_EPOCH_CAP_EXCEEDED); this entry makes the ceiling a hard Reserved Matter as defense-in-depth. The metered selectors stay callable within caps, so they are NOT added to RESERVED_SELECTOR_SET."
+    selectors:
+      - "transfer(address,uint256)"
+      - "transferFrom(address,address,uint256)"
+
+  - id: RM-PILOT-002
+    title: "Execute any action against CougarDAO production assets or contracts"
+    category: pilot_guard
+    profiles: [pilot]
+    role: GUARDIAN_ADMIN
+    enforcement: target
+    description: "The sandbox may only ADVISE on CougarDAO matters (draft memos, monitor, alert). It may not call, sign for, or hold authority over any CougarDAO production contract, deed, treasury, or the $COUG token. ALL selectors on these targets are forbidden — denied by target in the runtime BEFORE any per-mandate allow-list is consulted."
+    targets:
+      - "0xa78ce0420a057bd27f214318920a8ff77035f29b" # $COUG (literal — resolved into RESERVED_TARGET_SET)
+      - "${COUGARDAO_GOVERNANCE_CORE}"
+      - "${COUGARDAO_TREASURY}"
+      - "${FABRICA_DEED_NFT}"
+    selectors: ["*"]
