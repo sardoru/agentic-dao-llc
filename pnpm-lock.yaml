@@ -90,9 +90,6 @@ importers:
 
   indexer:
     dependencies:
-      '@agentic-dao/chain':
-        specifier: workspace:*
-        version: link:../packages/chain
       hono:
         specifier: ^4.6.14
         version: 4.12.27
@@ -131,6 +128,9 @@ importers:
       '@agentic-dao/chain':
         specifier: workspace:*
         version: link:../chain
+      '@agentic-dao/mcp':
+        specifier: workspace:*
+        version: link:../mcp
       '@agentic-dao/policy':
         specifier: workspace:*
         version: link:../policy
