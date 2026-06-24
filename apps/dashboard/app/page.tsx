@@ -8,12 +8,10 @@ export default async function ProposalsPage() {
     <div className="px-8 py-8 max-w-4xl">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-xl font-semibold text-ink mb-1">
-          Governance Proposals
-        </h1>
+        <h1 className="text-xl font-semibold text-ink mb-1">Governance Proposals</h1>
         <p className="text-sm text-muted">
-          {proposals.length} proposals · {stats.memberCount} members ·{" "}
-          {stats.quorumFraction}% quorum threshold
+          {proposals.length} proposals · {stats.memberCount} members · {stats.quorumFraction}%
+          quorum threshold
         </p>
       </div>
 

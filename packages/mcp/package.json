@@ -9,7 +9,9 @@
   "bin": {
     "agentic-dao-mcp": "./dist/server.js"
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsup",
     "dev": "tsx src/server.ts",

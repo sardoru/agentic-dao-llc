@@ -25,12 +25,27 @@ describe("TenderlySimulator (mocked transport)", () => {
         gas_used: 51234,
         transaction_info: {
           asset_changes: [
-            { token_info: { contract_address: "0x036CbD53842c5426634e7929541eC2318f3dCF7e", symbol: "USDC" }, from: FROM, to: TO, raw_amount: "1000000" },
+            {
+              token_info: {
+                contract_address: "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+                symbol: "USDC",
+              },
+              from: FROM,
+              to: TO,
+              raw_amount: "1000000",
+            },
           ],
         },
       },
     });
-    const sim = new TenderlySimulator({ account: "a", project: "p", accessKey: "k", chainId: 84532, defaultFrom: FROM, fetchImpl });
+    const sim = new TenderlySimulator({
+      account: "a",
+      project: "p",
+      accessKey: "k",
+      chainId: 84532,
+      defaultFrom: FROM,
+      fetchImpl,
+    });
     const r = await sim.simulate({ to: TO, data: DATA });
     expect(r.success).toBe(true);
     expect(r.gasUsed).toBe(51234n);
@@ -41,26 +56,59 @@ describe("TenderlySimulator (mocked transport)", () => {
   });
 
   it("maps a reverting response → success:false + reason", async () => {
-    const fetchImpl = mockFetch({ transaction: { status: false, gas_used: 21000, error_message: "execution reverted: cap exceeded" } });
-    const sim = new TenderlySimulator({ account: "a", project: "p", accessKey: "k", chainId: 84532, defaultFrom: FROM, fetchImpl });
+    const fetchImpl = mockFetch({
+      transaction: {
+        status: false,
+        gas_used: 21000,
+        error_message: "execution reverted: cap exceeded",
+      },
+    });
+    const sim = new TenderlySimulator({
+      account: "a",
+      project: "p",
+      accessKey: "k",
+      chainId: 84532,
+      defaultFrom: FROM,
+      fetchImpl,
+    });
     const r = await sim.simulate({ to: TO, data: DATA });
     expect(r.success).toBe(false);
     expect(r.revertReason).toMatch(/cap exceeded/);
   });
 
   it("throws on a non-200 HTTP response", async () => {
-    const sim = new TenderlySimulator({ account: "a", project: "p", accessKey: "k", chainId: 84532, defaultFrom: FROM, fetchImpl: mockFetch({}, false, 401) });
+    const sim = new TenderlySimulator({
+      account: "a",
+      project: "p",
+      accessKey: "k",
+      chainId: 84532,
+      defaultFrom: FROM,
+      fetchImpl: mockFetch({}, false, 401),
+    });
     await expect(sim.simulate({ to: TO, data: DATA })).rejects.toThrow(/HTTP 401/);
   });
 
   it("requires a from address", async () => {
-    const sim = new TenderlySimulator({ account: "a", project: "p", accessKey: "k", chainId: 84532, fetchImpl: mockFetch({}) });
+    const sim = new TenderlySimulator({
+      account: "a",
+      project: "p",
+      accessKey: "k",
+      chainId: 84532,
+      fetchImpl: mockFetch({}),
+    });
     await expect(sim.simulate({ to: TO, data: DATA })).rejects.toThrow(/from is required/);
   });
 
   it("sends the access key header and correct network id", async () => {
     const fetchImpl = mockFetch({ transaction: { status: true, gas_used: 1 } });
-    const sim = new TenderlySimulator({ account: "acct", project: "proj", accessKey: "secret", chainId: 84532, defaultFrom: FROM, fetchImpl });
+    const sim = new TenderlySimulator({
+      account: "acct",
+      project: "proj",
+      accessKey: "secret",
+      chainId: 84532,
+      defaultFrom: FROM,
+      fetchImpl,
+    });
     await sim.simulate({ to: TO, data: DATA, value: 5n });
     const call = (fetchImpl as ReturnType<typeof vi.fn>).mock.calls[0];
     expect(call[0]).toContain("/account/acct/project/proj/simulate");
@@ -95,7 +143,7 @@ describe("AnvilForkSimulator (mocked call client)", () => {
     const r = await sim.simulate({ to: TO, data: DATA });
     expect(r.success).toBe(false);
     expect(r.revertReason).toMatch(/RESERVED_MATTER/);
-    expect((client.estimateGas as ReturnType<typeof vi.fn>)).not.toHaveBeenCalled();
+    expect(client.estimateGas as ReturnType<typeof vi.fn>).not.toHaveBeenCalled();
   });
 
   it("still succeeds when gas estimation fails", async () => {
@@ -114,17 +162,28 @@ describe("AnvilForkSimulator (mocked call client)", () => {
 
 describe("makeSimulator", () => {
   it("returns Tenderly when fully configured", () => {
-    const sim = makeSimulator({ TENDERLY_ACCOUNT: "a", TENDERLY_PROJECT: "p", TENDERLY_ACCESS_KEY: "k", fetchImpl: mockFetch({}) });
+    const sim = makeSimulator({
+      TENDERLY_ACCOUNT: "a",
+      TENDERLY_PROJECT: "p",
+      TENDERLY_ACCESS_KEY: "k",
+      fetchImpl: mockFetch({}),
+    });
     expect(sim.backend).toBe("tenderly");
   });
 
   it("falls back to anvil-fork when Tenderly is not configured", () => {
-    const sim = makeSimulator({ ANVIL_FORK_RPC_URL: "http://x", client: { call: async () => ({}), estimateGas: async () => 0n } });
+    const sim = makeSimulator({
+      ANVIL_FORK_RPC_URL: "http://x",
+      client: { call: async () => ({}), estimateGas: async () => 0n },
+    });
     expect(sim.backend).toBe("anvil-fork");
   });
 
   it("falls back to anvil-fork when Tenderly is only partially configured", () => {
-    const sim = makeSimulator({ TENDERLY_ACCOUNT: "a", client: { call: async () => ({}), estimateGas: async () => 0n } });
+    const sim = makeSimulator({
+      TENDERLY_ACCOUNT: "a",
+      client: { call: async () => ({}), estimateGas: async () => 0n },
+    });
     expect(sim.backend).toBe("anvil-fork");
   });
 });

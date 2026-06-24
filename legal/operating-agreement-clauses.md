@@ -7,6 +7,7 @@
 ---
 
 # Operating Agreement — Key Clause Templates
+
 ## [ENTITY NAME] DAO LLC
 
 These templates cover the clauses specific to the algorithmically-governed structure of the company. They must be integrated into a complete Wyoming LLC operating agreement (covering standard provisions such as capital accounts, allocations, distributions, tax elections, dispute resolution, and governing law) by qualified counsel.
@@ -75,6 +76,7 @@ Nothing in this Agreement shall be construed to override an unambiguous provisio
 ### [X+1].4 Limitation on Code Deference as Authorization
 
 Code deference is a principle of operational recognition, not a blanket authorization for all on-chain outputs. It does not:
+
 - authorize any action that constitutes a Reserved Matter without the required approvals;
 - limit the Members' rights to seek legal remedies for unauthorized or unlawful actions;
 - waive any Member's rights under applicable law; or
@@ -128,24 +130,24 @@ The matters listed in the **Reserved Matters Schedule (Exhibit A)** are reserved
 
 The following is a summary. The definitive list, including the on-chain selectors and guardian roles, is in **Exhibit A** (generated from `reserved-matters.yaml`):
 
-| # | Reserved Matter | Guardian Role |
-|---|---|---|
-| 1 | Change the guardian set | `GUARDIAN_ADMIN` |
-| 2 | Change the timelock minimum delay | `TIMELOCK_ADMIN` |
-| 3 | Change agent spending caps or Roles configuration | `ROLES_ADMIN` |
-| 4 | Change an agent mandate | `REGISTRY_ADMIN` |
-| 5 | Admit or remove members (mint/burn membership) | `MEMBERSHIP_ADMIN` |
-| 6 | Upgrade a constitutional contract | `UPGRADE_ADMIN` |
-| 7 | Amend the Articles, Operating Agreement, or Reserved Matters Schedule | `GUARDIAN_ADMIN` |
-| 8 | Dissolve the company | `GUARDIAN_ADMIN` |
+| #   | Reserved Matter                                                       | Guardian Role      |
+| --- | --------------------------------------------------------------------- | ------------------ |
+| 1   | Change the guardian set                                               | `GUARDIAN_ADMIN`   |
+| 2   | Change the timelock minimum delay                                     | `TIMELOCK_ADMIN`   |
+| 3   | Change agent spending caps or Roles configuration                     | `ROLES_ADMIN`      |
+| 4   | Change an agent mandate                                               | `REGISTRY_ADMIN`   |
+| 5   | Admit or remove members (mint/burn membership)                        | `MEMBERSHIP_ADMIN` |
+| 6   | Upgrade a constitutional contract                                     | `UPGRADE_ADMIN`    |
+| 7   | Amend the Articles, Operating Agreement, or Reserved Matters Schedule | `GUARDIAN_ADMIN`   |
+| 8   | Dissolve the company                                                  | `GUARDIAN_ADMIN`   |
 
-*The foregoing summary is for convenience only. In any conflict between this summary and Exhibit A, Exhibit A controls. The three-layer enforcement of Reserved Matters (contracts, runtime policy engine, this Agreement) must remain in sync; see `reserved-matters.yaml` as the single source of truth.*
+_The foregoing summary is for convenience only. In any conflict between this summary and Exhibit A, Exhibit A controls. The three-layer enforcement of Reserved Matters (contracts, runtime policy engine, this Agreement) must remain in sync; see `reserved-matters.yaml` as the single source of truth._
 
 ### [X+3].3 Vote Threshold for Reserved Matters
 
 Reserved Matters requiring a human-member vote require the approval of at least **[2/3 / 3/4 / unanimous — counsel to specify]** of the total outstanding membership votes, plus, where the Reserved Matter involves a constitutional contract role, the affirmative action of the Guardian multisig signing the corresponding role-grant or role-revoke transaction.
 
-*Counsel note: The appropriate threshold is a key governance design decision that should reflect the number of members, the sensitivity of each Reserved Matter, and the practical ability of the Guardian to act. Consider whether different Reserved Matters warrant different thresholds.*
+_Counsel note: The appropriate threshold is a key governance design decision that should reflect the number of members, the sensitivity of each Reserved Matter, and the practical ability of the Guardian to act. Consider whether different Reserved Matters warrant different thresholds._
 
 ### [X+3].4 Reserved Matters and the Code-Deference Carve-Out
 
@@ -167,7 +169,7 @@ Pursuant to Wyoming law (verify current applicable provision with counsel), the 
 
 **(d) Standard of Care for Guardian.** The Guardian signatories owe a duty of reasonable care in exercising the constitutional admin roles and the veto function. This includes monitoring the timelock queue and exercising the canceller role where a queued action falls within a Code-Deference Carve-Out.
 
-*Counsel note: This clause attempts to adapt Wyoming's permissive fiduciary-duty modification rules to the agentic governance context. The scope of permissible modification, particularly with respect to non-member mechanisms, is novel law. Counsel must review and tailor this clause.*
+_Counsel note: This clause attempts to adapt Wyoming's permissive fiduciary-duty modification rules to the agentic governance context. The scope of permissible modification, particularly with respect to non-member mechanisms, is novel law. Counsel must review and tailor this clause._
 
 ### [X+4].2 Indemnification
 
@@ -213,15 +215,15 @@ The Guardian multisig is deployed at: `[GUARDIAN_SAFE_ADDRESS]`
 
 The Guardian holds the following AccessControl admin roles on the Constitutional Contracts. These roles **are not held by the DaoGovernor** and cannot be granted to the DaoGovernor by any Governor proposal (constitutional separation):
 
-| Role | Contract | Authority |
-|---|---|---|
-| `GUARDIAN_ADMIN` (`DEFAULT_ADMIN_ROLE`) | All Constitutional Contracts | Manage the guardian set; ultimate admin authority |
-| `MEMBERSHIP_ADMIN` | MembershipToken | Mint and burn membership tokens (admit/remove members) |
-| `REGISTRY_ADMIN` | AgentRegistry | Update agent mandates |
-| `ROLES_ADMIN` | Agent Safe / Zodiac Roles | Configure agent spending caps and target/selector allowlists |
-| `TIMELOCK_ADMIN` | TimelockController | Change the timelock `minDelay` (veto window duration) |
-| `UPGRADE_ADMIN` | Constitutional Contracts | Authorize upgrades of upgradeable contracts |
-| `CANCELLER` | TimelockController | Cancel queued proposals in the timelock window |
+| Role                                    | Contract                     | Authority                                                    |
+| --------------------------------------- | ---------------------------- | ------------------------------------------------------------ |
+| `GUARDIAN_ADMIN` (`DEFAULT_ADMIN_ROLE`) | All Constitutional Contracts | Manage the guardian set; ultimate admin authority            |
+| `MEMBERSHIP_ADMIN`                      | MembershipToken              | Mint and burn membership tokens (admit/remove members)       |
+| `REGISTRY_ADMIN`                        | AgentRegistry                | Update agent mandates                                        |
+| `ROLES_ADMIN`                           | Agent Safe / Zodiac Roles    | Configure agent spending caps and target/selector allowlists |
+| `TIMELOCK_ADMIN`                        | TimelockController           | Change the timelock `minDelay` (veto window duration)        |
+| `UPGRADE_ADMIN`                         | Constitutional Contracts     | Authorize upgrades of upgradeable contracts                  |
+| `CANCELLER`                             | TimelockController           | Cancel queued proposals in the timelock window               |
 
 ### [X+5].3 Veto and Canceller Authority
 
@@ -257,15 +259,15 @@ Members have statutory inspection rights under Wyoming law. In addition, the das
 
 ## Exhibit A — Reserved Matters Schedule
 
-*Attached and incorporated by reference. See `legal/reserved-matters-schedule.md`.*
-*Generated from `reserved-matters.yaml`, the single source of truth shared with the runtime policy engine and proven against the on-chain access-control layer in CI.*
+_Attached and incorporated by reference. See `legal/reserved-matters-schedule.md`._
+_Generated from `reserved-matters.yaml`, the single source of truth shared with the runtime policy engine and proven against the on-chain access-control layer in CI._
 
 ---
 
 ## Exhibit B — Agent Mandate Exhibits
 
-*One exhibit per Delegated Agent. See `legal/agent-mandate-exhibit-template.md` for the template. Each exhibit is identified as Exhibit B-[AGENT-ID] and executed by the registering Member.*
+_One exhibit per Delegated Agent. See `legal/agent-mandate-exhibit-template.md` for the template. Each exhibit is identified as Exhibit B-[AGENT-ID] and executed by the registering Member._
 
 ---
 
-*This template was generated by software to accompany the Agentic DAO LLC build. It is not a filed or final document. It must be integrated into a complete operating agreement and reviewed by qualified Wyoming legal counsel before any organizational reliance.*
+_This template was generated by software to accompany the Agentic DAO LLC build. It is not a filed or final document. It must be integrated into a complete operating agreement and reviewed by qualified Wyoming legal counsel before any organizational reliance._

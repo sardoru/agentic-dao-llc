@@ -1,7 +1,8 @@
 import type { ToolResult } from "@agentic-dao/mcp";
 
 /** JSON.stringify replacer that renders bigints as decimal strings. */
-export const bigintReplacer = (_k: string, v: unknown): unknown => (typeof v === "bigint" ? v.toString() : v);
+export const bigintReplacer = (_k: string, v: unknown): unknown =>
+  typeof v === "bigint" ? v.toString() : v;
 
 /** Pretty-print a ToolResult to stdout/stderr; returns the process exit code. */
 export function printResult<T>(result: ToolResult<T>): number {

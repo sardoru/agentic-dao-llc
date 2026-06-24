@@ -32,7 +32,12 @@ function mandate(over: Partial<Mandate["scope"]> = {}): Mandate {
       proposalTypes: ["TREASURY_PAYMENT", "PARAM_TUNE_NONRESERVED", "TEXT_SIGNAL"],
       allowedTargets: [TARGET],
       forbiddenSelectors: [],
-      spendingCap: { token: TOKEN, perTx: "1000000000", perEpoch: "10000000000", epochSeconds: 604800 },
+      spendingCap: {
+        token: TOKEN,
+        perTx: "1000000000",
+        perEpoch: "10000000000",
+        epochSeconds: 604800,
+      },
       ...over,
     },
     humanRatification: { valueUsdGte: 5000, impact: ["HIGH"] },
@@ -44,7 +49,13 @@ function mandate(over: Partial<Mandate["scope"]> = {}): Mandate {
   };
 }
 
-const baseFields = { nonce: 0, gas: 100_000n, maxFeePerGas: 2_000_000_000n, maxPriorityFeePerGas: 1_000_000_000n, chainId: 84532 };
+const baseFields = {
+  nonce: 0,
+  gas: 100_000n,
+  maxFeePerGas: 2_000_000_000n,
+  maxPriorityFeePerGas: 1_000_000_000n,
+  chainId: 84532,
+};
 
 function opTx(over: Partial<OpTxRequest> = {}): OpTxRequest {
   return {
@@ -52,7 +63,14 @@ function opTx(over: Partial<OpTxRequest> = {}): OpTxRequest {
     data: transferSel,
     value: 0n,
     ...baseFields,
-    action: { kind: "opExecute", target: TARGET, selector: transferSel, value: 0n, token: TOKEN, amount: 500_000_000n },
+    action: {
+      kind: "opExecute",
+      target: TARGET,
+      selector: transferSel,
+      value: 0n,
+      token: TOKEN,
+      amount: 500_000_000n,
+    },
     ...over,
   };
 }
@@ -74,35 +92,66 @@ describe("BaseSigner independently re-checks policy (defense in depth)", () => {
   it("DENIES a reserved-selector op even if the caller claims it is fine", async () => {
     const tx = opTx({
       data: reservedSel,
-      action: { kind: "opExecute", target: TARGET, selector: reservedSel, value: 0n, token: TOKEN, amount: 1n },
+      action: {
+        kind: "opExecute",
+        target: TARGET,
+        selector: reservedSel,
+        value: 0n,
+        token: TOKEN,
+        amount: 1n,
+      },
     });
     await expect(signer.signOpTx(tx, mandate(), 0n, CTX)).rejects.toBeInstanceOf(SignerPolicyError);
-    await expect(signer.signOpTx(tx, mandate(), 0n, CTX)).rejects.toMatchObject({ rule: "RESERVED_MATTER" });
+    await expect(signer.signOpTx(tx, mandate(), 0n, CTX)).rejects.toMatchObject({
+      rule: "RESERVED_MATTER",
+    });
   });
 
   it("DENIES a per-tx cap-exceeding op", async () => {
     const tx = opTx({
-      action: { kind: "opExecute", target: TARGET, selector: transferSel, value: 0n, token: TOKEN, amount: 2_000_000_000n },
+      action: {
+        kind: "opExecute",
+        target: TARGET,
+        selector: transferSel,
+        value: 0n,
+        token: TOKEN,
+        amount: 2_000_000_000n,
+      },
     });
-    await expect(signer.signOpTx(tx, mandate(), 0n, CTX)).rejects.toMatchObject({ rule: "PER_TX_CAP_EXCEEDED" });
+    await expect(signer.signOpTx(tx, mandate(), 0n, CTX)).rejects.toMatchObject({
+      rule: "PER_TX_CAP_EXCEEDED",
+    });
   });
 
   it("DENIES a per-epoch cap-exceeding op (amount fine alone, cumulative over cap)", async () => {
     const tx = opTx({
-      action: { kind: "opExecute", target: TARGET, selector: transferSel, value: 0n, token: TOKEN, amount: 1_000_000_000n },
+      action: {
+        kind: "opExecute",
+        target: TARGET,
+        selector: transferSel,
+        value: 0n,
+        token: TOKEN,
+        amount: 1_000_000_000n,
+      },
     });
     // epochSpend already at the cap → next spend overflows.
-    await expect(signer.signOpTx(tx, mandate(), 10_000_000_000n, CTX)).rejects.toMatchObject({ rule: "PER_EPOCH_CAP_EXCEEDED" });
+    await expect(signer.signOpTx(tx, mandate(), 10_000_000_000n, CTX)).rejects.toMatchObject({
+      rule: "PER_EPOCH_CAP_EXCEEDED",
+    });
   });
 
   it("DENIES when simulation was not run (requireSimulation)", async () => {
-    await expect(signer.signOpTx(opTx(), mandate(), 0n, { ...CTX, simulated: false })).rejects.toMatchObject({
+    await expect(
+      signer.signOpTx(opTx(), mandate(), 0n, { ...CTX, simulated: false }),
+    ).rejects.toMatchObject({
       rule: "SIMULATION_REQUIRED",
     });
   });
 
   it("DENIES an op when the mandate is inactive on-chain", async () => {
-    await expect(signer.signOpTx(opTx(), mandate(), 0n, { ...CTX, mandateActive: false })).rejects.toMatchObject({
+    await expect(
+      signer.signOpTx(opTx(), mandate(), 0n, { ...CTX, mandateActive: false }),
+    ).rejects.toMatchObject({
       rule: "MANDATE_INACTIVE",
     });
   });
@@ -134,7 +183,15 @@ describe("BaseSigner independently re-checks policy (defense in depth)", () => {
       data: "0x",
       value: 0n,
       ...baseFields,
-      action: { kind: "propose", proposalType: "TREASURY_PAYMENT", targets: [TARGET], selectors: [transferSel], values: [0n], valueUsd: 10_000, impact: "HIGH" },
+      action: {
+        kind: "propose",
+        proposalType: "TREASURY_PAYMENT",
+        targets: [TARGET],
+        selectors: [transferSel],
+        values: [0n],
+        valueUsd: 10_000,
+        impact: "HIGH",
+      },
     };
     try {
       await signer.signGovernanceTx(tx, mandate(), CTX);

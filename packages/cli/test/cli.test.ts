@@ -4,7 +4,10 @@ import { buildCli, parseProposedAction } from "../src/program";
 
 /** A core mock that records calls and returns canned results — proves the CLI shares
  *  the SAME chokepoint surface (it never reimplements guardrails). */
-function mockCore(over: Partial<Record<keyof GovernanceCore, unknown>> = {}): { core: GovernanceCore; calls: Record<string, unknown[]> } {
+function mockCore(over: Partial<Record<keyof GovernanceCore, unknown>> = {}): {
+  core: GovernanceCore;
+  calls: Record<string, unknown[]>;
+} {
   const calls: Record<string, unknown[]> = {};
   const rec =
     (name: string, result: ToolResult<unknown>) =>
@@ -92,7 +95,9 @@ describe("CLI mirrors the MCP tools through the shared core", () => {
 
   it("vote:cast rejects an invalid support value", async () => {
     const { core } = mockCore();
-    await expect(run(core, ["vote:cast", "--id", "1", "--support", "5", "--reason", "x"])).rejects.toThrow(/support must be 0, 1, or 2/);
+    await expect(
+      run(core, ["vote:cast", "--id", "1", "--support", "5", "--reason", "x"]),
+    ).rejects.toThrow(/support must be 0, 1, or 2/);
   });
 
   it("op:execute forwards spend accounting to core.opExecute", async () => {
@@ -119,9 +124,21 @@ describe("CLI mirrors the MCP tools through the shared core", () => {
 
   it("surfaces a policy denial (rule) on a failing write", async () => {
     const denied: ToolResult<unknown> = { ok: false, error: "reserved", rule: "RESERVED_MATTER" };
-    const { core } = mockCore({ opExecute: (async () => denied) as unknown as GovernanceCore["opExecute"] });
+    const { core } = mockCore({
+      opExecute: (async () => denied) as unknown as GovernanceCore["opExecute"],
+    });
     const errSpy = vi.spyOn(process.stderr, "write").mockReturnValue(true);
-    await run(core, ["op:execute", "--target", "0x3333333333333333333333333333333333333333", "--selector", "0x2f2ff15d", "--data", "0x2f2ff15d", "--rationale", "x"]);
+    await run(core, [
+      "op:execute",
+      "--target",
+      "0x3333333333333333333333333333333333333333",
+      "--selector",
+      "0x2f2ff15d",
+      "--data",
+      "0x2f2ff15d",
+      "--rationale",
+      "x",
+    ]);
     const out = errSpy.mock.calls.map((c) => String(c[0])).join("");
     expect(out).toContain("RESERVED_MATTER");
     errSpy.mockRestore();
@@ -130,7 +147,15 @@ describe("CLI mirrors the MCP tools through the shared core", () => {
 
 describe("parseProposedAction", () => {
   it("parses a propose action with bigint values + lowercased selectors", () => {
-    const a = parseProposedAction(JSON.stringify({ kind: "propose", proposalType: "TEXT_SIGNAL", targets: ["0x3333333333333333333333333333333333333333"], selectors: ["0xA9059CBB"], values: ["10"] }));
+    const a = parseProposedAction(
+      JSON.stringify({
+        kind: "propose",
+        proposalType: "TEXT_SIGNAL",
+        targets: ["0x3333333333333333333333333333333333333333"],
+        selectors: ["0xA9059CBB"],
+        values: ["10"],
+      }),
+    );
     expect(a.kind).toBe("propose");
     if (a.kind === "propose") {
       expect(a.values[0]).toBe(10n);
@@ -139,6 +164,8 @@ describe("parseProposedAction", () => {
   });
 
   it("throws on an unknown kind", () => {
-    expect(() => parseProposedAction(JSON.stringify({ kind: "nope" }))).toThrow(/unknown action kind/);
+    expect(() => parseProposedAction(JSON.stringify({ kind: "nope" }))).toThrow(
+      /unknown action kind/,
+    );
   });
 });

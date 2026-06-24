@@ -39,7 +39,9 @@ export function buildCli(factory: CoreFactory = defaultFactory): Command {
   const program = new Command();
   program
     .name("agentic-dao")
-    .description("Scriptable mirror of the Agentic DAO MCP governance tools (same policy/sim/signer/chain).")
+    .description(
+      "Scriptable mirror of the Agentic DAO MCP governance tools (same policy/sim/signer/chain).",
+    )
     .version("0.1.0");
 
   // ── reads ──────────────────────────────────────────────────────────────────
@@ -75,7 +77,13 @@ export function buildCli(factory: CoreFactory = defaultFactory): Command {
     .requiredOption("--tx <json>", "tx {to,data?,value?,from?,gas?} JSON")
     .action(async (opts: { action: string; tx: string }) => {
       const action = parseProposedAction(opts.action);
-      const txIn = parseJson<{ to: string; data?: string; value?: string; from?: string; gas?: string }>(opts.tx, "tx");
+      const txIn = parseJson<{
+        to: string;
+        data?: string;
+        value?: string;
+        from?: string;
+        gas?: string;
+      }>(opts.tx, "tx");
       const tx: TxRequest = {
         to: getAddress(txIn.to),
         data: txIn.data as Hex | undefined,
@@ -90,7 +98,10 @@ export function buildCli(factory: CoreFactory = defaultFactory): Command {
   program
     .command("proposal:create")
     .description("Create a governance proposal (requires a prior sim + rationale).")
-    .requiredOption("--type <proposalType>", "TREASURY_PAYMENT | PARAM_TUNE_NONRESERVED | TEXT_SIGNAL")
+    .requiredOption(
+      "--type <proposalType>",
+      "TREASURY_PAYMENT | PARAM_TUNE_NONRESERVED | TEXT_SIGNAL",
+    )
     .requiredOption("--targets <json>", "address[] JSON")
     .requiredOption("--values <json>", "uint string[] JSON")
     .requiredOption("--calldatas <json>", "hex[] JSON")
@@ -98,21 +109,32 @@ export function buildCli(factory: CoreFactory = defaultFactory): Command {
     .requiredOption("--rationale <text>", "rationale (pinned to IPFS; required)")
     .option("--value-usd <number>", "estimated USD value (for ratification check)")
     .option("--impact <impact>", "LOW | MED | HIGH")
-    .action(async (opts: { type: string; targets: string; values: string; calldatas: string; description: string; rationale: string; valueUsd?: string; impact?: string }) => {
-      const core = factory();
-      process.exitCode = printResult(
-        await core.createProposal({
-          proposalType: opts.type as ProposalType,
-          targets: parseJson<string[]>(opts.targets, "targets").map((t) => getAddress(t)),
-          values: parseJson<string[]>(opts.values, "values").map((v) => BigInt(v)),
-          calldatas: parseJson<string[]>(opts.calldatas, "calldatas") as Hex[],
-          description: opts.description,
-          rationale: opts.rationale,
-          valueUsd: opts.valueUsd !== undefined ? Number(opts.valueUsd) : undefined,
-          impact: opts.impact as Impact | undefined,
-        }),
-      );
-    });
+    .action(
+      async (opts: {
+        type: string;
+        targets: string;
+        values: string;
+        calldatas: string;
+        description: string;
+        rationale: string;
+        valueUsd?: string;
+        impact?: string;
+      }) => {
+        const core = factory();
+        process.exitCode = printResult(
+          await core.createProposal({
+            proposalType: opts.type as ProposalType,
+            targets: parseJson<string[]>(opts.targets, "targets").map((t) => getAddress(t)),
+            values: parseJson<string[]>(opts.values, "values").map((v) => BigInt(v)),
+            calldatas: parseJson<string[]>(opts.calldatas, "calldatas") as Hex[],
+            description: opts.description,
+            rationale: opts.rationale,
+            valueUsd: opts.valueUsd !== undefined ? Number(opts.valueUsd) : undefined,
+            impact: opts.impact as Impact | undefined,
+          }),
+        );
+      },
+    );
 
   program
     .command("vote:cast")
@@ -122,13 +144,22 @@ export function buildCli(factory: CoreFactory = defaultFactory): Command {
     .requiredOption("--reason <text>", "vote reason")
     .action(async (opts: { id: string; support: string; reason: string }) => {
       const support = Number(opts.support);
-      if (support !== 0 && support !== 1 && support !== 2) throw new Error("--support must be 0, 1, or 2");
-      process.exitCode = printResult(await factory().castVote({ proposalId: BigInt(opts.id), support: support as 0 | 1 | 2, reason: opts.reason }));
+      if (support !== 0 && support !== 1 && support !== 2)
+        throw new Error("--support must be 0, 1, or 2");
+      process.exitCode = printResult(
+        await factory().castVote({
+          proposalId: BigInt(opts.id),
+          support: support as 0 | 1 | 2,
+          reason: opts.reason,
+        }),
+      );
     });
 
   program
     .command("op:execute")
-    .description("Bounded operational execution via the scoped Roles modifier (caps + sim-gate + rationale).")
+    .description(
+      "Bounded operational execution via the scoped Roles modifier (caps + sim-gate + rationale).",
+    )
     .requiredOption("--target <address>", "call target")
     .requiredOption("--selector <hex>", "4-byte selector")
     .requiredOption("--data <hex>", "full calldata")
@@ -137,20 +168,31 @@ export function buildCli(factory: CoreFactory = defaultFactory): Command {
     .option("--token <address>", "spend token (for cap accounting)")
     .option("--amount <uint>", "spend amount in token units")
     .option("--epoch-spend <uint>", "token units already spent this epoch", "0")
-    .action(async (opts: { target: string; selector: string; data: string; rationale: string; value: string; token?: string; amount?: string; epochSpend: string }) => {
-      process.exitCode = printResult(
-        await factory().opExecute({
-          target: getAddress(opts.target),
-          selector: opts.selector.toLowerCase() as Hex,
-          data: opts.data as Hex,
-          value: BigInt(opts.value),
-          token: opts.token ? getAddress(opts.token) : undefined,
-          amount: opts.amount !== undefined ? BigInt(opts.amount) : undefined,
-          epochSpend: BigInt(opts.epochSpend),
-          rationale: opts.rationale,
-        }),
-      );
-    });
+    .action(
+      async (opts: {
+        target: string;
+        selector: string;
+        data: string;
+        rationale: string;
+        value: string;
+        token?: string;
+        amount?: string;
+        epochSpend: string;
+      }) => {
+        process.exitCode = printResult(
+          await factory().opExecute({
+            target: getAddress(opts.target),
+            selector: opts.selector.toLowerCase() as Hex,
+            data: opts.data as Hex,
+            value: BigInt(opts.value),
+            token: opts.token ? getAddress(opts.token) : undefined,
+            amount: opts.amount !== undefined ? BigInt(opts.amount) : undefined,
+            epochSpend: BigInt(opts.epochSpend),
+            rationale: opts.rationale,
+          }),
+        );
+      },
+    );
 
   return program;
 }
@@ -169,7 +211,11 @@ export function parseProposedAction(json: string): ProposedAction {
     });
   }
   if (a.kind === "castVote") {
-    return { kind: "castVote", proposalId: BigInt(a.proposalId as string), support: Number(a.support) as 0 | 1 | 2 };
+    return {
+      kind: "castVote",
+      proposalId: BigInt(a.proposalId as string),
+      support: Number(a.support) as 0 | 1 | 2,
+    };
   }
   if (a.kind === "opExecute") {
     return {

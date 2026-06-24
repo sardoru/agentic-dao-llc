@@ -13,11 +13,7 @@ function supportLabel(s: 0 | 1 | 2) {
   return <span className="text-muted">Abstain</span>;
 }
 
-export default async function ProposalDetailPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
+export default async function ProposalDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const proposal = await fetchProposal(id);
   if (!proposal) notFound();
@@ -35,9 +31,7 @@ export default async function ProposalDetailPage({
         <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted">
           <span>
             Proposed by agent{" "}
-            <span className="font-mono text-accent-2">
-              {formatAddress(proposal.proposerAgent)}
-            </span>{" "}
+            <span className="font-mono text-accent-2">{formatAddress(proposal.proposerAgent)}</span>{" "}
             <span className="text-muted/60">({proposal.proposerAgentId})</span>
           </span>
           <span>
@@ -99,7 +93,9 @@ export default async function ProposalDetailPage({
           <h2 className="text-xs font-mono text-muted uppercase tracking-widest mb-3">
             Simulation Result
           </h2>
-          <div className={`bg-surface-2 border rounded-lg p-4 ${proposal.simResult.success ? "border-success/30" : "border-danger/30"}`}>
+          <div
+            className={`bg-surface-2 border rounded-lg p-4 ${proposal.simResult.success ? "border-success/30" : "border-danger/30"}`}
+          >
             <div className="flex items-center gap-2 mb-2">
               <span className={proposal.simResult.success ? "text-success" : "text-danger"}>
                 {proposal.simResult.success ? "✓ Simulation passed" : "✗ Simulation failed"}
@@ -134,8 +130,7 @@ export default async function ProposalDetailPage({
         <div className="bg-surface-2 border border-border rounded-lg p-4 space-y-3">
           <div className="flex flex-wrap gap-3 text-xs">
             <span className="text-muted">
-              URI:{" "}
-              <span className="font-mono text-accent-2">{proposal.rationaleURI}</span>
+              URI: <span className="font-mono text-accent-2">{proposal.rationaleURI}</span>
             </span>
             <span className={rationale.verified ? "text-success" : "text-danger"}>
               {rationale.verified
@@ -188,14 +183,10 @@ export default async function ProposalDetailPage({
                       <span className="text-muted/60 ml-1">({vote.agentId})</span>
                     )}
                   </td>
-                  <td className="px-4 py-2.5 text-muted">
-                    {formatAddress(vote.principal)}
-                  </td>
+                  <td className="px-4 py-2.5 text-muted">{formatAddress(vote.principal)}</td>
                   <td className="px-4 py-2.5">{supportLabel(vote.support)}</td>
                   <td className="px-4 py-2.5 font-mono">{Number(vote.weight)}</td>
-                  <td className="px-4 py-2.5 text-muted max-w-xs truncate">
-                    {vote.reason}
-                  </td>
+                  <td className="px-4 py-2.5 text-muted max-w-xs truncate">{vote.reason}</td>
                 </tr>
               ))}
             </tbody>
@@ -206,20 +197,14 @@ export default async function ProposalDetailPage({
       {/* Timelock */}
       {proposal.timelockEta && (
         <section>
-          <h2 className="text-xs font-mono text-muted uppercase tracking-widest mb-3">
-            Timelock
-          </h2>
+          <h2 className="text-xs font-mono text-muted uppercase tracking-widest mb-3">Timelock</h2>
           <div className="bg-surface-2 border border-warn/30 rounded-lg p-4 flex items-center justify-between">
             <div>
               <div className="text-sm text-ink">
                 In delay window until{" "}
-                <span className="font-mono text-warn">
-                  {formatTimestamp(proposal.timelockEta)}
-                </span>
+                <span className="font-mono text-warn">{formatTimestamp(proposal.timelockEta)}</span>
               </div>
-              <div className="text-xs text-muted mt-1">
-                {formatCountdown(proposal.timelockEta)}
-              </div>
+              <div className="text-xs text-muted mt-1">{formatCountdown(proposal.timelockEta)}</div>
             </div>
             <Link
               href="/guardian"

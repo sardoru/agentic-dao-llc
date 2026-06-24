@@ -58,10 +58,7 @@ app.get("/proposals/:id", async (c) => {
     return c.json({ error: "Proposal not found" }, 404);
   }
 
-  const votes = await db
-    .select()
-    .from(schema.vote)
-    .where(eq(schema.vote.proposalId, proposalId));
+  const votes = await db.select().from(schema.vote).where(eq(schema.vote.proposalId, proposalId));
 
   return c.json({
     ...serializeProposal(proposalRow[0]),
@@ -74,11 +71,7 @@ app.get("/proposals/:id", async (c) => {
 // Returns all registered agents with mandate info and spend.
 // ---------------------------------------------------------------------------
 app.get("/agents", async (c) => {
-  const rows = await db
-    .select()
-    .from(schema.agent)
-    .orderBy(schema.agent.account)
-    .limit(200);
+  const rows = await db.select().from(schema.agent).orderBy(schema.agent.account).limit(200);
 
   return c.json(rows.map(serializeAgent));
 });
@@ -118,11 +111,7 @@ app.get("/agents/:account", async (c) => {
 // Returns all members with voting weight and delegation info.
 // ---------------------------------------------------------------------------
 app.get("/members", async (c) => {
-  const rows = await db
-    .select()
-    .from(schema.member)
-    .orderBy(schema.member.address)
-    .limit(500);
+  const rows = await db.select().from(schema.member).orderBy(schema.member.address).limit(500);
 
   return c.json(rows.map(serializeMember));
 });
@@ -163,9 +152,7 @@ app.get("/rationale/:refId", async (c) => {
 // ---------------------------------------------------------------------------
 // Serializers — convert bigints to strings for JSON responses.
 // ---------------------------------------------------------------------------
-function serializeProposal(
-  row: typeof schema.proposal.$inferSelect
-): Record<string, unknown> {
+function serializeProposal(row: typeof schema.proposal.$inferSelect): Record<string, unknown> {
   return {
     ...row,
     id: row.id.toString(),
@@ -182,9 +169,7 @@ function serializeProposal(
   };
 }
 
-function serializeVote(
-  row: typeof schema.vote.$inferSelect
-): Record<string, unknown> {
+function serializeVote(row: typeof schema.vote.$inferSelect): Record<string, unknown> {
   return {
     ...row,
     proposalId: row.proposalId.toString(),
@@ -192,30 +177,24 @@ function serializeVote(
   };
 }
 
-function serializeAgent(
-  row: typeof schema.agent.$inferSelect
-): Record<string, unknown> {
+function serializeAgent(row: typeof schema.agent.$inferSelect): Record<string, unknown> {
   return {
     ...row,
     opSpendCumulative: row.opSpendCumulative.toString(),
   };
 }
 
-function serializeMember(
-  row: typeof schema.member.$inferSelect
-): Record<string, unknown> {
+function serializeMember(row: typeof schema.member.$inferSelect): Record<string, unknown> {
   return {
     ...row,
     votingWeight: row.votingWeight.toString(),
     participationRate:
-      row.totalProposalsInScope > 0
-        ? row.participationCount / row.totalProposalsInScope
-        : null,
+      row.totalProposalsInScope > 0 ? row.participationCount / row.totalProposalsInScope : null,
   };
 }
 
 function serializeTreasuryEvent(
-  row: typeof schema.treasuryEvent.$inferSelect
+  row: typeof schema.treasuryEvent.$inferSelect,
 ): Record<string, unknown> {
   return {
     ...row,

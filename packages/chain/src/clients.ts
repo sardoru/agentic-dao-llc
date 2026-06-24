@@ -27,7 +27,10 @@ export function makePublicClient(config: ChainConfig): PublicClient<Transport, C
  * Callers still build, sign, and broadcast through the policy-gated Signer; this
  * is the low-level viem handle for that.
  */
-export function makeWalletClient(config: ChainConfig, account: Account): WalletClient<Transport, Chain, Account> {
+export function makeWalletClient(
+  config: ChainConfig,
+  account: Account,
+): WalletClient<Transport, Chain, Account> {
   return createWalletClient({
     account,
     chain: config.chain,

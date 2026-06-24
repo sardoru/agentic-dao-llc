@@ -22,7 +22,11 @@ const actionSchema = z.discriminatedUnion("kind", [
     valueUsd: z.number().optional(),
     impact: impact.optional(),
   }),
-  z.object({ kind: z.literal("castVote"), proposalId: bigintStr, support: z.union([z.literal(0), z.literal(1), z.literal(2)]) }),
+  z.object({
+    kind: z.literal("castVote"),
+    proposalId: bigintStr,
+    support: z.union([z.literal(0), z.literal(1), z.literal(2)]),
+  }),
   z.object({
     kind: z.literal("opExecute"),
     target: addressSchema,
@@ -38,12 +42,17 @@ type ActionInput = z.infer<typeof actionSchema>;
 /** Render any ToolResult as MCP content. Errors surface the failing policy rule. */
 function render<T>(result: ToolResult<T>) {
   if (result.ok) {
-    return { content: [{ type: "text" as const, text: JSON.stringify(result.data, bigintReplacer, 2) }] };
+    return {
+      content: [{ type: "text" as const, text: JSON.stringify(result.data, bigintReplacer, 2) }],
+    };
   }
   const payload: Record<string, unknown> = { error: result.error };
   if (result.rule) payload.rule = result.rule;
   if (result.ratification) payload.ratification = result.ratification;
-  return { content: [{ type: "text" as const, text: JSON.stringify(payload, bigintReplacer, 2) }], isError: true };
+  return {
+    content: [{ type: "text" as const, text: JSON.stringify(payload, bigintReplacer, 2) }],
+    isError: true,
+  };
 }
 
 const bigintReplacer = (_k: string, v: unknown) => (typeof v === "bigint" ? v.toString() : v);
@@ -82,37 +91,57 @@ function toProposedAction(a: ActionInput): ProposedAction {
 export function createMcpServer(core: GovernanceCore): McpServer {
   const server = new McpServer(
     { name: "agentic-dao-mcp", version: "0.1.0" },
-    { capabilities: { tools: {} }, instructions: "Agent-facing governance tools for the Agentic DAO LLC. Every write is policy-gated, simulation-first, and rationale-anchored; reserved matters are not constructable." },
+    {
+      capabilities: { tools: {} },
+      instructions:
+        "Agent-facing governance tools for the Agentic DAO LLC. Every write is policy-gated, simulation-first, and rationale-anchored; reserved matters are not constructable.",
+    },
   );
 
   // ── Reads ───────────────────────────────────────────────────────────────────
   server.registerTool(
     "list_proposals",
-    { description: "List proposals from the indexer, optionally filtered by state.", inputSchema: { state: z.string().optional() } },
+    {
+      description: "List proposals from the indexer, optionally filtered by state.",
+      inputSchema: { state: z.string().optional() },
+    },
     async ({ state }) => render(await core.listProposals(state)),
   );
 
   server.registerTool(
     "get_proposal",
-    { description: "Get a proposal: decoded calldata, tally, quorum, timelock ETA, rationale.", inputSchema: { proposalId: bigintStr } },
+    {
+      description: "Get a proposal: decoded calldata, tally, quorum, timelock ETA, rationale.",
+      inputSchema: { proposalId: bigintStr },
+    },
     async ({ proposalId }) => render(await core.getProposal(proposalId)),
   );
 
   server.registerTool(
     "get_quorum_status",
-    { description: "Quorum reached?, votes for/against/abstain, threshold.", inputSchema: { proposalId: bigintStr } },
+    {
+      description: "Quorum reached?, votes for/against/abstain, threshold.",
+      inputSchema: { proposalId: bigintStr },
+    },
     async ({ proposalId }) => render(await core.getQuorumStatus(proposalId)),
   );
 
   server.registerTool(
     "get_voting_power",
-    { description: "Current delegated voting weight of an address.", inputSchema: { address: addressSchema } },
+    {
+      description: "Current delegated voting weight of an address.",
+      inputSchema: { address: addressSchema },
+    },
     async ({ address }) => render(await core.getVotingPower(getAddress(address))),
   );
 
   server.registerTool(
     "get_mandate",
-    { description: "Return the agent mandate and verify its hash against the on-chain AgentRegistry.", inputSchema: { agentAccount: addressSchema } },
+    {
+      description:
+        "Return the agent mandate and verify its hash against the on-chain AgentRegistry.",
+      inputSchema: { agentAccount: addressSchema },
+    },
     async ({ agentAccount }) => render(await core.getMandate(getAddress(agentAccount))),
   );
 
@@ -120,8 +149,18 @@ export function createMcpServer(core: GovernanceCore): McpServer {
   server.registerTool(
     "simulate_action",
     {
-      description: "Dry-run an action. REQUIRED before create_proposal / op_execute — opens the sim-gate for that exact action.",
-      inputSchema: { action: actionSchema, tx: z.object({ from: addressSchema.optional(), to: addressSchema, data: hexSchema.optional(), value: bigintStr.optional(), gas: bigintStr.optional() }) },
+      description:
+        "Dry-run an action. REQUIRED before create_proposal / op_execute — opens the sim-gate for that exact action.",
+      inputSchema: {
+        action: actionSchema,
+        tx: z.object({
+          from: addressSchema.optional(),
+          to: addressSchema,
+          data: hexSchema.optional(),
+          value: bigintStr.optional(),
+          gas: bigintStr.optional(),
+        }),
+      },
     },
     async ({ action, tx }) => {
       const txReq: TxRequest = {
@@ -139,7 +178,8 @@ export function createMcpServer(core: GovernanceCore): McpServer {
   server.registerTool(
     "create_proposal",
     {
-      description: "Create a governance proposal. Reserved matters are NOT constructable. Requires a prior simulation + a rationale; NEEDS_HUMAN_RATIFICATION returns a draft + link instead of submitting.",
+      description:
+        "Create a governance proposal. Reserved matters are NOT constructable. Requires a prior simulation + a rationale; NEEDS_HUMAN_RATIFICATION returns a draft + link instead of submitting.",
       inputSchema: {
         proposalType,
         targets: z.array(addressSchema),
@@ -170,15 +210,21 @@ export function createMcpServer(core: GovernanceCore): McpServer {
     "cast_vote",
     {
       description: "Cast a vote with a reason. Reason is pinned; no rationale → no submission.",
-      inputSchema: { proposalId: bigintStr, support: z.union([z.literal(0), z.literal(1), z.literal(2)]), reason: z.string().min(1) },
+      inputSchema: {
+        proposalId: bigintStr,
+        support: z.union([z.literal(0), z.literal(1), z.literal(2)]),
+        reason: z.string().min(1),
+      },
     },
-    async ({ proposalId, support, reason }) => render(await core.castVote({ proposalId: BigInt(proposalId), support, reason })),
+    async ({ proposalId, support, reason }) =>
+      render(await core.castVote({ proposalId: BigInt(proposalId), support, reason })),
   );
 
   server.registerTool(
     "op_execute",
     {
-      description: "Bounded operational execution via the scoped Roles modifier. Enforces spend caps + reserved-selector denial + sim-gate + rationale.",
+      description:
+        "Bounded operational execution via the scoped Roles modifier. Enforces spend caps + reserved-selector denial + sim-gate + rationale.",
       inputSchema: {
         target: addressSchema,
         selector: hexSchema,

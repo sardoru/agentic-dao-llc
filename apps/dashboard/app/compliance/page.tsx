@@ -56,7 +56,7 @@ export default function CompliancePage() {
         p.abstainVotes.toString(),
         p.rationaleHash,
         new Date(p.createdAt * 1000).toISOString(),
-      ].join(",")
+      ].join(","),
     );
     downloadBlob([header, ...rows].join("\n"), "dao-proposals.csv", "text/csv");
   }
@@ -85,8 +85,8 @@ export default function CompliancePage() {
           v.weight.toString(),
           `"${v.reason.replace(/"/g, '""')}"`,
           v.txHash,
-        ].join(",")
-      )
+        ].join(","),
+      ),
     );
     downloadBlob([header, ...rows].join("\n"), "dao-votes.csv", "text/csv");
   }
@@ -111,11 +111,7 @@ export default function CompliancePage() {
         againstVotes: p.againstVotes.toString(),
         abstainVotes: p.abstainVotes.toString(),
       }));
-    downloadBlob(
-      JSON.stringify(executed, null, 2),
-      "dao-executions.json",
-      "application/json"
-    );
+    downloadBlob(JSON.stringify(executed, null, 2), "dao-executions.json", "application/json");
   }
 
   return (
@@ -123,17 +119,15 @@ export default function CompliancePage() {
       <div className="mb-8">
         <h1 className="text-xl font-semibold text-ink mb-1">Compliance Export</h1>
         <p className="text-sm text-muted">
-          Members have statutory inspection rights per Wyoming DAO LLC Act. Export
-          proposals, votes, and execution records for the LLC&rsquo;s books.
+          Members have statutory inspection rights per Wyoming DAO LLC Act. Export proposals, votes,
+          and execution records for the LLC&rsquo;s books.
         </p>
       </div>
 
       <div className="bg-surface-2 border border-border rounded-lg p-6 space-y-4">
         <div className="text-xs text-muted mb-4 font-mono">
           {loaded ? (
-            <span className="text-success">
-              ✓ {proposals.length} proposals loaded
-            </span>
+            <span className="text-success">✓ {proposals.length} proposals loaded</span>
           ) : (
             <span>Loading…</span>
           )}
@@ -144,8 +138,8 @@ export default function CompliancePage() {
             <div>
               <div className="text-sm text-ink font-medium mb-1">Proposals CSV</div>
               <div className="text-xs text-muted">
-                All proposals with state, proposer agent+principal, vote tallies, and
-                rationale hashes.
+                All proposals with state, proposer agent+principal, vote tallies, and rationale
+                hashes.
               </div>
             </div>
             <button
@@ -161,8 +155,8 @@ export default function CompliancePage() {
             <div>
               <div className="text-sm text-ink font-medium mb-1">Votes CSV</div>
               <div className="text-xs text-muted">
-                All votes with agent address, agent ID, principal, support direction,
-                weight, and on-chain reason.
+                All votes with agent address, agent ID, principal, support direction, weight, and
+                on-chain reason.
               </div>
             </div>
             <button
@@ -178,8 +172,8 @@ export default function CompliancePage() {
             <div>
               <div className="text-sm text-ink font-medium mb-1">Executions JSON</div>
               <div className="text-xs text-muted">
-                Executed proposals with full decoded calls, rationale URIs, content
-                hashes, and verification status.
+                Executed proposals with full decoded calls, rationale URIs, content hashes, and
+                verification status.
               </div>
             </div>
             <button
@@ -194,12 +188,11 @@ export default function CompliancePage() {
       </div>
 
       <div className="mt-6 text-xs text-muted border border-border rounded-lg p-3">
-        <span className="text-warn font-mono">Legal:</span> These exports are derived
-        from on-chain events indexed by the Ponder indexer. They are records of
-        on-chain transactions and do not constitute legal advice. For statutory
-        inspection requests, provide the raw blockchain data alongside these exports.
-        Rationale hash verification requires the IPFS documents to be accessible at
-        the recorded URIs.
+        <span className="text-warn font-mono">Legal:</span> These exports are derived from on-chain
+        events indexed by the Ponder indexer. They are records of on-chain transactions and do not
+        constitute legal advice. For statutory inspection requests, provide the raw blockchain data
+        alongside these exports. Rationale hash verification requires the IPFS documents to be
+        accessible at the recorded URIs.
       </div>
     </div>
   );

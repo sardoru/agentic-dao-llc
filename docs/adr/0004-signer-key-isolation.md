@@ -61,6 +61,7 @@ passed into the MCP server or CLI process context. The signer process loads it a
 and holds the decrypted key in memory only for the duration of a signing operation.
 
 The local signer is **dev-only**. It is unsuitable for production because:
+
 - The keystore file is on disk, accessible to any process with filesystem access.
 - The password must be in the environment, which has a large attack surface.
 
@@ -86,6 +87,7 @@ credentials — no caller-side code changes.
 ## Consequences
 
 **Positive:**
+
 - A jailbroken or prompt-injected brain cannot extract a key or sign an unauthorized
   transaction. It can only request signatures, which the signer independently validates.
 - Defense in depth: even if the MCP server's policy check has a bug, the signer's
@@ -96,6 +98,7 @@ credentials — no caller-side code changes.
   Privy) is a one-file change.
 
 **Negative / trade-offs:**
+
 - Latency: each transaction requires a round-trip to the signer service. For
   governance actions (propose, vote) this is acceptable. For high-frequency operational
   loops it may require batching.
@@ -109,6 +112,7 @@ credentials — no caller-side code changes.
   layer, which is a third independent enforcement point written in Solidity.
 
 **Follow-up:**
+
 - Add a CI lint rule that detects any `SIGNER_KEYSTORE_PASSWORD` or private key pattern
   in committed files.
 - The `signGovernanceTx` and `signOpTx` methods must include the mandate hash in the

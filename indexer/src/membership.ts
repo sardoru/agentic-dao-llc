@@ -39,55 +39,45 @@ ponder.on("MembershipToken:Transfer", async ({ event, context }) => {
 // ---------------------------------------------------------------------------
 // DelegateChanged — update which agent a member delegates to.
 // ---------------------------------------------------------------------------
-ponder.on(
-  "MembershipToken:DelegateChanged",
-  async ({ event, context }) => {
-    const { db } = context;
-    const delegator = event.args.delegator as `0x${string}`;
-    const toDelegate = event.args.toDelegate as `0x${string}`;
+ponder.on("MembershipToken:DelegateChanged", async ({ event, context }) => {
+  const { db } = context;
+  const delegator = event.args.delegator as `0x${string}`;
+  const toDelegate = event.args.toDelegate as `0x${string}`;
 
-    const row = await db.find(member, { address: delegator });
-    if (row) {
-      await db
-        .update(member, { address: delegator })
-        .set({
-          delegatedAgent: toDelegate,
-          updatedAt: Number(event.block.timestamp),
-        });
-    } else {
-      // Create member record if somehow missing (index re-org / ordering edge).
-      await db.insert(member).values({
-        address: delegator,
-        delegatedAgent: toDelegate,
-        votingWeight: 0n,
-        participationCount: 0,
-        totalProposalsInScope: 0,
-        updatedAt: Number(event.block.timestamp),
-      });
-    }
+  const row = await db.find(member, { address: delegator });
+  if (row) {
+    await db.update(member, { address: delegator }).set({
+      delegatedAgent: toDelegate,
+      updatedAt: Number(event.block.timestamp),
+    });
+  } else {
+    // Create member record if somehow missing (index re-org / ordering edge).
+    await db.insert(member).values({
+      address: delegator,
+      delegatedAgent: toDelegate,
+      votingWeight: 0n,
+      participationCount: 0,
+      totalProposalsInScope: 0,
+      updatedAt: Number(event.block.timestamp),
+    });
   }
-);
+});
 
 // ---------------------------------------------------------------------------
 // DelegateVotesChanged — update voting weight on the delegate's row.
 // The delegate here is the agent address; also update the member's weight if
 // the member has delegated to themselves.
 // ---------------------------------------------------------------------------
-ponder.on(
-  "MembershipToken:DelegateVotesChanged",
-  async ({ event, context }) => {
-    const { db } = context;
-    const delegate = event.args.delegate as `0x${string}`;
+ponder.on("MembershipToken:DelegateVotesChanged", async ({ event, context }) => {
+  const { db } = context;
+  const delegate = event.args.delegate as `0x${string}`;
 
-    // A member may be their own delegate; update their member row.
-    const memberRow = await db.find(member, { address: delegate });
-    if (memberRow) {
-      await db
-        .update(member, { address: delegate })
-        .set({
-          votingWeight: event.args.newVotes,
-          updatedAt: Number(event.block.timestamp),
-        });
-    }
+  // A member may be their own delegate; update their member row.
+  const memberRow = await db.find(member, { address: delegate });
+  if (memberRow) {
+    await db.update(member, { address: delegate }).set({
+      votingWeight: event.args.newVotes,
+      updatedAt: Number(event.block.timestamp),
+    });
   }
-);
+});

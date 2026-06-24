@@ -1,7 +1,11 @@
 import { keccak256, stringToBytes, isAddress, type Hex } from "viem";
 import type { Mandate, ProposalType, RationaleStorage } from "./types";
 
-const PROPOSAL_TYPES: ProposalType[] = ["TREASURY_PAYMENT", "PARAM_TUNE_NONRESERVED", "TEXT_SIGNAL"];
+const PROPOSAL_TYPES: ProposalType[] = [
+  "TREASURY_PAYMENT",
+  "PARAM_TUNE_NONRESERVED",
+  "TEXT_SIGNAL",
+];
 const RATIONALE_STORAGE: RationaleStorage[] = ["ipfs", "arweave"];
 
 /**
@@ -55,7 +59,8 @@ export function validateMandate(input: unknown): ValidationResult {
   const m = input as Record<string, unknown>;
 
   if (m.version !== "1.0") e("version must be '1.0'");
-  if (typeof m.agentId !== "string" || m.agentId.length === 0) e("agentId must be a non-empty string");
+  if (typeof m.agentId !== "string" || m.agentId.length === 0)
+    e("agentId must be a non-empty string");
   for (const f of ["principal", "agentAccount", "guardian"] as const) {
     if (typeof m[f] !== "string" || !isAddress(m[f] as string)) e(`${f} must be a valid address`);
   }
@@ -77,15 +82,22 @@ export function validateMandate(input: unknown): ValidationResult {
     else if (!scope.allowedTargets.every((t) => typeof t === "string" && isAddress(t)))
       e("scope.allowedTargets contains an invalid address");
     if (scope.forbiddenSelectors !== undefined) {
-      if (!Array.isArray(scope.forbiddenSelectors) || !scope.forbiddenSelectors.every((s) => SELECTOR_RE.test(s as string)))
+      if (
+        !Array.isArray(scope.forbiddenSelectors) ||
+        !scope.forbiddenSelectors.every((s) => SELECTOR_RE.test(s as string))
+      )
         e("scope.forbiddenSelectors must be an array of 4-byte selectors");
     }
     const cap = scope.spendingCap as Record<string, unknown> | null | undefined;
     if (cap !== undefined && cap !== null) {
-      if (typeof cap.token !== "string" || !isAddress(cap.token)) e("scope.spendingCap.token must be a valid address");
-      if (typeof cap.perTx !== "string" || !UINT_RE.test(cap.perTx)) e("scope.spendingCap.perTx must be a uint string");
-      if (typeof cap.perEpoch !== "string" || !UINT_RE.test(cap.perEpoch)) e("scope.spendingCap.perEpoch must be a uint string");
-      if (typeof cap.epochSeconds !== "number" || cap.epochSeconds < 1) e("scope.spendingCap.epochSeconds must be a positive integer");
+      if (typeof cap.token !== "string" || !isAddress(cap.token))
+        e("scope.spendingCap.token must be a valid address");
+      if (typeof cap.perTx !== "string" || !UINT_RE.test(cap.perTx))
+        e("scope.spendingCap.perTx must be a uint string");
+      if (typeof cap.perEpoch !== "string" || !UINT_RE.test(cap.perEpoch))
+        e("scope.spendingCap.perEpoch must be a uint string");
+      if (typeof cap.epochSeconds !== "number" || cap.epochSeconds < 1)
+        e("scope.spendingCap.epochSeconds must be a positive integer");
     }
   }
 

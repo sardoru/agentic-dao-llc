@@ -9,8 +9,7 @@ import {
 } from "./fixtures";
 
 const INDEXER_URL = process.env["NEXT_PUBLIC_INDEXER_URL"];
-const IPFS_GATEWAY =
-  process.env["NEXT_PUBLIC_IPFS_GATEWAY"] ?? "https://ipfs.io/ipfs/";
+const IPFS_GATEWAY = process.env["NEXT_PUBLIC_IPFS_GATEWAY"] ?? "https://ipfs.io/ipfs/";
 
 const useLive = Boolean(INDEXER_URL);
 
@@ -43,11 +42,7 @@ export async function fetchAgent(address: string): Promise<Agent | null> {
   if (useLive) {
     // TODO: wire graphql-request query to INDEXER_URL
   }
-  return (
-    FIXTURE_AGENTS.find(
-      (a) => a.address.toLowerCase() === address.toLowerCase()
-    ) ?? null
-  );
+  return FIXTURE_AGENTS.find((a) => a.address.toLowerCase() === address.toLowerCase()) ?? null;
 }
 
 export async function fetchMembers(): Promise<Member[]> {
@@ -80,7 +75,7 @@ export async function fetchDaoStats(): Promise<DaoStats> {
 
 export async function fetchRationale(
   uri: string,
-  expectedHash: string
+  expectedHash: string,
 ): Promise<{ content: string; verified: boolean }> {
   if (IPFS_GATEWAY && uri.startsWith("ipfs://")) {
     try {

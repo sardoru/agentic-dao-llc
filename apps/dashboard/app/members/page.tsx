@@ -5,17 +5,15 @@ import { formatAddress } from "../lib/utils";
 export default async function MembersPage() {
   const [members, stats] = await Promise.all([fetchMembers(), fetchDaoStats()]);
 
-  const quorumRequired = Math.ceil(
-    (stats.totalSupply * stats.quorumFraction) / 100
-  );
+  const quorumRequired = Math.ceil((stats.totalSupply * stats.quorumFraction) / 100);
 
   return (
     <div className="px-8 py-8 max-w-4xl">
       <div className="mb-8">
         <h1 className="text-xl font-semibold text-ink mb-1">Members & Quorum</h1>
         <p className="text-sm text-muted">
-          {members.length} members · {stats.quorumFraction}% quorum threshold ·{" "}
-          {quorumRequired} of {stats.totalSupply} votes required
+          {members.length} members · {stats.quorumFraction}% quorum threshold · {quorumRequired} of{" "}
+          {stats.totalSupply} votes required
         </p>
       </div>
 
@@ -26,11 +24,12 @@ export default async function MembersPage() {
         </h2>
         <div className="text-sm text-ink">
           {stats.quorumFraction}% of {stats.totalSupply} total supply ={" "}
-          <span className="font-semibold text-accent-2">{quorumRequired} votes</span>{" "}
-          required to reach quorum
+          <span className="font-semibold text-accent-2">{quorumRequired} votes</span> required to
+          reach quorum
         </div>
         <div className="text-xs text-muted">
-          Equal weight (1 member = 1 vote, v1). Each member delegates their vote to their registered agent.
+          Equal weight (1 member = 1 vote, v1). Each member delegates their vote to their registered
+          agent.
         </div>
       </div>
 
@@ -56,10 +55,7 @@ export default async function MembersPage() {
                 </td>
                 <td className="px-4 py-3">
                   {member.delegatedAgent ? (
-                    <Link
-                      href="/agents"
-                      className="font-mono text-accent-2 hover:underline"
-                    >
+                    <Link href="/agents" className="font-mono text-accent-2 hover:underline">
                       {formatAddress(member.delegatedAgent)}
                     </Link>
                   ) : (
@@ -87,9 +83,9 @@ export default async function MembersPage() {
       </div>
 
       <div className="mt-6 text-xs text-muted">
-        <span className="text-warn font-mono">Note:</span> Voting power is delegated to
-        agent smart accounts at the token level (ERC721Votes.delegate()). Direct member
-        voting is also possible if no agent is delegated.
+        <span className="text-warn font-mono">Note:</span> Voting power is delegated to agent smart
+        accounts at the token level (ERC721Votes.delegate()). Direct member voting is also possible
+        if no agent is delegated.
       </div>
     </div>
   );

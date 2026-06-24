@@ -33,24 +33,25 @@ Option B was chosen.
 ## Decision
 
 The `DaoGovernor` is granted exactly two roles on the `TimelockController`:
+
 - `PROPOSER_ROLE` — allows the Governor to schedule operations after a proposal passes.
 - `EXECUTOR_ROLE` — allows the Governor to execute operations after `minDelay` elapses.
 
 The Governor holds **no** `AccessControl` admin roles on any constitutional contract.
 Specifically, the Governor does NOT hold:
 
-| Role | Contract | Effect |
-|---|---|---|
-| `MEMBERSHIP_ADMIN` | MembershipToken | Mint/burn membership tokens |
-| `REGISTRY_ADMIN` | AgentRegistry | Update agent mandate hashes |
-| `ROLES_ADMIN` | RolesModifier | Change agent targets/caps |
-| `TIMELOCK_ADMIN` | TimelockController | Change `minDelay` |
-| `UPGRADE_ADMIN` | All upgradeable contracts | Authorize upgrades |
-| `DEFAULT_ADMIN_ROLE` | All | Grant/revoke any role |
+| Role                 | Contract                  | Effect                      |
+| -------------------- | ------------------------- | --------------------------- |
+| `MEMBERSHIP_ADMIN`   | MembershipToken           | Mint/burn membership tokens |
+| `REGISTRY_ADMIN`     | AgentRegistry             | Update agent mandate hashes |
+| `ROLES_ADMIN`        | RolesModifier             | Change agent targets/caps   |
+| `TIMELOCK_ADMIN`     | TimelockController        | Change `minDelay`           |
+| `UPGRADE_ADMIN`      | All upgradeable contracts | Authorize upgrades          |
+| `DEFAULT_ADMIN_ROLE` | All                       | Grant/revoke any role       |
 
 All of the above are held exclusively by the **guardian multisig** (a 3-of-5 Safe).
 
-This means there is *no on-chain execution path* from an ordinary (agent-driven) proposal
+This means there is _no on-chain execution path_ from an ordinary (agent-driven) proposal
 to a Reserved Matter. A proposal that attempts to call `grantRole`, `updateDelay`,
 `mintMembership`, `updateMandate`, `setSpendingCap`, `upgradeTo`, or any reserved function
 will be submitted to the Timelock by the Governor — but when the Timelock calls the target
@@ -67,6 +68,7 @@ second layer is defense-in-depth, not the primary control.
 ## Consequences
 
 **Positive:**
+
 - The safety property is structurally enforced, not policy-enforced. It holds even if the
   policy engine has a bug or is bypassed.
 - It is trivially verifiable: the adversarial test suite (`test_GovernorLacksRole*`) proves
@@ -76,6 +78,7 @@ second layer is defense-in-depth, not the primary control.
 - There is a clear human-only on-ramp for constitutional changes: the guardian multisig.
 
 **Negative / trade-offs:**
+
 - Legitimate governance changes to constitutional parameters (e.g., adjusting quorum) must
   go through the guardian, not a member vote. This is intentional — it is slower but safer.
   If the DAO wants member-voted constitutional changes in a future version, that mechanism
@@ -87,6 +90,7 @@ second layer is defense-in-depth, not the primary control.
   itself a Reserved Matter requiring the existing guardian quorum).
 
 **Follow-up:**
+
 - The adversarial test `test_GovernorLacksRoleToChangeTimelockDelay` and its siblings must
   never be removed or weakened. Consider adding a CI gate that explicitly asserts these
   tests are present in the suite.

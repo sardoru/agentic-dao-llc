@@ -9,7 +9,16 @@ const MEMBER: Address = "0x1111111111111111111111111111111111111111";
 
 const erc20Transfer = encodeFunctionData({
   abi: [
-    { type: "function", name: "transfer", stateMutability: "nonpayable", inputs: [{ name: "to", type: "address" }, { name: "amount", type: "uint256" }], outputs: [{ type: "bool" }] },
+    {
+      type: "function",
+      name: "transfer",
+      stateMutability: "nonpayable",
+      inputs: [
+        { name: "to", type: "address" },
+        { name: "amount", type: "uint256" },
+      ],
+      outputs: [{ type: "bool" }],
+    },
   ],
   functionName: "transfer",
   args: [TARGET, 1000n],
@@ -37,7 +46,11 @@ describe("decodeTx → ProposedAction shape", () => {
   });
 
   it("resolves functionName + args when a matching ABI is supplied", () => {
-    const data = encodeFunctionData({ abi: membershipTokenAbi, functionName: "delegate", args: [MEMBER] });
+    const data = encodeFunctionData({
+      abi: membershipTokenAbi,
+      functionName: "delegate",
+      args: [MEMBER],
+    });
     const d = decodeTx({ to: TARGET, data }, membershipTokenAbi);
     expect(d.functionName).toBe("delegate");
     expect(d.args?.[0]).toBe(MEMBER);

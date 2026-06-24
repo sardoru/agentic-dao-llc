@@ -42,6 +42,8 @@ describe("requireAddress", () => {
 
   it("throws a clear error when an address is missing", () => {
     const cfg = loadChainConfig({});
-    expect(() => requireAddress(cfg.addresses, "governor", "GOVERNOR")).toThrow(/GOVERNOR is not set/);
+    expect(() => requireAddress(cfg.addresses, "governor", "GOVERNOR")).toThrow(
+      /GOVERNOR is not set/,
+    );
   });
 });

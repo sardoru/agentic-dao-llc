@@ -47,6 +47,7 @@ Reserved Matter (new Governor deployment triggers articles amendment).
 ## Consequences
 
 **Positive:**
+
 - **Reduced securities surface.** Equal voting weight with no proportional economic return
   reduces the likelihood of membership tokens being characterized as "investment contracts"
   under the Howey test. Non-transferability further reduces the trading/speculative surface.
@@ -59,6 +60,7 @@ Reserved Matter (new Governor deployment triggers articles amendment).
   unless the operating agreement specifies otherwise.
 
 **Negative / trade-offs:**
+
 - Capital-weighted governance (proportional to investment or contribution) is not supported
   in v1. If a member contributes 10x the capital of another, they have the same vote.
   This is a deliberate design choice for v1 but may not suit all use cases.
@@ -67,6 +69,7 @@ Reserved Matter (new Governor deployment triggers articles amendment).
   `Votes` implementation — note as future work.
 
 **Follow-up:**
+
 - `test_SoulboundTransferReverts` in the adversarial suite confirms non-transferability.
 - If the DAO moves to token-weighted governance, file a new ADR, redeploy the vote token,
   and treat the Governor reconfiguration as a Reserved Matter requiring articles amendment.

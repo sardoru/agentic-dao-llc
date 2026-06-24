@@ -53,7 +53,9 @@ export class LocalSigner extends BaseSigner {
  * TODO — see GitHub issue "signer: encrypted keystore decryption" — and intentionally
  * not implemented here so no half-built key handling ships.
  */
-export function localSignerFromEnv(env: { SIGNER_PRIVATE_KEY?: string } = process.env): LocalSigner {
+export function localSignerFromEnv(
+  env: { SIGNER_PRIVATE_KEY?: string } = process.env,
+): LocalSigner {
   const pk = env.SIGNER_PRIVATE_KEY;
   if (!pk) {
     throw new Error(

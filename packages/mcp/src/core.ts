@@ -19,7 +19,12 @@ import type { Simulator, SimulationResult, TxRequest } from "@agentic-dao/sim";
 import type { GovTxRequest, OpTxRequest, Signer } from "@agentic-dao/signer";
 import { SimulationGate } from "./actionHash";
 import type { IpfsClient, PinResult } from "./ipfs";
-import { type IndexerClient, IndexerUnavailableError, type ProposalView, type QuorumStatus } from "./indexer";
+import {
+  type IndexerClient,
+  IndexerUnavailableError,
+  type ProposalView,
+  type QuorumStatus,
+} from "./indexer";
 
 /** Everything the chokepoint needs, injected so it is fully unit-testable with mocks. */
 export interface CoreDeps {
@@ -34,7 +39,9 @@ export interface CoreDeps {
   agentAccount: Address;
   /** Clock + gas defaults the EIP-1559 tx fields need (caller supplies nonce/gas). */
   now?: () => number;
-  txDefaults?: Partial<Pick<GovTxRequest, "nonce" | "gas" | "maxFeePerGas" | "maxPriorityFeePerGas" | "chainId">>;
+  txDefaults?: Partial<
+    Pick<GovTxRequest, "nonce" | "gas" | "maxFeePerGas" | "maxPriorityFeePerGas" | "chainId">
+  >;
   /** Where humans ratify a drafted action; combined with the action hash into a link. */
   ratificationBaseUrl?: string;
   /** Shared sim-gate (injectable so tests can pre-seed / inspect it). */
@@ -44,7 +51,12 @@ export interface CoreDeps {
 /** Uniform tool outcome the MCP server / CLI render. */
 export type ToolResult<T> =
   | { ok: true; data: T }
-  | { ok: false; error: string; rule?: string; ratification?: { draft: true; link: string; actionHash: Hex } };
+  | {
+      ok: false;
+      error: string;
+      rule?: string;
+      ratification?: { draft: true; link: string; actionHash: Hex };
+    };
 
 export interface SubmittedWrite {
   signedTx: Hex;
@@ -54,7 +66,13 @@ export interface SubmittedWrite {
   simulation: SimulationResult;
 }
 
-const DEFAULT_TX = { nonce: 0, gas: 500_000n, maxFeePerGas: 2_000_000_000n, maxPriorityFeePerGas: 1_000_000_000n, chainId: 84532 };
+const DEFAULT_TX = {
+  nonce: 0,
+  gas: 500_000n,
+  maxFeePerGas: 2_000_000_000n,
+  maxPriorityFeePerGas: 1_000_000_000n,
+  chainId: 84532,
+};
 
 /**
  * The policy chokepoint shared by the MCP server and the CLI (build spec §11/§12 —
@@ -100,7 +118,9 @@ export class GovernanceCore {
    * is a hard rejection (build spec §16.2 test_MandateHashMismatchRejected): a tampered
    * or stale mandate doc must never authorize anything.
    */
-  async getMandate(agentAccount: Address): Promise<ToolResult<{ mandate: Mandate; onChainHash: Hex; verified: true }>> {
+  async getMandate(
+    agentAccount: Address,
+  ): Promise<ToolResult<{ mandate: Mandate; onChainHash: Hex; verified: true }>> {
     try {
       const record = await this.d.contracts.registry.mandateOf(agentAccount);
       if (!verifyMandateHash(this.d.mandate, record.mandateHash)) {
@@ -110,7 +130,10 @@ export class GovernanceCore {
           rule: "MANDATE_HASH_MISMATCH",
         };
       }
-      return { ok: true, data: { mandate: this.d.mandate, onChainHash: record.mandateHash, verified: true } };
+      return {
+        ok: true,
+        data: { mandate: this.d.mandate, onChainHash: record.mandateHash, verified: true },
+      };
     } catch (err) {
       return { ok: false, error: `Failed to read on-chain mandate: ${(err as Error).message}` };
     }
@@ -122,7 +145,10 @@ export class GovernanceCore {
    * so a subsequent write may proceed. The gate is keyed on the policy action, not the
    * raw tx, so the write must present the identical action.
    */
-  async simulateAction(action: ProposedAction, tx: TxRequest): Promise<ToolResult<SimulationResult>> {
+  async simulateAction(
+    action: ProposedAction,
+    tx: TxRequest,
+  ): Promise<ToolResult<SimulationResult>> {
     // Even simulation respects policy structure — a reserved/over-cap action is denied
     // up front (without simulation it could never pass the write gate anyway).
     const pre = this.policyCheck(action, { simulated: true });
@@ -136,7 +162,11 @@ export class GovernanceCore {
       return { ok: false, error: `Simulation failed: ${(err as Error).message}` };
     }
     if (!result.success) {
-      return { ok: false, error: `Simulation reverted: ${result.revertReason ?? "unknown"}`, rule: "SIMULATION_REVERTED" };
+      return {
+        ok: false,
+        error: `Simulation reverted: ${result.revertReason ?? "unknown"}`,
+        rule: "SIMULATION_REVERTED",
+      };
     }
     this.gate.record(action);
     return { ok: true, data: result };
@@ -159,7 +189,11 @@ export class GovernanceCore {
     impact?: Impact;
   }): Promise<ToolResult<SubmittedWrite>> {
     if (!input.rationale || input.rationale.trim() === "") {
-      return { ok: false, error: "A rationale is required — no rationale, no submission.", rule: "RATIONALE_REQUIRED" };
+      return {
+        ok: false,
+        error: "A rationale is required — no rationale, no submission.",
+        rule: "RATIONALE_REQUIRED",
+      };
     }
     const selectors = input.calldatas.map(selectorOf);
     const action: ProposedAction = {
@@ -172,8 +206,15 @@ export class GovernanceCore {
       impact: input.impact,
     };
 
-    return this.submitWrite(action, () =>
-      this.d.contracts.governor.proposeRequest(input.targets, input.values, input.calldatas, input.description),
+    return this.submitWrite(
+      action,
+      () =>
+        this.d.contracts.governor.proposeRequest(
+          input.targets,
+          input.values,
+          input.calldatas,
+          input.description,
+        ),
       input.rationale,
       proposalRefId(input.description),
       "governance",
@@ -181,14 +222,31 @@ export class GovernanceCore {
   }
 
   /** Cast a vote. Policy-checked, rationale pinned, signed, returned ready to broadcast. */
-  async castVote(input: { proposalId: bigint; support: 0 | 1 | 2; reason: string }): Promise<ToolResult<SubmittedWrite>> {
+  async castVote(input: {
+    proposalId: bigint;
+    support: 0 | 1 | 2;
+    reason: string;
+  }): Promise<ToolResult<SubmittedWrite>> {
     if (!input.reason || input.reason.trim() === "") {
-      return { ok: false, error: "A vote reason is required — no rationale, no submission.", rule: "RATIONALE_REQUIRED" };
+      return {
+        ok: false,
+        error: "A vote reason is required — no rationale, no submission.",
+        rule: "RATIONALE_REQUIRED",
+      };
     }
-    const action: ProposedAction = { kind: "castVote", proposalId: input.proposalId, support: input.support };
+    const action: ProposedAction = {
+      kind: "castVote",
+      proposalId: input.proposalId,
+      support: input.support,
+    };
     return this.submitWrite(
       action,
-      () => this.d.contracts.governor.castVoteWithReasonRequest(input.proposalId, input.support, input.reason),
+      () =>
+        this.d.contracts.governor.castVoteWithReasonRequest(
+          input.proposalId,
+          input.support,
+          input.reason,
+        ),
       input.reason,
       keccak256(stringToBytes(`vote:${input.proposalId}`)),
       "governance",
@@ -211,7 +269,11 @@ export class GovernanceCore {
     rationale: string;
   }): Promise<ToolResult<SubmittedWrite>> {
     if (!input.rationale || input.rationale.trim() === "") {
-      return { ok: false, error: "A rationale is required — no rationale, no submission.", rule: "RATIONALE_REQUIRED" };
+      return {
+        ok: false,
+        error: "A rationale is required — no rationale, no submission.",
+        rule: "RATIONALE_REQUIRED",
+      };
     }
     const action: ProposedAction = {
       kind: "opExecute",
@@ -224,7 +286,13 @@ export class GovernanceCore {
     const agent = await this.d.signer.address();
     return this.submitWrite(
       action,
-      () => this.d.contracts.roles.execTransactionWithRoleRequest(input.target, input.value, input.data, agent),
+      () =>
+        this.d.contracts.roles.execTransactionWithRoleRequest(
+          input.target,
+          input.value,
+          input.data,
+          agent,
+        ),
       input.rationale,
       keccak256(stringToBytes(`op:${input.target}:${input.selector}:${this.now()}`)),
       "op",
@@ -270,7 +338,12 @@ export class GovernanceCore {
       // (d) Human ratification → draft + link, not a submission.
       if (decision.rule === "NEEDS_HUMAN_RATIFICATION") {
         const { actionHash, link } = this.draftLink(action);
-        return { ok: false, error: decision.reason, rule: decision.rule, ratification: { draft: true, link, actionHash } };
+        return {
+          ok: false,
+          error: decision.reason,
+          rule: decision.rule,
+          ratification: { draft: true, link, actionHash },
+        };
       }
       return { ok: false, error: decision.reason, rule: decision.rule };
     }
@@ -289,13 +362,32 @@ export class GovernanceCore {
     // Sign through the policy-gated signer (it re-checks independently).
     let signedTx: Hex;
     try {
-      const fields = { ...DEFAULT_TX, ...this.d.txDefaults, to: request.to, data: request.data, value: request.value };
+      const fields = {
+        ...DEFAULT_TX,
+        ...this.d.txDefaults,
+        to: request.to,
+        data: request.data,
+        value: request.value,
+      };
       signedTx =
         kind === "op"
-          ? await this.d.signer.signOpTx({ ...fields, action } as OpTxRequest, this.d.mandate, epochSpend, { simulated: true, now: this.now(), mandateActive: true })
-          : await this.d.signer.signGovernanceTx({ ...fields, action } as GovTxRequest, this.d.mandate, { simulated: true, now: this.now(), mandateActive: true });
+          ? await this.d.signer.signOpTx(
+              { ...fields, action } as OpTxRequest,
+              this.d.mandate,
+              epochSpend,
+              { simulated: true, now: this.now(), mandateActive: true },
+            )
+          : await this.d.signer.signGovernanceTx(
+              { ...fields, action } as GovTxRequest,
+              this.d.mandate,
+              { simulated: true, now: this.now(), mandateActive: true },
+            );
     } catch (err) {
-      return { ok: false, error: `Signer refused: ${(err as Error).message}`, rule: (err as { rule?: string }).rule };
+      return {
+        ok: false,
+        error: `Signer refused: ${(err as Error).message}`,
+        rule: (err as { rule?: string }).rule,
+      };
     }
 
     // Consume the gate so this simulation cannot authorize a second write.
@@ -303,7 +395,13 @@ export class GovernanceCore {
 
     return {
       ok: true,
-      data: { signedTx, rationale: pin, anchor, request, simulation: { success: true, gasUsed: 0n, backend: this.d.simulator.backend } },
+      data: {
+        signedTx,
+        rationale: pin,
+        anchor,
+        request,
+        simulation: { success: true, gasUsed: 0n, backend: this.d.simulator.backend },
+      },
     };
   }
 

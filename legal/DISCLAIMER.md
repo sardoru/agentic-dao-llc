@@ -55,13 +55,13 @@ See `legal/articles-statements.md` for the `[SMART_CONTRACT_IDENTIFIERS]` placeh
 
 ## Cross-References
 
-| Document | Purpose |
-|---|---|
-| `legal/articles-statements.md` | Wyoming DAO LLC Articles of Organization template |
-| `legal/operating-agreement-clauses.md` | Key operating-agreement clause templates |
-| `legal/reserved-matters-schedule.md` | Auto-generated Reserved Matters schedule (do not edit by hand) |
-| `legal/agent-mandate-exhibit-template.md` | Per-agent mandate exhibit template |
+| Document                                  | Purpose                                                        |
+| ----------------------------------------- | -------------------------------------------------------------- |
+| `legal/articles-statements.md`            | Wyoming DAO LLC Articles of Organization template              |
+| `legal/operating-agreement-clauses.md`    | Key operating-agreement clause templates                       |
+| `legal/reserved-matters-schedule.md`      | Auto-generated Reserved Matters schedule (do not edit by hand) |
+| `legal/agent-mandate-exhibit-template.md` | Per-agent mandate exhibit template                             |
 
 ---
 
-*Generated to accompany the Agentic DAO LLC software build. Consult qualified counsel before any organizational, filing, or governance action.*
+_Generated to accompany the Agentic DAO LLC software build. Consult qualified counsel before any organizational, filing, or governance action._

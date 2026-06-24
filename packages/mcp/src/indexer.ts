@@ -2,7 +2,12 @@
 export type FetchLike = (
   url: string,
   init?: { method?: string; headers?: Record<string, string>; body?: string },
-) => Promise<{ ok: boolean; status: number; json: () => Promise<unknown>; text: () => Promise<string> }>;
+) => Promise<{
+  ok: boolean;
+  status: number;
+  json: () => Promise<unknown>;
+  text: () => Promise<string>;
+}>;
 
 /** A proposal row as the indexer serves it (decoded + joined; see build spec §10). */
 export interface ProposalView {
@@ -74,7 +79,9 @@ export class IndexerClient {
     }
     if (!res.ok) {
       const text = await res.text().catch(() => "");
-      throw new IndexerUnavailableError(`Indexer returned HTTP ${res.status} for ${url} ${text}`.trim());
+      throw new IndexerUnavailableError(
+        `Indexer returned HTTP ${res.status} for ${url} ${text}`.trim(),
+      );
     }
     return (await res.json()) as T;
   }
@@ -94,6 +101,9 @@ export class IndexerClient {
 }
 
 /** Resolve the indexer base URL from env (INDEXER_URL wins, then NEXT_PUBLIC_INDEXER_URL). */
-export function indexerUrlFromEnv(env: { INDEXER_URL?: string; NEXT_PUBLIC_INDEXER_URL?: string }): string {
+export function indexerUrlFromEnv(env: {
+  INDEXER_URL?: string;
+  NEXT_PUBLIC_INDEXER_URL?: string;
+}): string {
   return env.INDEXER_URL ?? env.NEXT_PUBLIC_INDEXER_URL ?? "http://localhost:42069";
 }

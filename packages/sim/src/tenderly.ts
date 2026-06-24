@@ -5,7 +5,12 @@ import type { AssetDelta, SimulationResult, Simulator, TxRequest } from "./types
 export type FetchLike = (
   url: string,
   init: { method: string; headers: Record<string, string>; body: string },
-) => Promise<{ ok: boolean; status: number; json: () => Promise<unknown>; text: () => Promise<string> }>;
+) => Promise<{
+  ok: boolean;
+  status: number;
+  json: () => Promise<unknown>;
+  text: () => Promise<string>;
+}>;
 
 export interface TenderlyConfig {
   account: string;
@@ -57,7 +62,8 @@ export class TenderlySimulator implements Simulator {
   async simulate(tx: TxRequest): Promise<SimulationResult> {
     const url = `https://api.tenderly.co/api/v1/account/${this.cfg.account}/project/${this.cfg.project}/simulate`;
     const from = tx.from ?? this.cfg.defaultFrom;
-    if (!from) throw new Error("TenderlySimulator: tx.from is required (no defaultFrom configured)");
+    if (!from)
+      throw new Error("TenderlySimulator: tx.from is required (no defaultFrom configured)");
 
     const body = {
       network_id: String(this.cfg.chainId),

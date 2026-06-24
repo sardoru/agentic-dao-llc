@@ -8,12 +8,6 @@
     "declaration": false,
     "declarationMap": false
   },
-  "include": [
-    "ponder-env.d.ts",
-    "abis",
-    "src",
-    "ponder.config.ts",
-    "ponder.schema.ts"
-  ],
+  "include": ["ponder-env.d.ts", "abis", "src", "ponder.config.ts", "ponder.schema.ts"],
   "exclude": ["node_modules"]
 }

@@ -34,31 +34,24 @@ ponder.on("AgentRegistry:AgentRegistered", async ({ event, context }) => {
 // ---------------------------------------------------------------------------
 // AgentMandateUpdated — update mandate hash and URI.
 // ---------------------------------------------------------------------------
-ponder.on(
-  "AgentRegistry:AgentMandateUpdated",
-  async ({ event, context }) => {
-    const { db } = context;
-    const args = event.args;
+ponder.on("AgentRegistry:AgentMandateUpdated", async ({ event, context }) => {
+  const { db } = context;
+  const args = event.args;
 
-    await db
-      .update(agent, { account: args.agentAccount as `0x${string}` })
-      .set({
-        mandateHash: args.newHash as string,
-        mandateURI: args.mandateURI,
-        updatedAt: Number(event.block.timestamp),
-      });
-  }
-);
+  await db.update(agent, { account: args.agentAccount as `0x${string}` }).set({
+    mandateHash: args.newHash as string,
+    mandateURI: args.mandateURI,
+    updatedAt: Number(event.block.timestamp),
+  });
+});
 
 // ---------------------------------------------------------------------------
 // AgentDeactivated — mark agent as inactive.
 // ---------------------------------------------------------------------------
 ponder.on("AgentRegistry:AgentDeactivated", async ({ event, context }) => {
   const { db } = context;
-  await db
-    .update(agent, { account: event.args.agentAccount as `0x${string}` })
-    .set({
-      active: false,
-      updatedAt: Number(event.block.timestamp),
-    });
+  await db.update(agent, { account: event.args.agentAccount as `0x${string}` }).set({
+    active: false,
+    updatedAt: Number(event.block.timestamp),
+  });
 });

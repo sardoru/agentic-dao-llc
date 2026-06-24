@@ -32,7 +32,7 @@ export const agent = onchainTable(
   }),
   (table) => ({
     principalIdx: index().on(table.principal),
-  })
+  }),
 );
 
 // ---------------------------------------------------------------------------
@@ -57,7 +57,7 @@ export const member = onchainTable(
   }),
   (table) => ({
     delegatedAgentIdx: index().on(table.delegatedAgent),
-  })
+  }),
 );
 
 // ---------------------------------------------------------------------------
@@ -102,7 +102,7 @@ export const proposal = onchainTable(
   (table) => ({
     proposerAgentIdx: index().on(table.proposerAgent),
     stateIdx: index().on(table.state),
-  })
+  }),
 );
 
 // ---------------------------------------------------------------------------
@@ -130,7 +130,7 @@ export const vote = onchainTable(
     pk: primaryKey({ columns: [table.proposalId, table.voter] }),
     proposalIdx: index().on(table.proposalId),
     voterIdx: index().on(table.voter),
-  })
+  }),
 );
 
 // ---------------------------------------------------------------------------
@@ -168,7 +168,7 @@ export const treasuryEvent = onchainTable(
     agentIdx: index().on(table.agent),
     proposalIdx: index().on(table.proposalId),
     timestampIdx: index().on(table.timestamp),
-  })
+  }),
 );
 
 // ---------------------------------------------------------------------------
@@ -176,18 +176,15 @@ export const treasuryEvent = onchainTable(
 // Populated by RationaleAnchor RationaleAnchored events.
 // The refId is an arbitrary bytes32 (e.g. proposalId hash or action hash).
 // ---------------------------------------------------------------------------
-export const rationale = onchainTable(
-  "rationale",
-  (t) => ({
-    // bytes32 refId as hex text (primary key).
-    refId: t.text().primaryKey(),
-    ipfsURI: t.text().notNull(),
-    contentHash: t.text().notNull(),
-    // Block timestamp when anchored.
-    timestamp: t.integer().notNull(),
-    txHash: t.text().notNull(),
-  })
-);
+export const rationale = onchainTable("rationale", (t) => ({
+  // bytes32 refId as hex text (primary key).
+  refId: t.text().primaryKey(),
+  ipfsURI: t.text().notNull(),
+  contentHash: t.text().notNull(),
+  // Block timestamp when anchored.
+  timestamp: t.integer().notNull(),
+  txHash: t.text().notNull(),
+}));
 
 // ---------------------------------------------------------------------------
 // Relations

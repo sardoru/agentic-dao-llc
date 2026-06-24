@@ -11,8 +11,7 @@ import { RationaleAnchorAbi } from "./abis/RationaleAnchor.js";
 // typechecks and codegen passes even when contracts are not yet deployed.
 const ZERO = "0x0000000000000000000000000000000000000000" as const;
 
-const addr = (key: string) =>
-  (process.env[key] as `0x${string}` | undefined) ?? ZERO;
+const addr = (key: string) => (process.env[key] as `0x${string}` | undefined) ?? ZERO;
 
 // Small startBlock so Ponder starts scanning from a known safe point rather
 // than block 0 (Base Sepolia genesis).  Override with env PONDER_START_BLOCK.

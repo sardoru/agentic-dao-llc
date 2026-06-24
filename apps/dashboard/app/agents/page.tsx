@@ -75,9 +75,7 @@ export default async function AgentsPage() {
               </div>
               <div className="flex items-start gap-2">
                 <span className="text-muted w-24 shrink-0">Mandate hash</span>
-                <span className="font-mono text-muted/80 truncate">
-                  {agent.mandateHash}
-                </span>
+                <span className="font-mono text-muted/80 truncate">{agent.mandateHash}</span>
               </div>
             </div>
 
@@ -109,18 +107,15 @@ export default async function AgentsPage() {
                 <div className="flex items-center justify-between text-xs text-muted">
                   <span>Epoch spend</span>
                   <span>
-                    ${agent.epochSpendUsd.toLocaleString()} /{" "}
-                    ${agent.epochCapUsd.toLocaleString()} USDC
+                    ${agent.epochSpendUsd.toLocaleString()} / ${agent.epochCapUsd.toLocaleString()}{" "}
+                    USDC
                   </span>
                 </div>
                 <div className="h-1.5 bg-surface-3 rounded-full overflow-hidden">
                   <div
                     className="h-full bg-accent rounded-full"
                     style={{
-                      width: `${Math.min(
-                        100,
-                        (agent.epochSpendUsd / agent.epochCapUsd) * 100
-                      )}%`,
+                      width: `${Math.min(100, (agent.epochSpendUsd / agent.epochCapUsd) * 100)}%`,
                     }}
                   />
                 </div>

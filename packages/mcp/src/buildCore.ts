@@ -73,10 +73,13 @@ export function makeIpfsClient(env: RuntimeEnv): IpfsClient {
  */
 export function buildCore(env: RuntimeEnv = process.env): GovernanceCore {
   const mandatePath = env.MANDATE_PATH;
-  if (!mandatePath) throw new Error("MANDATE_PATH is not set — point it at the agent's mandate JSON doc.");
+  if (!mandatePath)
+    throw new Error("MANDATE_PATH is not set — point it at the agent's mandate JSON doc.");
   const mandate = loadMandate(mandatePath);
 
-  const agentAccount: Address = env.AGENT_ACCOUNT ? getAddress(env.AGENT_ACCOUNT) : mandate.agentAccount;
+  const agentAccount: Address = env.AGENT_ACCOUNT
+    ? getAddress(env.AGENT_ACCOUNT)
+    : mandate.agentAccount;
 
   const config = loadChainConfig(env);
   const publicClient = makePublicClient(config);

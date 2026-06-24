@@ -19,7 +19,8 @@
     "format": "prettier --write .",
     "contracts:build": "forge build --root contracts",
     "contracts:test": "forge test --root contracts -vvv",
-    "ci": "pnpm check:reserved && pnpm lint && pnpm typecheck && pnpm build && pnpm test"
+    "e2e:local": "node scripts/e2e-local.mjs",
+    "verify": "pnpm check:reserved && pnpm lint && pnpm typecheck && pnpm build && pnpm test"
   },
   "devDependencies": {
     "@eslint/js": "^9.17.0",

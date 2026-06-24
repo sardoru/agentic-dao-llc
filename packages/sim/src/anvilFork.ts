@@ -1,10 +1,4 @@
-import {
-  http,
-  type Address,
-  type Hex,
-  type StateOverride,
-  createPublicClient,
-} from "viem";
+import { http, type Address, type Hex, type StateOverride, createPublicClient } from "viem";
 import { baseSepolia } from "viem/chains";
 import type { SimulationResult, Simulator, TxRequest } from "./types";
 
@@ -18,7 +12,12 @@ export interface CallClient {
     gas?: bigint;
     stateOverride?: StateOverride;
   }): Promise<{ data?: Hex }>;
-  estimateGas(args: { account?: Address; to: Address; data?: Hex; value?: bigint }): Promise<bigint>;
+  estimateGas(args: {
+    account?: Address;
+    to: Address;
+    data?: Hex;
+    value?: bigint;
+  }): Promise<bigint>;
 }
 
 export interface AnvilForkConfig {
@@ -48,7 +47,10 @@ export class AnvilForkSimulator implements Simulator {
     this.client =
       cfg.client ??
       (createPublicClient({
-        chain: cfg.chainId === baseSepolia.id || cfg.chainId === undefined ? baseSepolia : { ...baseSepolia, id: cfg.chainId },
+        chain:
+          cfg.chainId === baseSepolia.id || cfg.chainId === undefined
+            ? baseSepolia
+            : { ...baseSepolia, id: cfg.chainId },
         transport: http(cfg.rpcUrl),
       }) as unknown as CallClient);
   }

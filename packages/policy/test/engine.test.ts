@@ -32,7 +32,12 @@ function mandate(over: Partial<Mandate> = {}): Mandate {
       proposalTypes: ["TREASURY_PAYMENT", "PARAM_TUNE_NONRESERVED", "TEXT_SIGNAL"],
       allowedTargets: [TARGET],
       forbiddenSelectors: [],
-      spendingCap: { token: TOKEN, perTx: "1000000000", perEpoch: "10000000000", epochSeconds: 604800 },
+      spendingCap: {
+        token: TOKEN,
+        perTx: "1000000000",
+        perEpoch: "10000000000",
+        epochSeconds: 604800,
+      },
     },
     humanRatification: { valueUsdGte: 5000, impact: ["HIGH"] },
     requireSimulation: true,
@@ -48,7 +53,9 @@ function ctx(over: Partial<EvalContext> = {}): EvalContext {
   return { simulated: true, epochSpend: 0n, now: IN_WINDOW, ...over };
 }
 
-const propose = (over: Partial<Extract<ProposedAction, { kind: "propose" }>> = {}): ProposedAction => ({
+const propose = (
+  over: Partial<Extract<ProposedAction, { kind: "propose" }>> = {},
+): ProposedAction => ({
   kind: "propose",
   proposalType: "TREASURY_PAYMENT",
   targets: [TARGET],
@@ -57,7 +64,9 @@ const propose = (over: Partial<Extract<ProposedAction, { kind: "propose" }>> = {
   ...over,
 });
 
-const op = (over: Partial<Extract<ProposedAction, { kind: "opExecute" }>> = {}): ProposedAction => ({
+const op = (
+  over: Partial<Extract<ProposedAction, { kind: "opExecute" }>> = {},
+): ProposedAction => ({
   kind: "opExecute",
   target: TARGET,
   selector: transferSel,
@@ -79,31 +88,47 @@ describe("evaluate — time + activation", () => {
   });
   it("denies before the mandate is in effect", () => {
     const early = Math.floor(new Date("2025-12-01T00:00:00Z").getTime() / 1000);
-    expect(evaluate(mandate(), propose(), ctx({ now: early }))).toMatchObject({ rule: "MANDATE_INACTIVE" });
+    expect(evaluate(mandate(), propose(), ctx({ now: early }))).toMatchObject({
+      rule: "MANDATE_INACTIVE",
+    });
   });
   it("denies after expiry", () => {
     const late = Math.floor(new Date("2027-01-02T00:00:00Z").getTime() / 1000);
-    expect(evaluate(mandate(), propose(), ctx({ now: late }))).toMatchObject({ rule: "MANDATE_EXPIRED" });
+    expect(evaluate(mandate(), propose(), ctx({ now: late }))).toMatchObject({
+      rule: "MANDATE_EXPIRED",
+    });
   });
 });
 
 describe("evaluate — capability + proposal type", () => {
   it("denies voting when canVote is false", () => {
     expect(
-      evaluate(mandate({ scope: { ...mandate().scope, canVote: false } }), { kind: "castVote", proposalId: 1n, support: 1 }, ctx()),
+      evaluate(
+        mandate({ scope: { ...mandate().scope, canVote: false } }),
+        { kind: "castVote", proposalId: 1n, support: 1 },
+        ctx(),
+      ),
     ).toMatchObject({ rule: "CAPABILITY_NOT_ALLOWED" });
   });
   it("allows voting when canVote is true and simulated", () => {
-    expect(evaluate(mandate(), { kind: "castVote", proposalId: 1n, support: 1 }, ctx())).toEqual({ allow: true });
+    expect(evaluate(mandate(), { kind: "castVote", proposalId: 1n, support: 1 }, ctx())).toEqual({
+      allow: true,
+    });
   });
   it("denies proposing when canPropose is false", () => {
-    expect(evaluate(mandate({ scope: { ...mandate().scope, canPropose: false } }), propose(), ctx())).toMatchObject({
+    expect(
+      evaluate(mandate({ scope: { ...mandate().scope, canPropose: false } }), propose(), ctx()),
+    ).toMatchObject({
       rule: "CAPABILITY_NOT_ALLOWED",
     });
   });
   it("denies a proposal type outside the mandate", () => {
     expect(
-      evaluate(mandate({ scope: { ...mandate().scope, proposalTypes: ["TEXT_SIGNAL"] } }), propose(), ctx()),
+      evaluate(
+        mandate({ scope: { ...mandate().scope, proposalTypes: ["TEXT_SIGNAL"] } }),
+        propose(),
+        ctx(),
+      ),
     ).toMatchObject({ rule: "PROPOSAL_TYPE_NOT_ALLOWED" });
   });
 });
@@ -116,41 +141,61 @@ describe("evaluate — Reserved Matters (safety proof)", () => {
     });
   });
   it("denies an opExecute that touches a reserved selector", () => {
-    expect(evaluate(mandate(), op({ selector: reservedSel }), ctx())).toMatchObject({ rule: "RESERVED_MATTER" });
+    expect(evaluate(mandate(), op({ selector: reservedSel }), ctx())).toMatchObject({
+      rule: "RESERVED_MATTER",
+    });
   });
   it("denies a mandate-forbidden selector", () => {
     const burn = toFunctionSelector("selfDestruct()");
     expect(
-      evaluate(mandate({ scope: { ...mandate().scope, forbiddenSelectors: [burn] } }), propose({ selectors: [burn] }), ctx()),
+      evaluate(
+        mandate({ scope: { ...mandate().scope, forbiddenSelectors: [burn] } }),
+        propose({ selectors: [burn] }),
+        ctx(),
+      ),
     ).toMatchObject({ rule: "FORBIDDEN_SELECTOR" });
   });
 });
 
 describe("evaluate — targets", () => {
   it("denies a propose against a non-allowed target", () => {
-    expect(evaluate(mandate(), propose({ targets: [OTHER] }), ctx())).toMatchObject({ rule: "TARGET_NOT_ALLOWED" });
+    expect(evaluate(mandate(), propose({ targets: [OTHER] }), ctx())).toMatchObject({
+      rule: "TARGET_NOT_ALLOWED",
+    });
   });
 });
 
 describe("evaluate — simulation guard", () => {
   it("denies a write that was not simulated", () => {
-    expect(evaluate(mandate(), propose(), ctx({ simulated: false }))).toMatchObject({ rule: "SIMULATION_REQUIRED" });
+    expect(evaluate(mandate(), propose(), ctx({ simulated: false }))).toMatchObject({
+      rule: "SIMULATION_REQUIRED",
+    });
   });
   it("allows when requireSimulation is false even without a sim", () => {
-    expect(evaluate(mandate({ requireSimulation: false }), propose(), ctx({ simulated: false }))).toEqual({ allow: true });
+    expect(
+      evaluate(mandate({ requireSimulation: false }), propose(), ctx({ simulated: false })),
+    ).toEqual({ allow: true });
   });
 });
 
 describe("evaluate — human ratification", () => {
   it("flags by value over threshold", () => {
     const d = evaluate(mandate(), propose({ valueUsd: 6000 }), ctx());
-    expect(d).toMatchObject({ allow: false, rule: "NEEDS_HUMAN_RATIFICATION", ratificationDraft: true });
+    expect(d).toMatchObject({
+      allow: false,
+      rule: "NEEDS_HUMAN_RATIFICATION",
+      ratificationDraft: true,
+    });
   });
   it("flags by impact", () => {
-    expect(evaluate(mandate(), propose({ impact: "HIGH" }), ctx())).toMatchObject({ rule: "NEEDS_HUMAN_RATIFICATION" });
+    expect(evaluate(mandate(), propose({ impact: "HIGH" }), ctx())).toMatchObject({
+      rule: "NEEDS_HUMAN_RATIFICATION",
+    });
   });
   it("does not flag a low-value, low-impact proposal", () => {
-    expect(evaluate(mandate(), propose({ valueUsd: 100, impact: "LOW" }), ctx())).toEqual({ allow: true });
+    expect(evaluate(mandate(), propose({ valueUsd: 100, impact: "LOW" }), ctx())).toEqual({
+      allow: true,
+    });
   });
 });
 
@@ -159,18 +204,26 @@ describe("evaluate — bounded operational execution + spending caps (safety pro
     expect(evaluate(mandate(), op(), ctx())).toEqual({ allow: true });
   });
   it("denies when the agent has no spending cap", () => {
-    expect(evaluate(mandate({ scope: { ...mandate().scope, spendingCap: null } }), op(), ctx())).toMatchObject({
+    expect(
+      evaluate(mandate({ scope: { ...mandate().scope, spendingCap: null } }), op(), ctx()),
+    ).toMatchObject({
       rule: "NO_SPENDING_CAP",
     });
   });
   it("denies an op against a non-allowed target", () => {
-    expect(evaluate(mandate(), op({ target: OTHER }), ctx())).toMatchObject({ rule: "OP_TARGET_NOT_ALLOWED" });
+    expect(evaluate(mandate(), op({ target: OTHER }), ctx())).toMatchObject({
+      rule: "OP_TARGET_NOT_ALLOWED",
+    });
   });
   it("denies when amount exceeds the per-tx cap", () => {
-    expect(evaluate(mandate(), op({ amount: 2_000_000_000n }), ctx())).toMatchObject({ rule: "PER_TX_CAP_EXCEEDED" });
+    expect(evaluate(mandate(), op({ amount: 2_000_000_000n }), ctx())).toMatchObject({
+      rule: "PER_TX_CAP_EXCEEDED",
+    });
   });
   it("denies when cumulative spend exceeds the per-epoch cap", () => {
-    expect(evaluate(mandate(), op({ amount: 1_000_000_000n }), ctx({ epochSpend: 9_500_000_000n }))).toMatchObject({
+    expect(
+      evaluate(mandate(), op({ amount: 1_000_000_000n }), ctx({ epochSpend: 9_500_000_000n })),
+    ).toMatchObject({
       rule: "PER_EPOCH_CAP_EXCEEDED",
     });
   });

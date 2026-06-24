@@ -25,7 +25,14 @@ const proposeAction: ProposedAction = {
 };
 const proposeTx: TxRequest = { to: TARGET, data: transferData, value: 0n };
 
-const opAction: ProposedAction = { kind: "opExecute", target: TARGET, selector: transferSel, value: 0n, token: TOKEN, amount: 500_000_000n };
+const opAction: ProposedAction = {
+  kind: "opExecute",
+  target: TARGET,
+  selector: transferSel,
+  value: 0n,
+  token: TOKEN,
+  amount: 500_000_000n,
+};
 const opTx: TxRequest = { to: TARGET, data: transferData, value: 0n };
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -69,23 +76,59 @@ describe("test_WriteBlockedWithoutSimulation", () => {
     const other = await core.simulateAction({ ...opAction, amount: 1n }, opTx);
     expect(other.ok).toBe(true);
     // The original (amount 500_000_000) is still ungated.
-    const blocked = await core.opExecute({ target: TARGET, selector: transferSel, data: transferData, value: 0n, token: TOKEN, amount: 500_000_000n, epochSpend: 0n, rationale: "pay" });
+    const blocked = await core.opExecute({
+      target: TARGET,
+      selector: transferSel,
+      data: transferData,
+      value: 0n,
+      token: TOKEN,
+      amount: 500_000_000n,
+      epochSpend: 0n,
+      rationale: "pay",
+    });
     expect(blocked.ok).toBe(false);
     if (!blocked.ok) expect(blocked.rule).toBe("SIMULATION_REQUIRED");
 
     // Now simulate the exact action → write proceeds.
     const sim = await core.simulateAction(opAction, opTx);
     expect(sim.ok).toBe(true);
-    const ok = await core.opExecute({ target: TARGET, selector: transferSel, data: transferData, value: 0n, token: TOKEN, amount: 500_000_000n, epochSpend: 0n, rationale: "pay" });
+    const ok = await core.opExecute({
+      target: TARGET,
+      selector: transferSel,
+      data: transferData,
+      value: 0n,
+      token: TOKEN,
+      amount: 500_000_000n,
+      epochSpend: 0n,
+      rationale: "pay",
+    });
     expect(ok.ok).toBe(true);
   });
 
   it("the sim-gate is single-use: a replayed write must re-simulate", async () => {
     const { core } = buildTestCore();
     await core.simulateAction(opAction, opTx);
-    const first = await core.opExecute({ target: TARGET, selector: transferSel, data: transferData, value: 0n, token: TOKEN, amount: 500_000_000n, epochSpend: 0n, rationale: "pay" });
+    const first = await core.opExecute({
+      target: TARGET,
+      selector: transferSel,
+      data: transferData,
+      value: 0n,
+      token: TOKEN,
+      amount: 500_000_000n,
+      epochSpend: 0n,
+      rationale: "pay",
+    });
     expect(first.ok).toBe(true);
-    const replay = await core.opExecute({ target: TARGET, selector: transferSel, data: transferData, value: 0n, token: TOKEN, amount: 500_000_000n, epochSpend: 0n, rationale: "pay" });
+    const replay = await core.opExecute({
+      target: TARGET,
+      selector: transferSel,
+      data: transferData,
+      value: 0n,
+      token: TOKEN,
+      amount: 500_000_000n,
+      epochSpend: 0n,
+      rationale: "pay",
+    });
     expect(replay.ok).toBe(false);
     if (!replay.ok) expect(replay.rule).toBe("SIMULATION_REQUIRED");
   });
@@ -148,7 +191,10 @@ describe("test_MandateHashMismatchRejected", () => {
 
   it("get_mandate verifies when the on-chain hash matches", async () => {
     const mandate = testMandate();
-    const { core } = buildTestCore({ mandate, contracts: mockContracts({ onChainHash: hashMandate(mandate) }) });
+    const { core } = buildTestCore({
+      mandate,
+      contracts: mockContracts({ onChainHash: hashMandate(mandate) }),
+    });
     const r = await core.getMandate(AGENT);
     expect(r.ok).toBe(true);
     if (r.ok) expect(r.data.verified).toBe(true);
@@ -162,18 +208,44 @@ describe("test_MandateHashMismatchRejected", () => {
 describe("reserved matters are not constructable", () => {
   it("op_execute on a reserved selector is denied at simulate AND would be at write", async () => {
     const { core } = buildTestCore();
-    const reservedAction: ProposedAction = { kind: "opExecute", target: TARGET, selector: reservedSel, value: 0n, token: TOKEN, amount: 1n };
-    const sim = await core.simulateAction(reservedAction, { to: TARGET, data: reservedSel, value: 0n });
+    const reservedAction: ProposedAction = {
+      kind: "opExecute",
+      target: TARGET,
+      selector: reservedSel,
+      value: 0n,
+      token: TOKEN,
+      amount: 1n,
+    };
+    const sim = await core.simulateAction(reservedAction, {
+      to: TARGET,
+      data: reservedSel,
+      value: 0n,
+    });
     expect(sim.ok).toBe(false);
     if (!sim.ok) expect(sim.rule).toBe("RESERVED_MATTER");
   });
 
   it("a proposal whose calldata carries a reserved selector is denied", async () => {
     const { core } = buildTestCore();
-    const action: ProposedAction = { kind: "propose", proposalType: "PARAM_TUNE_NONRESERVED", targets: [TARGET], selectors: [reservedSel], values: [0n] };
+    const action: ProposedAction = {
+      kind: "propose",
+      proposalType: "PARAM_TUNE_NONRESERVED",
+      targets: [TARGET],
+      selectors: [reservedSel],
+      values: [0n],
+    };
     // Open the gate so we know the denial is the RESERVED_MATTER policy rule, not the sim-gate.
-    await core.simulateAction(action, { to: TARGET, data: reservedSel, value: 0n }).catch(() => undefined);
-    const r = await core.createProposal({ proposalType: "PARAM_TUNE_NONRESERVED", targets: [TARGET], values: [0n], calldatas: [reservedSel], description: "sneaky", rationale: "nope" });
+    await core
+      .simulateAction(action, { to: TARGET, data: reservedSel, value: 0n })
+      .catch(() => undefined);
+    const r = await core.createProposal({
+      proposalType: "PARAM_TUNE_NONRESERVED",
+      targets: [TARGET],
+      values: [0n],
+      calldatas: [reservedSel],
+      description: "sneaky",
+      rationale: "nope",
+    });
     expect(r.ok).toBe(false);
     if (!r.ok) expect(r.rule).toBe("RESERVED_MATTER");
   });
@@ -182,7 +254,15 @@ describe("reserved matters are not constructable", () => {
 describe("human ratification returns a draft, not a submission", () => {
   it("a high-value proposal yields NEEDS_HUMAN_RATIFICATION with a ratification link", async () => {
     const { core } = buildTestCore();
-    const action: ProposedAction = { kind: "propose", proposalType: "TREASURY_PAYMENT", targets: [TARGET], selectors: [transferSel], values: [0n], valueUsd: 10_000, impact: "HIGH" };
+    const action: ProposedAction = {
+      kind: "propose",
+      proposalType: "TREASURY_PAYMENT",
+      targets: [TARGET],
+      selectors: [transferSel],
+      values: [0n],
+      valueUsd: 10_000,
+      impact: "HIGH",
+    };
     await core.simulateAction(action, proposeTx);
     const r = await core.createProposal({
       proposalType: "TREASURY_PAYMENT",
@@ -206,18 +286,45 @@ describe("human ratification returns a draft, not a submission", () => {
 describe("spend caps + signer defense-in-depth at the write boundary", () => {
   it("op_execute over the per-tx cap is denied even with a valid simulation + rationale", async () => {
     const { core } = buildTestCore();
-    const overcap: ProposedAction = { kind: "opExecute", target: TARGET, selector: transferSel, value: 0n, token: TOKEN, amount: 2_000_000_000n };
+    const overcap: ProposedAction = {
+      kind: "opExecute",
+      target: TARGET,
+      selector: transferSel,
+      value: 0n,
+      token: TOKEN,
+      amount: 2_000_000_000n,
+    };
     await core.simulateAction(overcap, opTx);
-    const r = await core.opExecute({ target: TARGET, selector: transferSel, data: transferData, value: 0n, token: TOKEN, amount: 2_000_000_000n, epochSpend: 0n, rationale: "too big" });
+    const r = await core.opExecute({
+      target: TARGET,
+      selector: transferSel,
+      data: transferData,
+      value: 0n,
+      token: TOKEN,
+      amount: 2_000_000_000n,
+      epochSpend: 0n,
+      rationale: "too big",
+    });
     expect(r.ok).toBe(false);
     if (!r.ok) expect(r.rule).toBe("PER_TX_CAP_EXCEEDED");
   });
 
   it("a simulation that reverts does not open the gate", async () => {
-    const { core } = buildTestCore({ simulator: mockSimulator({ success: false, revertReason: "boom" }) });
+    const { core } = buildTestCore({
+      simulator: mockSimulator({ success: false, revertReason: "boom" }),
+    });
     const sim = await core.simulateAction(opAction, opTx);
     expect(sim.ok).toBe(false);
-    const write = await core.opExecute({ target: TARGET, selector: transferSel, data: transferData, value: 0n, token: TOKEN, amount: 500_000_000n, epochSpend: 0n, rationale: "pay" });
+    const write = await core.opExecute({
+      target: TARGET,
+      selector: transferSel,
+      data: transferData,
+      value: 0n,
+      token: TOKEN,
+      amount: 500_000_000n,
+      epochSpend: 0n,
+      rationale: "pay",
+    });
     expect(write.ok).toBe(false);
     if (!write.ok) expect(write.rule).toBe("SIMULATION_REQUIRED");
   });

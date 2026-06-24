@@ -18,11 +18,7 @@ const NAV_ITEMS = [
   { href: "/compliance", label: "Compliance" },
 ];
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
       <body className="bg-canvas text-ink min-h-screen">
@@ -34,9 +30,7 @@ export default function RootLayout({
                 <div className="text-xs font-mono text-muted uppercase tracking-widest mb-1">
                   Wyoming DAO LLC
                 </div>
-                <div className="text-ink font-semibold text-sm leading-tight">
-                  Agentic DAO
-                </div>
+                <div className="text-ink font-semibold text-sm leading-tight">Agentic DAO</div>
                 <div className="mt-1 flex items-center gap-1.5">
                   <span className="inline-block w-1.5 h-1.5 rounded-full bg-success" />
                   <span className="text-xs text-muted">Base Sepolia</span>
@@ -54,16 +48,12 @@ export default function RootLayout({
                 ))}
               </nav>
               <div className="px-5 py-4 border-t border-border">
-                <div className="text-xs text-muted font-mono">
-                  testnet · read-only
-                </div>
+                <div className="text-xs text-muted font-mono">testnet · read-only</div>
               </div>
             </aside>
 
             {/* Main */}
-            <main className="ml-56 flex-1 min-h-screen">
-              {children}
-            </main>
+            <main className="ml-56 flex-1 min-h-screen">{children}</main>
           </div>
         </Providers>
       </body>

@@ -51,23 +51,23 @@
 A delegated agent's **mandate** — the machine-readable policy that bounds what it may do — is
 enforced identically in three independent layers:
 
-| Layer | What it bounds | Where it lives |
-| --- | --- | --- |
-| **Smart contracts** | what is technically *possible* on-chain | [`contracts/`](contracts/) (Foundry + OpenZeppelin v5) |
-| **Agent runtime** | what the agent may *attempt* | [`packages/policy`](packages/policy) → [`mcp`](packages/mcp) · [`cli`](packages/cli) · [`signer`](packages/signer) |
-| **Legal documents** | what *binds* the LLC and its members | [`legal/`](legal/) (templates) |
+| Layer               | What it bounds                          | Where it lives                                                                                                     |
+| ------------------- | --------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| **Smart contracts** | what is technically _possible_ on-chain | [`contracts/`](contracts/) (Foundry + OpenZeppelin v5)                                                             |
+| **Agent runtime**   | what the agent may _attempt_            | [`packages/policy`](packages/policy) → [`mcp`](packages/mcp) · [`cli`](packages/cli) · [`signer`](packages/signer) |
+| **Legal documents** | what _binds_ the LLC and its members    | [`legal/`](legal/) (templates)                                                                                     |
 
 If the three layers agree, the system is coherent. If they drift, you get an agent that can do
 things on-chain the operating agreement never authorized, or vice versa. **Every design decision
 in this repo exists to keep those three aligned.** The mechanism that keeps them aligned is a
-single source of truth — [`reserved-matters.yaml`](reserved-matters.yaml) — which *generates*
+single source of truth — [`reserved-matters.yaml`](reserved-matters.yaml) — which _generates_
 the runtime policy constants **and** the legal schedule, and is proven against the on-chain
 access-control layer by adversarial tests. CI fails if any of the three drift.
 
 **Two distinct agent capabilities, never conflated:**
 
 - **Governance participation** — agents `propose` and `castVote` in the Governor. This moves no
-  funds directly; it only costs gas. Treasury movement happens *later*, when a **passed**
+  funds directly; it only costs gas. Treasury movement happens _later_, when a **passed**
   proposal is executed through the timelock under quorum + a guardian veto window.
 - **Bounded unilateral operational execution** (optional, per agent) — an agent may take small,
   routine actions (e.g. pay a recurring invoice up to a cap) without a full vote, through a
@@ -79,9 +79,9 @@ access-control layer by adversarial tests. CI fails if any of the three drift.
 The **`DaoGovernor` holds no `AccessControl` admin role** over membership, agent mandates,
 spending caps, the timelock delay, or contract upgrades. Every one of those is gated behind a
 role held by the **guardian multisig**. There is therefore **no on-chain execution path** from
-an ordinary, agent-driven proposal to a *Reserved Matter* (the constitutional floor).
+an ordinary, agent-driven proposal to a _Reserved Matter_ (the constitutional floor).
 
-This is *proven, not asserted.* See [`test_RoleSeparation_GovernorHoldsNothing_GuardianHoldsAll`](contracts/test/Adversarial.t.sol)
+This is _proven, not asserted._ See [`test_RoleSeparation_GovernorHoldsNothing_GuardianHoldsAll`](contracts/test/Adversarial.t.sol)
 and its siblings in [Testing](#testing--the-adversarial-safety-proofs), and
 [ADR-0001](docs/adr/0001-constitutional-separation.md) for the rationale.
 
@@ -167,28 +167,33 @@ pnpm build && pnpm test
 forge build --root contracts --sizes
 forge test  --root contracts -vvv
 
-# 4. the full local gate — exactly what CI runs
-pnpm ci
+# 4. the full local gate — mirrors what CI runs
+pnpm verify
+
+# 5. drive the WHOLE system end to end on a local anvil (no external creds)
+pnpm e2e:local
 ```
 
-`pnpm ci` runs, in order: the **reserved-matters three-way invariant** (`check:reserved`),
+`pnpm verify` runs, in order: the **reserved-matters three-way invariant** (`check:reserved`),
 lint, typecheck, build, and the TS test suite. The contracts job (`forge test`) runs in parallel
-in CI. Copy `.env.example` → `.env` and fill testnet values before any deploy. **The local
-signer is dev-only and flagged everywhere.**
+in CI. `pnpm e2e:local` boots a throwaway anvil, deploys the production wiring, and drives the
+**real agent runtime** through the full lifecycle — see
+[the scripted end-to-end agent](#the-scripted-end-to-end-agent). Copy `.env.example` → `.env`
+and fill testnet values before any deploy. **The local signer is dev-only and flagged everywhere.**
 
 ## The smart contracts
 
 Solidity `^0.8.24`, OpenZeppelin Contracts v5.1.0. Seven contracts, each with one job:
 
-| Contract | Responsibility | Notable detail |
-| --- | --- | --- |
-| **`MembershipToken`** | Soulbound `ERC721Votes` — one token per member, one vote (v1) | Reverts on transfer/approval; timestamp clock; `MEMBERSHIP_ADMIN` is guardian-held |
-| **`DaoGovernor`** | Proposal lifecycle, quorum, counting, routing execution to the timelock | OZ Governor stack: Settings · CountingSimple · Votes · VotesQuorumFraction · TimelockControl. Holds **no** constitutional role. |
-| **`GuardedTimelock`** | Execution delay + guardian veto window | Subclasses `TimelockController` to **re-gate `updateDelay`** onto a guardian role (OZ's default self-gates on `address(this)`, which a proposal could reach). Deploy revokes timelock self-admin. |
-| **`AgentRegistry`** | Binds `member ↔ agent address ↔ mandateHash ↔ mandateURI` | Members register their own agent; mandate *updates* are a Reserved Matter (`REGISTRY_ADMIN`). The on-chain anchor the legal exhibit and runtime both reference. |
-| **`RolesModifier`** | Per-agent target/selector allow-list + per-tx / per-epoch spending caps | Minimal in-house stand-in for Zodiac Roles v2 (v1). `EPOCH_SECONDS = 7 days`. Config changes are a Reserved Matter (`ROLES_ADMIN`). |
-| **`RationaleAnchor`** | Emits `RationaleAnchored(actionId, ipfsURI, contentHash)` | Joins on-chain actions to off-chain reasoning for the dashboard/compliance export. |
-| **`Treasury`** | Holds assets; spends only via executed proposals | Owned/controlled by the timelock — funds move only through the governance path. |
+| Contract              | Responsibility                                                          | Notable detail                                                                                                                                                                                    |
+| --------------------- | ----------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **`MembershipToken`** | Soulbound `ERC721Votes` — one token per member, one vote (v1)           | Reverts on transfer/approval; timestamp clock; `MEMBERSHIP_ADMIN` is guardian-held                                                                                                                |
+| **`DaoGovernor`**     | Proposal lifecycle, quorum, counting, routing execution to the timelock | OZ Governor stack: Settings · CountingSimple · Votes · VotesQuorumFraction · TimelockControl. Holds **no** constitutional role.                                                                   |
+| **`GuardedTimelock`** | Execution delay + guardian veto window                                  | Subclasses `TimelockController` to **re-gate `updateDelay`** onto a guardian role (OZ's default self-gates on `address(this)`, which a proposal could reach). Deploy revokes timelock self-admin. |
+| **`AgentRegistry`**   | Binds `member ↔ agent address ↔ mandateHash ↔ mandateURI`               | Members register their own agent; mandate _updates_ are a Reserved Matter (`REGISTRY_ADMIN`). The on-chain anchor the legal exhibit and runtime both reference.                                   |
+| **`RolesModifier`**   | Per-agent target/selector allow-list + per-tx / per-epoch spending caps | Minimal in-house stand-in for Zodiac Roles v2 (v1). `EPOCH_SECONDS = 7 days`. Config changes are a Reserved Matter (`ROLES_ADMIN`).                                                               |
+| **`RationaleAnchor`** | Emits `RationaleAnchored(actionId, ipfsURI, contentHash)`               | Joins on-chain actions to off-chain reasoning for the dashboard/compliance export.                                                                                                                |
+| **`Treasury`**        | Holds assets; spends only via executed proposals                        | Owned/controlled by the timelock — funds move only through the governance path.                                                                                                                   |
 
 > [!NOTE]
 > **The Governor's authority is operational only.** It cannot grant/revoke roles, change the
@@ -203,16 +208,16 @@ separate, explicit human action by the guardian multisig. Defined once in
 (`packages/policy/src/reservedMatters.generated.ts`) **and** the legal schedule
 (`legal/reserved-matters-schedule.md`). CI asserts all three agree.
 
-| # | Reserved Matter | Guardian role | Gated selector(s) |
-| --- | --- | --- | --- |
-| 1 | Change the guardian set / transfer any admin role | `GUARDIAN_ADMIN` | `grantRole` · `revokeRole` · `renounceRole` |
-| 2 | Change the timelock minimum delay | `TIMELOCK_ADMIN` | `updateDelay` |
-| 3 | Change agent spending caps or Roles config | `ROLES_ADMIN` | `setSpendingCap` · `setTargetAllowed` · `setAgentActive` |
-| 4 | Change an agent mandate | `REGISTRY_ADMIN` | `updateMandate` |
-| 5 | Admit / remove members (mint or burn membership) | `MEMBERSHIP_ADMIN` | `mintMembership` · `burnMembership` |
-| 6 | Upgrade a constitutional contract | `UPGRADE_ADMIN` | `upgradeTo` · `upgradeToAndCall` |
-| 7 | Amend articles / operating agreement / this schedule | `GUARDIAN_ADMIN` | *legal-only — no single selector* |
-| 8 | Dissolve the company | `GUARDIAN_ADMIN` | *legal-only — no single selector* |
+| #   | Reserved Matter                                      | Guardian role      | Gated selector(s)                                        |
+| --- | ---------------------------------------------------- | ------------------ | -------------------------------------------------------- |
+| 1   | Change the guardian set / transfer any admin role    | `GUARDIAN_ADMIN`   | `grantRole` · `revokeRole` · `renounceRole`              |
+| 2   | Change the timelock minimum delay                    | `TIMELOCK_ADMIN`   | `updateDelay`                                            |
+| 3   | Change agent spending caps or Roles config           | `ROLES_ADMIN`      | `setSpendingCap` · `setTargetAllowed` · `setAgentActive` |
+| 4   | Change an agent mandate                              | `REGISTRY_ADMIN`   | `updateMandate`                                          |
+| 5   | Admit / remove members (mint or burn membership)     | `MEMBERSHIP_ADMIN` | `mintMembership` · `burnMembership`                      |
+| 6   | Upgrade a constitutional contract                    | `UPGRADE_ADMIN`    | `upgradeTo` · `upgradeToAndCall`                         |
+| 7   | Amend articles / operating agreement / this schedule | `GUARDIAN_ADMIN`   | _legal-only — no single selector_                        |
+| 8   | Dissolve the company                                 | `GUARDIAN_ADMIN`   | _legal-only — no single selector_                        |
 
 Enforced in all three layers: **on-chain** (each role is guardian-held; the Governor holds none),
 **runtime** (the policy engine denies any action touching a reserved tuple; the MCP/CLI cannot
@@ -233,7 +238,7 @@ MCP server, the CLI, **and** the signer. Its `evaluate(mandate, action, ctx)` re
 
 Plus a **human-ratification trigger**: an action over `humanRatification.valueUsdGte` or of a
 flagged `impact` returns a special `NEEDS_HUMAN_RATIFICATION` decision that the runtime turns into
-a *draft-for-human* path instead of auto-submitting.
+a _draft-for-human_ path instead of auto-submitting.
 
 It also owns **canonical mandate hashing**: `canonicalize()` (sorted keys, no insignificant
 whitespace) → `keccak256` → the `mandateHash` stored in `AgentRegistry`. `verifyMandateHash()`
@@ -300,19 +305,19 @@ TypeScript (vitest, 106)              Foundry (forge, 29)
 The **adversarial Foundry tests are the proof that the safety properties hold** — they are not
 optional. If one cannot pass, the fix is to surface the problem, never to weaken the assertion:
 
-| Test | Property proven |
-| --- | --- |
-| `test_AgentCannotExceedSpendingCap` | An op over `perTx` or cumulative over `perEpoch` is denied (Roles **and** policy layers). |
-| `test_EpochRollsAfterWindow` | Spending allowance resets after `EPOCH_SECONDS`. |
-| `test_AgentCannotCallReservedSelector` | A reserved `(target, selector)` is denied by policy and not callable via Roles. |
-| `test_GuardianCanCancelInTimelockWindow` | The guardian cancels a queued proposal before the delay elapses; execution then fails. |
-| `test_GovernorLacksRoleToChangeTimelockDelay` | A proposal to change `minDelay` reverts — the Governor holds no such role. |
-| `test_GovernorLacksRoleToUpdateMandate` | Same property for agent mandates. |
-| `test_GovernorLacksRoleToMintMembership` | Same property for membership mint/burn. |
-| `test_GovernorLacksRoleToChangeRolesConfig` | Same property for spending caps / Roles config. |
-| `test_RoleSeparation_GovernorHoldsNothing_GuardianHoldsAll` | The full constitutional-separation invariant. |
-| `test_NonMemberCannotVote` | An address with no delegated power has zero weight. |
-| `test_SoulboundTransferReverts` | The membership token cannot be transferred. |
+| Test                                                        | Property proven                                                                           |
+| ----------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| `test_AgentCannotExceedSpendingCap`                         | An op over `perTx` or cumulative over `perEpoch` is denied (Roles **and** policy layers). |
+| `test_EpochRollsAfterWindow`                                | Spending allowance resets after `EPOCH_SECONDS`.                                          |
+| `test_AgentCannotCallReservedSelector`                      | A reserved `(target, selector)` is denied by policy and not callable via Roles.           |
+| `test_GuardianCanCancelInTimelockWindow`                    | The guardian cancels a queued proposal before the delay elapses; execution then fails.    |
+| `test_GovernorLacksRoleToChangeTimelockDelay`               | A proposal to change `minDelay` reverts — the Governor holds no such role.                |
+| `test_GovernorLacksRoleToUpdateMandate`                     | Same property for agent mandates.                                                         |
+| `test_GovernorLacksRoleToMintMembership`                    | Same property for membership mint/burn.                                                   |
+| `test_GovernorLacksRoleToChangeRolesConfig`                 | Same property for spending caps / Roles config.                                           |
+| `test_RoleSeparation_GovernorHoldsNothing_GuardianHoldsAll` | The full constitutional-separation invariant.                                             |
+| `test_NonMemberCannotVote`                                  | An address with no delegated power has zero weight.                                       |
+| `test_SoulboundTransferReverts`                             | The membership token cannot be transferred.                                               |
 
 The TS adversarial suite ([`packages/mcp/test/adversarial.test.ts`](packages/mcp/test/adversarial.test.ts),
 15 tests) mirrors the runtime-layer proofs: no write without simulation, no write without a
@@ -322,18 +327,40 @@ CI ([`.github/workflows/ci.yml`](.github/workflows/ci.yml)) runs the **three-way
 invariant**, lint, typecheck, build, and TS tests in one job, and `forge build`/`forge test` in a
 parallel job that builds offline from the vendored dependencies.
 
+### The scripted end-to-end agent
+
+Unit and contract tests prove each layer in isolation; `pnpm e2e:local`
+([`scripts/e2e-local.mjs`](scripts/e2e-local.mjs)) proves them **together against a live chain**.
+It boots a throwaway anvil, deploys the production wiring (`Deploy.s.sol` → `DAODeployer`), seeds
+members/delegation/treasury/agent-registration/Roles-caps, then drives the **real
+`GovernanceCore`** (policy → simulation → key-isolated signer → broadcast) end to end — asserting
+**52 checks**:
+
+- the runtime verifies the on-chain mandate hash before acting;
+- the chokepoint denies, before any broadcast, `RATIONALE_REQUIRED`, `SIMULATION_REQUIRED`,
+  `RESERVED_MATTER`, and `PER_TX_CAP_EXCEEDED`;
+- the full lifecycle — simulate → propose → vote ×3 → queue → (pre-delay execute reverts) →
+  execute — pays the treasury;
+- a bounded `op_execute` is metered by the Roles modifier;
+- a guardian veto cancels a queued proposal so its execute reverts.
+
+It needs **no** external credentials (IPFS stubbed, anvil-fork simulator) and exercises the exact
+code paths the Base Sepolia deploy will use. See
+[`docs/runbook.md` Step 0](docs/runbook.md#step-0--reproduce-the-whole-system-locally-one-command).
+
 ## Command reference
 
-| Command | What it does |
-| --- | --- |
-| `pnpm gen:reserved` | Regenerate policy constants + legal schedule from `reserved-matters.yaml`. |
-| `pnpm check:reserved` | Assert no drift between the yaml, policy constants, and legal schedule (CI). |
-| `pnpm build` | Build all `packages/*` (tsup → ESM + CJS + d.ts). |
-| `pnpm test` | Run the vitest suites across packages. |
-| `pnpm typecheck` | `tsc --noEmit` across the workspace. |
-| `pnpm lint` / `pnpm format` | ESLint + Prettier check / write. |
-| `pnpm ci` | The full local gate: `check:reserved` → lint → typecheck → build → test. |
-| `pnpm contracts:build` / `pnpm contracts:test` | `forge build` / `forge test -vvv` on `contracts/`. |
+| Command                                        | What it does                                                                 |
+| ---------------------------------------------- | ---------------------------------------------------------------------------- |
+| `pnpm gen:reserved`                            | Regenerate policy constants + legal schedule from `reserved-matters.yaml`.   |
+| `pnpm check:reserved`                          | Assert no drift between the yaml, policy constants, and legal schedule (CI). |
+| `pnpm build`                                   | Build all `packages/*` (tsup → ESM + CJS + d.ts).                            |
+| `pnpm test`                                    | Run the vitest suites across packages.                                       |
+| `pnpm typecheck`                               | `tsc --noEmit` across the workspace.                                         |
+| `pnpm e2e:local`                               | Boot anvil + deploy + drive the scripted agent end to end (52 assertions).   |
+| `pnpm lint` / `pnpm format`                    | ESLint + Prettier check / write.                                             |
+| `pnpm verify`                                  | The full local gate: `check:reserved` → lint → typecheck → build → test.     |
+| `pnpm contracts:build` / `pnpm contracts:test` | `forge build` / `forge test -vvv` on `contracts/`.                           |
 
 ## Configuration
 
@@ -350,19 +377,19 @@ external integrations it needs (Tenderly, IPFS, a funded testnet guardian) are t
 and require human/infra action. See [`BUILD_SCOPE.md`](BUILD_SCOPE.md) for the authoritative,
 phase-by-phase delivery status, acceptance criteria, and the in/out-of-scope boundary.
 
-| Phase | Scope | Status |
-| --- | --- | --- |
-| 0 | Scaffold — monorepo, tooling, CI, reserved-matters source of truth | ✅ Complete |
-| 1 | Core governance contracts + lifecycle tests | ✅ Complete |
-| 2 | Agent accounts + policy engine + **adversarial tests** | ✅ Complete |
-| 3 | Indexer (Ponder views) | ✅ Complete (views finalize against live events — [#16](https://github.com/sardoru/agentic-dao-llc/issues/16)) |
-| 4 | Runtime — MCP + CLI + signer + simulation | ✅ Complete |
-| 5 | Dashboard + guardian console | ✅ Complete |
-| 6 | Testnet deploy + legal + docs | ◑ Docs/legal/scripts ready; **deploy pending** ([#1](https://github.com/sardoru/agentic-dao-llc/issues/1)–[#4](https://github.com/sardoru/agentic-dao-llc/issues/4), [#13](https://github.com/sardoru/agentic-dao-llc/issues/13)) |
+| Phase | Scope                                                              | Status                                                                                                                                                                                                                            |
+| ----- | ------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 0     | Scaffold — monorepo, tooling, CI, reserved-matters source of truth | ✅ Complete                                                                                                                                                                                                                       |
+| 1     | Core governance contracts + lifecycle tests                        | ✅ Complete                                                                                                                                                                                                                       |
+| 2     | Agent accounts + policy engine + **adversarial tests**             | ✅ Complete                                                                                                                                                                                                                       |
+| 3     | Indexer (Ponder views)                                             | ✅ Complete (views finalize against live events — [#16](https://github.com/sardoru/agentic-dao-llc/issues/16))                                                                                                                    |
+| 4     | Runtime — MCP + CLI + signer + simulation                          | ✅ Complete                                                                                                                                                                                                                       |
+| 5     | Dashboard + guardian console                                       | ✅ Complete                                                                                                                                                                                                                       |
+| 6     | Testnet deploy + legal + docs                                      | ◑ Docs/legal/scripts ready; **deploy pending** ([#1](https://github.com/sardoru/agentic-dao-llc/issues/1)–[#4](https://github.com/sardoru/agentic-dao-llc/issues/4), [#13](https://github.com/sardoru/agentic-dao-llc/issues/13)) |
 
 ## Mainnet gating
 
-This is a **testnet build**. Before *any* mainnet move, the following are hard gates (tracked as
+This is a **testnet build**. Before _any_ mainnet move, the following are hard gates (tracked as
 issues, mirrored in [`docs/threat-model.md`](docs/threat-model.md) and `BUILD_SCOPE.md`):
 
 - **Production key custody** — replace the local signer with Turnkey/KMS/HSM behind the `Signer` interface ([#6](https://github.com/sardoru/agentic-dao-llc/issues/6)).
@@ -372,14 +399,14 @@ issues, mirrored in [`docs/threat-model.md`](docs/threat-model.md) and `BUILD_SC
 
 ## Documentation map
 
-| Document | What it covers |
-| --- | --- |
-| [`BUILD_SCOPE.md`](BUILD_SCOPE.md) | In/out of scope, phase delivery status, deliverable inventory, mainnet gating, remaining work. |
-| [`docs/interfaces.md`](docs/interfaces.md) | The canonical on-chain interface shared by contracts, chain package, and indexer. |
-| [`docs/runbook.md`](docs/runbook.md) | The testnet deployment runbook (Base Sepolia), step by step. |
-| [`docs/threat-model.md`](docs/threat-model.md) | Threats addressed: key compromise, prompt injection, correlated agent failure, self-amendment, oracle drift, upgrade safety, regulatory flags. |
-| [`docs/adr/`](docs/adr) | ADR-0001 constitutional separation · 0002 equal-weight voting · 0003 minimal RolesModifier vs Zodiac · 0004 signer key isolation · 0005 simulation-first writes. |
-| [`legal/`](legal) | Wyoming DAO LLC **templates** — articles, operating-agreement clauses, the reserved-matters schedule, the agent-mandate exhibit, and the disclaimer. |
+| Document                                       | What it covers                                                                                                                                                   |
+| ---------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [`BUILD_SCOPE.md`](BUILD_SCOPE.md)             | In/out of scope, phase delivery status, deliverable inventory, mainnet gating, remaining work.                                                                   |
+| [`docs/interfaces.md`](docs/interfaces.md)     | The canonical on-chain interface shared by contracts, chain package, and indexer.                                                                                |
+| [`docs/runbook.md`](docs/runbook.md)           | The testnet deployment runbook (Base Sepolia), step by step.                                                                                                     |
+| [`docs/threat-model.md`](docs/threat-model.md) | Threats addressed: key compromise, prompt injection, correlated agent failure, self-amendment, oracle drift, upgrade safety, regulatory flags.                   |
+| [`docs/adr/`](docs/adr)                        | ADR-0001 constitutional separation · 0002 equal-weight voting · 0003 minimal RolesModifier vs Zodiac · 0004 signer key isolation · 0005 simulation-first writes. |
+| [`legal/`](legal)                              | Wyoming DAO LLC **templates** — articles, operating-agreement clauses, the reserved-matters schedule, the agent-mandate exhibit, and the disclaimer.             |
 
 ## Security model in one paragraph
 
@@ -394,7 +421,7 @@ claims has a corresponding adversarial test.
 ## Glossary
 
 - **Member** — human owner of the LLC; holds one soulbound membership token (one vote in v1).
-- **Delegated Agent** — a *mechanism* exercising a member's delegated voting/proposal power; **not** a member or manager. The human remains principal and economic owner.
+- **Delegated Agent** — a _mechanism_ exercising a member's delegated voting/proposal power; **not** a member or manager. The human remains principal and economic owner.
 - **Mandate** — the machine-readable policy bounding an agent; hashed on-chain (`AgentRegistry`), doc on IPFS, mirrored in the legal exhibit.
 - **Guardian** — the human-member multisig holding the timelock `CANCELLER` role and **all** constitutional admin roles.
 - **Reserved Matter** — a constitutional change agents/Governor cannot effect; guardian/human-only, enforced in all three layers.

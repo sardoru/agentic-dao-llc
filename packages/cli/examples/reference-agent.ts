@@ -23,7 +23,9 @@ import { type GovernanceCore, type ToolResult, buildCore } from "@agentic-dao/mc
 loadEnv();
 
 /** A demo ERC-20 transfer the bounded op + the proposal both reference. */
-const erc20Abi = parseAbi(["function transfer(address to, uint256 amount) external returns (bool)"]);
+const erc20Abi = parseAbi([
+  "function transfer(address to, uint256 amount) external returns (bool)",
+]);
 
 function logStep(label: string, result: ToolResult<unknown>): void {
   if (result.ok) {
@@ -38,11 +40,17 @@ function logStep(label: string, result: ToolResult<unknown>): void {
 export async function runReferenceAgent(core: GovernanceCore): Promise<void> {
   // Demo recipient + spend token come from env (or fall back to placeholders the
   // mandate's allowlist must include for the policy gate to pass on a real deploy).
-  const recipient = getAddress(process.env.DEMO_RECIPIENT ?? "0x4444444444444444444444444444444444444444");
+  const recipient = getAddress(
+    process.env.DEMO_RECIPIENT ?? "0x4444444444444444444444444444444444444444",
+  );
   const token = getAddress(process.env.DEMO_TOKEN ?? "0x036CbD53842c5426634e7929541eC2318f3dCF7e");
   const amount = 250_000_000n; // 250 USDC (6 decimals) — under a typical per-tx cap.
 
-  const transferData = encodeFunctionData({ abi: erc20Abi, functionName: "transfer", args: [recipient, amount] }) as Hex;
+  const transferData = encodeFunctionData({
+    abi: erc20Abi,
+    functionName: "transfer",
+    args: [recipient, amount],
+  }) as Hex;
   const transferSelector = selectorOf(transferData);
 
   // ── 1. PROPOSAL: simulate → create ─────────────────────────────────────────
@@ -69,7 +77,8 @@ export async function runReferenceAgent(core: GovernanceCore): Promise<void> {
       values: proposeValues,
       calldatas: proposeCalldatas,
       description: "Pay vendor invoice #4242 (Q2 hosting) — within mandate cap.",
-      rationale: "Recurring, pre-approved hosting invoice; recipient on allowlist; amount under per-tx cap; non-reserved.",
+      rationale:
+        "Recurring, pre-approved hosting invoice; recipient on allowlist; amount under per-tx cap; non-reserved.",
       valueUsd: 250,
       impact: "LOW",
     }),
@@ -80,7 +89,11 @@ export async function runReferenceAgent(core: GovernanceCore): Promise<void> {
   const proposalId = BigInt(process.env.DEMO_PROPOSAL_ID ?? "1");
   logStep(
     "cast vote FOR (with reason)",
-    await core.castVote({ proposalId, support: 1, reason: "Spend is within mandate and serves ongoing operations." }),
+    await core.castVote({
+      proposalId,
+      support: 1,
+      reason: "Spend is within mandate and serves ongoing operations.",
+    }),
   );
 
   // ── 3. BOUNDED OP EXECUTE: simulate → execute ──────────────────────────────

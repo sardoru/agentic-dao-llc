@@ -75,6 +75,35 @@ NEXT_PUBLIC_CHAIN_ID=84532
 
 ---
 
+## Step 0 — Reproduce the whole system locally (one command)
+
+Before touching a testnet, prove the full stack end to end on a local anvil:
+
+```bash
+pnpm build          # build the runtime packages (the harness imports the dist barrels)
+pnpm e2e:local      # boots anvil, deploys, drives the scripted agent, asserts, tears down
+```
+
+`scripts/e2e-local.mjs` boots a local anvil, deploys the **production** wiring
+(`Deploy.s.sol` → `DAODeployer`), and seeds the org (members, delegation, treasury funding,
+agent registration, and Roles caps). It then drives the **real agent runtime**
+(`GovernanceCore` → policy → signer → signed tx) against the live chain, asserting 52 checks:
+
+- the runtime verifies the on-chain mandate hash (tamper-evidence);
+- the policy chokepoint denies, before any broadcast, a missing rationale
+  (`RATIONALE_REQUIRED`), an un-simulated write (`SIMULATION_REQUIRED`), a Reserved Matter
+  (`RESERVED_MATTER`), and an over-cap op (`PER_TX_CAP_EXCEEDED`);
+- the full lifecycle: simulate → propose → vote ×3 → queue → (pre-delay execute reverts) →
+  execute, paying the treasury;
+- a bounded `op_execute` metered by the Roles modifier (per-tx / per-epoch caps);
+- a guardian veto: cancel a queued proposal inside the delay window so execute reverts.
+
+This is the same flow Steps 1–7 perform on Base Sepolia, with anvil time-warps standing in
+for real block time. It needs **no** external credentials (IPFS is stubbed, sim is the
+anvil-fork backend). The Base Sepolia deployment (issue #1) reuses the identical code paths.
+
+---
+
 ## Step 1 — Deploy contracts (Foundry)
 
 Contracts are deployed in this exact order. Each subsequent contract depends on the
@@ -119,6 +148,7 @@ and `RATIONALE_ANCHOR` fields in `.env`.
 ## Step 2 — Wire roles (constitutional separation)
 
 This is the most critical configuration step. After deploying, roles must be set so:
+
 - **DaoGovernor** is the Timelock's `PROPOSER` and `EXECUTOR`.
 - **Guardian multisig** is the Timelock's `CANCELLER` and `TIMELOCK_ADMIN`.
 - **Guardian multisig** holds all constitutional admin roles:
@@ -249,6 +279,7 @@ pnpm --filter dashboard dev
 ```
 
 Confirm:
+
 - Proposal feed renders (may be empty at this point).
 - Agents tab shows registered agents with mandate URIs.
 - Members tab shows delegated agents and voting weights.
@@ -259,29 +290,28 @@ Confirm:
 ## Step 7 — Run the scripted end-to-end agent test
 
 This exercises the full path: simulate → propose → vote → queue → execute, plus a bounded
-`op_execute`. It also confirms the guardian console can cancel.
+`op_execute` and a guardian cancel.
+
+**The implemented version of this flow is [Step 0](#step-0--reproduce-the-whole-system-locally-one-command)
+(`pnpm e2e:local`), which runs the identical runtime code paths against a local anvil.** The
+Base Sepolia variant below reuses the same `GovernanceCore`/CLI surface; it is pending a funded
+testnet deployment + Tenderly/IPFS credentials (issues #1–#3) and is written here as the manual
+equivalent of the scripted local run:
 
 ```bash
-# Full scripted agent run (reference agent in packages/cli or packages/mcp)
-pnpm agent:e2e --network base-sepolia
-
-# The script performs:
-# 1. simulate_action for a TREASURY_PAYMENT proposal
-# 2. create_proposal (pins rationale to IPFS, anchors hash on-chain, submits)
-# 3. cast_vote (for each agent delegate)
-# 4. Wait for voting period to end (advance time on testnet or use a short period)
-# 5. queue() after proposal succeeds
-# 6. Guardian leaves the main proposal; guardian cancels a *separate* test proposal
-#    (confirms cancel works)
+# 1. simulate_action for a TREASURY_PAYMENT proposal      (CLI: pnpm --filter @agentic-dao/cli start sim:run …)
+# 2. create_proposal — pins rationale to IPFS, anchors the hash on-chain, submits
+#    (CLI: proposal:create …)
+# 3. cast_vote for each agent delegate                    (CLI: vote:cast …)
+# 4. wait for the voting period to end (use a short period on testnet)
+# 5. queue() once the proposal succeeds                   (CLI: proposal:get to read state/ETA)
+# 6. guardian leaves the main proposal; guardian cancels a *separate* test proposal
 # 7. execute() after minDelay elapses
-
-# Then test bounded operational execution:
-pnpm agent:op-execute --mandate mandates/treasury-agent-01.json \
-  --target $INVOICE_PAYER --selector "pay(address,uint256)" \
-  --amount 100000000  # 100 USDC (within perTx cap)
+# 8. bounded operational execution within the per-tx cap  (CLI: op:execute …)
 ```
 
 Confirm on dashboard:
+
 - Proposal detail shows simulation result, rationale hash, and IPFS link.
 - Votes-by-agent view shows correct principals.
 - Guardian console showed the cancelled proposal as "Cancelled".
@@ -351,10 +381,10 @@ See `docs/threat-model.md §7` for the full threat analysis. Steps:
 
 ## Troubleshooting
 
-| Symptom | Likely cause | Fix |
-|---|---|---|
-| `AccessControl: missing role` on proposal execute | Governor lacks a role it needs — or trying to execute a Reserved Matter | Check role wiring (Step 2); Reserved Matters must go through guardian, not Governor |
-| Simulation returns `revertReason: execution reverted` | Spending cap exceeded, target not allowed, or reserved selector | Check mandate scope vs. Roles config |
-| `MANDATE_HASH_MISMATCH` warning on dashboard | On-chain hash ≠ IPFS file hash | Re-pin correct mandate doc; run `pnpm check:mandate-hashes` |
-| Proposal stuck in `Queued` | `minDelay` not elapsed or guardian cancelled | Check timelock ETA in dashboard; if cancelled, it will show `Canceled` state |
-| Indexer shows no data | RPC URL wrong, addresses not set in env, or indexer not caught up | Check `PONDER_RPC_URL_84532` and deployed addresses in `.env`; check indexer logs |
+| Symptom                                               | Likely cause                                                            | Fix                                                                                 |
+| ----------------------------------------------------- | ----------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| `AccessControl: missing role` on proposal execute     | Governor lacks a role it needs — or trying to execute a Reserved Matter | Check role wiring (Step 2); Reserved Matters must go through guardian, not Governor |
+| Simulation returns `revertReason: execution reverted` | Spending cap exceeded, target not allowed, or reserved selector         | Check mandate scope vs. Roles config                                                |
+| `MANDATE_HASH_MISMATCH` warning on dashboard          | On-chain hash ≠ IPFS file hash                                          | Re-pin correct mandate doc; run `pnpm check:mandate-hashes`                         |
+| Proposal stuck in `Queued`                            | `minDelay` not elapsed or guardian cancelled                            | Check timelock ETA in dashboard; if cancelled, it will show `Canceled` state        |
+| Indexer shows no data                                 | RPC URL wrong, addresses not set in env, or indexer not caught up       | Check `PONDER_RPC_URL_84532` and deployed addresses in `.env`; check indexer logs   |

@@ -37,12 +37,10 @@ ponder.on("RolesModifier:AgentExecuted", async ({ event, context }) => {
   // Accumulate op-spend on the agent row.
   const agentRow = await db.find(agent, { account: agentAddr });
   if (agentRow) {
-    await db
-      .update(agent, { account: agentAddr })
-      .set({
-        opSpendCumulative: agentRow.opSpendCumulative + amount,
-        updatedAt: Number(event.block.timestamp),
-      });
+    await db.update(agent, { account: agentAddr }).set({
+      opSpendCumulative: agentRow.opSpendCumulative + amount,
+      updatedAt: Number(event.block.timestamp),
+    });
   }
 });
 

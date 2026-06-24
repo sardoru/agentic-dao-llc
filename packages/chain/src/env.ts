@@ -59,9 +59,12 @@ export function resolveChain(chainId: number, rpcUrl: string): Chain {
 
 /** Build the chain config from an env bag (defaults to Base Sepolia / public RPC). */
 export function loadChainConfig(env: ChainEnv = process.env as ChainEnv): ChainConfig {
-  const rpcUrl = env.RPC_URL && env.RPC_URL.trim() !== "" ? env.RPC_URL : "https://sepolia.base.org";
-  const chainId = env.CHAIN_ID && env.CHAIN_ID.trim() !== "" ? Number(env.CHAIN_ID) : baseSepolia.id;
-  if (!Number.isInteger(chainId) || chainId <= 0) throw new Error(`CHAIN_ID must be a positive integer, got: ${env.CHAIN_ID}`);
+  const rpcUrl =
+    env.RPC_URL && env.RPC_URL.trim() !== "" ? env.RPC_URL : "https://sepolia.base.org";
+  const chainId =
+    env.CHAIN_ID && env.CHAIN_ID.trim() !== "" ? Number(env.CHAIN_ID) : baseSepolia.id;
+  if (!Number.isInteger(chainId) || chainId <= 0)
+    throw new Error(`CHAIN_ID must be a positive integer, got: ${env.CHAIN_ID}`);
 
   return {
     rpcUrl,
@@ -81,7 +84,11 @@ export function loadChainConfig(env: ChainEnv = process.env as ChainEnv): ChainC
 }
 
 /** Assert a required address is configured, with a clear error naming the env var. */
-export function requireAddress(addresses: ContractAddresses, key: keyof ContractAddresses, envName: string): Address {
+export function requireAddress(
+  addresses: ContractAddresses,
+  key: keyof ContractAddresses,
+  envName: string,
+): Address {
   const addr = addresses[key];
   if (!addr) throw new Error(`${envName} is not set — deploy Phase 1/2 contracts and fill .env`);
   return addr;

@@ -51,3 +51,32 @@ jobs:
 
       - name: forge test (adversarial safety proofs must pass)
         run: forge test --root contracts -vvv
+
+  e2e:
+    name: Scripted end-to-end agent (anvil)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      # forge + anvil for the live-chain run (deploys via Deploy.s.sol, spawns anvil).
+      - uses: foundry-rs/foundry-toolchain@v1
+
+      - run: pnpm install --frozen-lockfile
+
+      # Build the runtime packages — the harness imports the dist barrels.
+      - run: pnpm build
+
+      # Drives the REAL GovernanceCore (policy → sim → signer → broadcast) through the
+      # full propose→vote→queue→execute lifecycle + bounded op + guardian veto on a
+      # throwaway anvil. No external credentials (stub IPFS + anvil-fork simulator).
+      - name: pnpm e2e:local (scripted end-to-end agent, 52 assertions)
+        run: pnpm e2e:local

@@ -60,12 +60,14 @@ export function computeActionHash(
   targets: Address[],
   values: bigint[],
   calldatas: Hex[],
-  mandateHash: Hex
+  mandateHash: Hex,
 ): Hex {
-  return keccak256(encodeAbiParameters(
-    [{ type: 'address[]' }, { type: 'uint256[]' }, { type: 'bytes[]' }, { type: 'bytes32' }],
-    [targets, values, calldatas, mandateHash]
-  ));
+  return keccak256(
+    encodeAbiParameters(
+      [{ type: "address[]" }, { type: "uint256[]" }, { type: "bytes[]" }, { type: "bytes32" }],
+      [targets, values, calldatas, mandateHash],
+    ),
+  );
 }
 ```
 
@@ -85,6 +87,7 @@ batch.
 ## Consequences
 
 **Positive:**
+
 - Agents cannot submit writes without a matching prior simulation. The gate is
   enforced in code, not by instruction.
 - The simulation result is permanently recorded on-chain (via rationale anchor) and on IPFS,
@@ -95,6 +98,7 @@ batch.
   for normal submission latency.
 
 **Negative / trade-offs:**
+
 - `cast_vote` is low-risk but still simulated for gas estimation and revert detection.
   This adds latency to voting. For a governance system with 24-hour voting periods, this
   is negligible.
@@ -109,6 +113,7 @@ batch.
   mitigates this for offline dev, but production reliability depends on Tenderly availability.
 
 **Follow-up:**
+
 - `test_WriteBlockedWithoutSimulation` must remain in the adversarial suite and must test
   both the case of "no simulation at all" and "simulation for a different action hash."
 - Consider adding `test_WriteBlockedOnStaleSimulation` once the staleness window logic is

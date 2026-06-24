@@ -32,10 +32,7 @@ export function selectorOf(data: Hex): Hex {
  * unknown selector is NOT an error (the policy engine still evaluates the raw
  * target+selector against the reserved set and the mandate allowlist).
  */
-export function decodeTx(
-  tx: { to: Address; data?: Hex; value?: bigint },
-  abi?: Abi,
-): DecodedCall {
+export function decodeTx(tx: { to: Address; data?: Hex; value?: bigint }, abi?: Abi): DecodedCall {
   const data = (tx.data ?? "0x") as Hex;
   const selector = selectorOf(data);
   const base: DecodedCall = {

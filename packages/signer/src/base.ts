@@ -31,7 +31,12 @@ export abstract class BaseSigner implements Signer {
   protected abstract signTxFields(fields: BaseTxFields): Promise<Hex>;
 
   /** Re-evaluate policy independently; throw on deny. The heart of the defense-in-depth. */
-  protected guard(mandate: Mandate, tx: GovTxRequest | OpTxRequest, epochSpend: bigint, ctx: SignerContext): void {
+  protected guard(
+    mandate: Mandate,
+    tx: GovTxRequest | OpTxRequest,
+    epochSpend: bigint,
+    ctx: SignerContext,
+  ): void {
     const decision = evaluate(mandate, tx.action, { ...ctx, epochSpend });
     if (!decision.allow) throw new SignerPolicyError(decision);
   }
@@ -42,7 +47,12 @@ export abstract class BaseSigner implements Signer {
     return this.signTxFields(tx);
   }
 
-  async signOpTx(tx: OpTxRequest, mandate: Mandate, epochSpend: bigint, ctx: SignerContext): Promise<Hex> {
+  async signOpTx(
+    tx: OpTxRequest,
+    mandate: Mandate,
+    epochSpend: bigint,
+    ctx: SignerContext,
+  ): Promise<Hex> {
     this.guard(mandate, tx, epochSpend, ctx);
     return this.signTxFields(tx);
   }

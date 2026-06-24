@@ -1,12 +1,7 @@
 // Governor event handlers: ProposalCreated, VoteCast, ProposalQueued,
 // ProposalExecuted, ProposalCanceled
 import { ponder } from "ponder:registry";
-import {
-  proposal,
-  vote,
-  agent,
-  member,
-} from "ponder:schema";
+import { proposal, vote, agent, member } from "ponder:schema";
 
 // ---------------------------------------------------------------------------
 // Helper: look up the agent's principal from the agent table (if indexed).
@@ -14,7 +9,7 @@ import {
 // ---------------------------------------------------------------------------
 async function getPrincipal(
   db: Parameters<Parameters<typeof ponder.on>[1]>[0]["context"]["db"],
-  agentAccount: `0x${string}`
+  agentAccount: `0x${string}`,
 ): Promise<`0x${string}` | undefined> {
   const row = await db.find(agent, { account: agentAccount });
   return row?.principal;
@@ -108,20 +103,16 @@ ponder.on("DaoGovernor:VoteCast", async ({ event, context }) => {
   // Increment agent vote count.
   const agentRow = await db.find(agent, { account: voter });
   if (agentRow) {
-    await db
-      .update(agent, { account: voter })
-      .set({ voteCount: agentRow.voteCount + 1 });
+    await db.update(agent, { account: voter }).set({ voteCount: agentRow.voteCount + 1 });
   }
 
   // Increment member participation count (member == principal of the voter agent).
   if (principal) {
     const memberRow = await db.find(member, { address: principal });
     if (memberRow) {
-      await db
-        .update(member, { address: principal })
-        .set({
-          participationCount: memberRow.participationCount + 1,
-        });
+      await db.update(member, { address: principal }).set({
+        participationCount: memberRow.participationCount + 1,
+      });
     }
   }
 });
@@ -131,12 +122,10 @@ ponder.on("DaoGovernor:VoteCast", async ({ event, context }) => {
 // ---------------------------------------------------------------------------
 ponder.on("DaoGovernor:ProposalQueued", async ({ event, context }) => {
   const { db } = context;
-  await db
-    .update(proposal, { id: event.args.proposalId })
-    .set({
-      state: 5, // ProposalState.Queued
-      timelockEta: event.args.etaSeconds,
-    });
+  await db.update(proposal, { id: event.args.proposalId }).set({
+    state: 5, // ProposalState.Queued
+    timelockEta: event.args.etaSeconds,
+  });
 });
 
 // ---------------------------------------------------------------------------
@@ -144,9 +133,7 @@ ponder.on("DaoGovernor:ProposalQueued", async ({ event, context }) => {
 // ---------------------------------------------------------------------------
 ponder.on("DaoGovernor:ProposalExecuted", async ({ event, context }) => {
   const { db } = context;
-  await db
-    .update(proposal, { id: event.args.proposalId })
-    .set({ state: 7 }); // ProposalState.Executed
+  await db.update(proposal, { id: event.args.proposalId }).set({ state: 7 }); // ProposalState.Executed
 });
 
 // ---------------------------------------------------------------------------
@@ -154,7 +141,5 @@ ponder.on("DaoGovernor:ProposalExecuted", async ({ event, context }) => {
 // ---------------------------------------------------------------------------
 ponder.on("DaoGovernor:ProposalCanceled", async ({ event, context }) => {
   const { db } = context;
-  await db
-    .update(proposal, { id: event.args.proposalId })
-    .set({ state: 2 }); // ProposalState.Canceled
+  await db.update(proposal, { id: event.args.proposalId }).set({ state: 2 }); // ProposalState.Canceled
 });

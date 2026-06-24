@@ -28,7 +28,12 @@ export function testMandate(over: Partial<Mandate> = {}): Mandate {
       proposalTypes: ["TREASURY_PAYMENT", "PARAM_TUNE_NONRESERVED", "TEXT_SIGNAL"],
       allowedTargets: [TARGET],
       forbiddenSelectors: [],
-      spendingCap: { token: TOKEN, perTx: "1000000000", perEpoch: "10000000000", epochSeconds: 604800 },
+      spendingCap: {
+        token: TOKEN,
+        perTx: "1000000000",
+        perEpoch: "10000000000",
+        epochSeconds: 604800,
+      },
     },
     humanRatification: { valueUsdGte: 5000, impact: ["HIGH"] },
     requireSimulation: true,
@@ -45,15 +50,27 @@ export function mockSigner(mandate: Mandate): Signer {
   // Reuse the real policy via the BaseSigner-equivalent re-check by importing evaluate lazily.
   return {
     address: vi.fn(async () => AGENT),
-    signGovernanceTx: vi.fn(async (_tx: GovTxRequest, _m: Mandate, _ctx: SignerContext) => "0x02deadbeef" as Hex),
-    signOpTx: vi.fn(async (_tx: OpTxRequest, _m: Mandate, _spend: bigint, _ctx: SignerContext) => "0x02feedface" as Hex),
+    signGovernanceTx: vi.fn(
+      async (_tx: GovTxRequest, _m: Mandate, _ctx: SignerContext) => "0x02deadbeef" as Hex,
+    ),
+    signOpTx: vi.fn(
+      async (_tx: OpTxRequest, _m: Mandate, _spend: bigint, _ctx: SignerContext) =>
+        "0x02feedface" as Hex,
+    ),
   };
 }
 
 export function mockSimulator(result?: Partial<SimulationResult>): Simulator {
   return {
     backend: "anvil-fork",
-    simulate: vi.fn(async (_tx: TxRequest): Promise<SimulationResult> => ({ success: true, gasUsed: 50000n, backend: "anvil-fork", ...result })),
+    simulate: vi.fn(
+      async (_tx: TxRequest): Promise<SimulationResult> => ({
+        success: true,
+        gasUsed: 50000n,
+        backend: "anvil-fork",
+        ...result,
+      }),
+    ),
   };
 }
 
@@ -76,7 +93,12 @@ export function mockContracts(opts: { onChainHash?: Hex; votes?: bigint } = {}):
     registry: {
       registerAgentRequest: () => ({ to: TARGET, data: "0x" as Hex, value: 0n }),
       updateMandateRequest: () => ({ to: TARGET, data: "0x" as Hex, value: 0n }),
-      mandateOf: async () => ({ principal: PRINCIPAL, mandateHash: onChainHash ?? ("0x" as Hex), mandateURI: "ipfs://x", active: true }),
+      mandateOf: async () => ({
+        principal: PRINCIPAL,
+        mandateHash: onChainHash ?? ("0x" as Hex),
+        mandateURI: "ipfs://x",
+        active: true,
+      }),
     },
     token: {
       delegateRequest: () => ({ to: TOKEN, data: "0x" as Hex, value: 0n }),
@@ -107,7 +129,12 @@ export interface BuildTestCoreOpts {
 
 /** Build a fully-mocked GovernanceCore for adversarial tests. By default the on-chain
  *  mandate hash MATCHES the local mandate (so hash-mismatch tests opt in explicitly). */
-export function buildTestCore(opts: BuildTestCoreOpts = {}): { core: GovernanceCore; gate: SimulationGate; signer: Signer; simulator: Simulator } {
+export function buildTestCore(opts: BuildTestCoreOpts = {}): {
+  core: GovernanceCore;
+  gate: SimulationGate;
+  signer: Signer;
+  simulator: Simulator;
+} {
   const mandate = opts.mandate ?? testMandate();
   const gate = opts.gate ?? new SimulationGate();
   const signer = opts.signer ?? mockSigner(mandate);

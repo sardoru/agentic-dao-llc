@@ -22,7 +22,7 @@ formal verification) in spec §21.
 
 ## Why not just use Zodiac now
 
-The spec names Safe + Zodiac Roles Modifier v2 as the *target* design, and that
+The spec names Safe + Zodiac Roles Modifier v2 as the _target_ design, and that
 remains correct for production. We deferred it for v1 because:
 
 1. **Dependency surface in this worktree.** Zodiac Roles v2 pulls in the Zodiac
@@ -32,8 +32,8 @@ remains correct for production. We deferred it for v1 because:
    worktree where running `git` is disallowed. Vendoring the full Zodiac + Safe
    trees solely to exercise v1's safety tests is disproportionate.
 
-2. **The v1 deliverable is the *safety proof*, not the production module.** What
-   the adversarial tests (§16.2) must demonstrate is the *property* — that an
+2. **The v1 deliverable is the _safety proof_, not the production module.** What
+   the adversarial tests (§16.2) must demonstrate is the _property_ — that an
    agent cannot exceed its `(target, selector)` scope or its spending caps, and
    that reserved selectors are unreachable through the agent path. A focused
    re-implementation of exactly those semantics proves the property with far less
@@ -65,7 +65,7 @@ remains correct for production. We deferred it for v1 because:
 
 **Does NOT cover (intentionally — Zodiac provides these in production):**
 
-- Rich **parameter scoping** (e.g. constraining the *recipient* of a transfer, or
+- Rich **parameter scoping** (e.g. constraining the _recipient_ of a transfer, or
   per-argument comparators / one-of sets) — Zodiac Roles v2 has a full condition
   tree; the in-house version scopes by `(target, selector)` + amount only.
 - **Multi-send / nested-call unwrapping**, delegatecall guards, and the broader
@@ -88,7 +88,7 @@ Matter").
 `TimelockController.updateDelay(uint256)` gates on `msg.sender == address(this)`:
 the timelock administers its own delay via a scheduled self-call. With that
 default, an ordinary Governor proposal could schedule `timelock.updateDelay(...)`,
-and when the timelock executes the batch the caller *is* the timelock, so it would
+and when the timelock executes the batch the caller _is_ the timelock, so it would
 succeed — directly contradicting spec §6.3 / §14 ("the Governor literally lacks
 the role to change its own timelock delay").
 

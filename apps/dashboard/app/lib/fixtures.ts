@@ -1,11 +1,4 @@
-import type {
-  Agent,
-  Member,
-  Proposal,
-  Treasury,
-  TimelockOp,
-  DaoStats,
-} from "./types";
+import type { Agent, Member, Proposal, Treasury, TimelockOp, DaoStats } from "./types";
 
 const NOW = Math.floor(Date.now() / 1000);
 
@@ -15,8 +8,7 @@ export const FIXTURE_AGENTS: Agent[] = [
     agentId: "treasury-agent-01",
     principal: "0x1111111111111111111111111111111111111111",
     principalName: "Alice Founding Member",
-    mandateHash:
-      "0xabc1230000000000000000000000000000000000000000000000000000000000",
+    mandateHash: "0xabc1230000000000000000000000000000000000000000000000000000000000",
     mandateURI: "ipfs://bafyTREASURYmandatePLACEHOLDER",
     mandateHashMismatch: false,
     active: true,
@@ -31,8 +23,7 @@ export const FIXTURE_AGENTS: Agent[] = [
     agentId: "governance-only-agent-02",
     principal: "0x6666666666666666666666666666666666666666",
     principalName: "Bob Founding Member",
-    mandateHash:
-      "0xdef4560000000000000000000000000000000000000000000000000000000000",
+    mandateHash: "0xdef4560000000000000000000000000000000000000000000000000000000000",
     mandateURI: "ipfs://bafyGOVERNANCEmandatePLACEHOLDER",
     mandateHashMismatch: true,
     active: true,
@@ -81,7 +72,9 @@ export const FIXTURE_PROPOSALS: Proposal[] = [
     proposerPrincipalName: "Alice Founding Member",
     targets: ["0x036CbD53842c5426634e7929541eC2318f3dCF7e"],
     values: ["0"],
-    calldatas: ["0xa9059cbb000000000000000000000000aaaa0000000000000000000000000000000000000000000000000000000000000000000000000000000000de0b6b3a7640000"],
+    calldatas: [
+      "0xa9059cbb000000000000000000000000aaaa0000000000000000000000000000000000000000000000000000000000000000000000000000000000de0b6b3a7640000",
+    ],
     decodedCalls: [
       {
         target: "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
@@ -90,14 +83,17 @@ export const FIXTURE_PROPOSALS: Proposal[] = [
       },
     ],
     rationaleURI: "ipfs://bafyQ3VendorPaymentRationale",
-    rationaleHash:
-      "0xf1e2d3c4b5a6978800000000000000000000000000000000000000000000dead",
+    rationaleHash: "0xf1e2d3c4b5a6978800000000000000000000000000000000000000000000dead",
     rationaleVerified: true,
     simResult: {
       success: true,
       gasUsed: BigInt(52000),
       assetChanges: [
-        { token: "0x036CbD53842c5426634e7929541eC2318f3dCF7e", delta: "-2300000000", symbol: "USDC" },
+        {
+          token: "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+          delta: "-2300000000",
+          symbol: "USDC",
+        },
       ],
     },
     forVotes: BigInt(1),
@@ -135,11 +131,14 @@ export const FIXTURE_PROPOSALS: Proposal[] = [
     values: ["0"],
     calldatas: ["0x"],
     decodedCalls: [
-      { target: "0x0000000000000000000000000000000000000000", fn: "(no-op)", args: "Text signal only" },
+      {
+        target: "0x0000000000000000000000000000000000000000",
+        fn: "(no-op)",
+        args: "Text signal only",
+      },
     ],
     rationaleURI: "ipfs://bafySignalRationaleStandard",
-    rationaleHash:
-      "0xa1b2c3d4e5f6789000000000000000000000000000000000000000000000beef",
+    rationaleHash: "0xa1b2c3d4e5f6789000000000000000000000000000000000000000000000beef",
     rationaleVerified: true,
     simResult: {
       success: true,
@@ -200,17 +199,24 @@ export const FIXTURE_PROPOSALS: Proposal[] = [
     values: ["100000000000000000"],
     calldatas: ["0x"],
     decodedCalls: [
-      { target: "0x5555555555555555555555555555555555555555", fn: "(receive)", args: "value=0.1 ETH" },
+      {
+        target: "0x5555555555555555555555555555555555555555",
+        fn: "(receive)",
+        args: "value=0.1 ETH",
+      },
     ],
     rationaleURI: "ipfs://bafyInitialSeedRationale",
-    rationaleHash:
-      "0xdeadbeef00000000000000000000000000000000000000000000000000000001",
+    rationaleHash: "0xdeadbeef00000000000000000000000000000000000000000000000000000001",
     rationaleVerified: true,
     simResult: {
       success: true,
       gasUsed: BigInt(21000),
       assetChanges: [
-        { token: "0x0000000000000000000000000000000000000000", delta: "-100000000000000000", symbol: "ETH" },
+        {
+          token: "0x0000000000000000000000000000000000000000",
+          delta: "-100000000000000000",
+          symbol: "ETH",
+        },
       ],
     },
     forVotes: BigInt(3),
@@ -274,8 +280,7 @@ export const FIXTURE_PROPOSALS: Proposal[] = [
       },
     ],
     rationaleURI: "ipfs://bafyVotingPeriodRationale",
-    rationaleHash:
-      "0xdeadbeef00000000000000000000000000000000000000000000000000000002",
+    rationaleHash: "0xdeadbeef00000000000000000000000000000000000000000000000000000002",
     rationaleVerified: false,
     simResult: {
       success: false,
@@ -306,7 +311,8 @@ export const FIXTURE_PROPOSALS: Proposal[] = [
         agentId: "treasury-agent-01",
         principal: "0x1111111111111111111111111111111111111111",
         support: 0,
-        reason: "Simulation shows this would require TIMELOCK_ADMIN role — a Reserved Matter. Voting against.",
+        reason:
+          "Simulation shows this would require TIMELOCK_ADMIN role — a Reserved Matter. Voting against.",
         weight: BigInt(1),
         txHash: "0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567903",
       },

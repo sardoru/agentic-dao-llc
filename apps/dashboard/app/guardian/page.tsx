@@ -54,14 +54,14 @@ export default function GuardianPage() {
 
   useEffect(() => {
     // Load fixtures client-side (server fetch not possible in "use client" page)
-    import("../lib/client").then(({ fetchTimelockOps }) => {
-      fetchTimelockOps().then(setOps).catch(console.error);
-    }).catch(console.error);
+    import("../lib/client")
+      .then(({ fetchTimelockOps }) => {
+        fetchTimelockOps().then(setOps).catch(console.error);
+      })
+      .catch(console.error);
   }, []);
 
-  const activeOps = ops.filter(
-    (op) => op.status === "Queued" || op.status === "Ready"
-  );
+  const activeOps = ops.filter((op) => op.status === "Queued" || op.status === "Ready");
 
   return (
     <div className="px-8 py-8 max-w-4xl">
@@ -69,8 +69,8 @@ export default function GuardianPage() {
         <div>
           <h1 className="text-xl font-semibold text-ink mb-1">Guardian Console</h1>
           <p className="text-sm text-muted">
-            Monitor queued timelock operations and exercise the guardian veto during the
-            delay window.
+            Monitor queued timelock operations and exercise the guardian veto during the delay
+            window.
           </p>
         </div>
         <WalletConnect />
@@ -120,23 +120,17 @@ export default function GuardianPage() {
                     </div>
                     <div>
                       <span className="text-muted">ETA: </span>
-                      <span className="font-mono text-ink">
-                        {formatTimestamp(op.eta)}
-                      </span>
+                      <span className="font-mono text-ink">{formatTimestamp(op.eta)}</span>
                     </div>
                     <div>
-                      <span className="text-muted">
-                        {ready ? "Elapsed: " : "Until: "}
-                      </span>
+                      <span className="text-muted">{ready ? "Elapsed: " : "Until: "}</span>
                       <span className={ready ? "text-success" : "text-warn"}>
                         {formatCountdown(op.eta)}
                       </span>
                     </div>
                   </div>
 
-                  <div className="text-xs text-muted font-mono truncate">
-                    opId: {op.opId}
-                  </div>
+                  <div className="text-xs text-muted font-mono truncate">opId: {op.opId}</div>
                 </div>
               );
             })}
@@ -186,12 +180,8 @@ export default function GuardianPage() {
                       {op.status}
                     </span>
                   </td>
-                  <td className="px-4 py-2.5 font-mono text-muted">
-                    {formatTimestamp(op.eta)}
-                  </td>
-                  <td className="px-4 py-2.5 text-muted">
-                    {formatTimestamp(op.queuedAt)}
-                  </td>
+                  <td className="px-4 py-2.5 font-mono text-muted">{formatTimestamp(op.eta)}</td>
+                  <td className="px-4 py-2.5 text-muted">{formatTimestamp(op.queuedAt)}</td>
                 </tr>
               ))}
             </tbody>
@@ -200,9 +190,9 @@ export default function GuardianPage() {
       </div>
 
       <div className="mt-6 text-xs text-muted">
-        <span className="font-mono text-warn">Security note:</span> Only the guardian
-        multisig holds the CANCELLER role on TimelockController. This interface requires
-        a wallet connected to that multisig to execute cancellations.
+        <span className="font-mono text-warn">Security note:</span> Only the guardian multisig holds
+        the CANCELLER role on TimelockController. This interface requires a wallet connected to that
+        multisig to execute cancellations.
       </div>
     </div>
   );

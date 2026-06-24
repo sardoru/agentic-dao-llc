@@ -49,58 +49,132 @@ export function makeContracts(client: PublicClient, addresses: ContractAddresses
   return {
     // ── Governor ──────────────────────────────────────────────────────────────
     governor: {
-      proposeRequest(targets: Address[], values: bigint[], calldatas: Hex[], description: string): CallRequest {
+      proposeRequest(
+        targets: Address[],
+        values: bigint[],
+        calldatas: Hex[],
+        description: string,
+      ): CallRequest {
         return noValue(
           governor(),
-          encodeFunctionData({ abi: governorAbi, functionName: "propose", args: [targets, values, calldatas, description] }),
+          encodeFunctionData({
+            abi: governorAbi,
+            functionName: "propose",
+            args: [targets, values, calldatas, description],
+          }),
         );
       },
       castVoteWithReasonRequest(proposalId: bigint, support: number, reason: string): CallRequest {
         return noValue(
           governor(),
-          encodeFunctionData({ abi: governorAbi, functionName: "castVoteWithReason", args: [proposalId, support, reason] }),
+          encodeFunctionData({
+            abi: governorAbi,
+            functionName: "castVoteWithReason",
+            args: [proposalId, support, reason],
+          }),
         );
       },
-      queueRequest(targets: Address[], values: bigint[], calldatas: Hex[], descriptionHash: Hex): CallRequest {
+      queueRequest(
+        targets: Address[],
+        values: bigint[],
+        calldatas: Hex[],
+        descriptionHash: Hex,
+      ): CallRequest {
         return noValue(
           governor(),
-          encodeFunctionData({ abi: governorAbi, functionName: "queue", args: [targets, values, calldatas, descriptionHash] }),
+          encodeFunctionData({
+            abi: governorAbi,
+            functionName: "queue",
+            args: [targets, values, calldatas, descriptionHash],
+          }),
         );
       },
-      executeRequest(targets: Address[], values: bigint[], calldatas: Hex[], descriptionHash: Hex): CallRequest {
+      executeRequest(
+        targets: Address[],
+        values: bigint[],
+        calldatas: Hex[],
+        descriptionHash: Hex,
+      ): CallRequest {
         const total = values.reduce((a, b) => a + b, 0n);
         return {
           to: governor(),
-          data: encodeFunctionData({ abi: governorAbi, functionName: "execute", args: [targets, values, calldatas, descriptionHash] }),
+          data: encodeFunctionData({
+            abi: governorAbi,
+            functionName: "execute",
+            args: [targets, values, calldatas, descriptionHash],
+          }),
           value: total,
         };
       },
       state(proposalId: bigint): Promise<number> {
-        return client.readContract({ address: governor(), abi: governorAbi, functionName: "state", args: [proposalId] });
+        return client.readContract({
+          address: governor(),
+          abi: governorAbi,
+          functionName: "state",
+          args: [proposalId],
+        });
       },
       proposalVotes(proposalId: bigint): Promise<readonly [bigint, bigint, bigint]> {
-        return client.readContract({ address: governor(), abi: governorAbi, functionName: "proposalVotes", args: [proposalId] });
+        return client.readContract({
+          address: governor(),
+          abi: governorAbi,
+          functionName: "proposalVotes",
+          args: [proposalId],
+        });
       },
       quorum(timepoint: bigint): Promise<bigint> {
-        return client.readContract({ address: governor(), abi: governorAbi, functionName: "quorum", args: [timepoint] });
+        return client.readContract({
+          address: governor(),
+          abi: governorAbi,
+          functionName: "quorum",
+          args: [timepoint],
+        });
       },
       proposalSnapshot(proposalId: bigint): Promise<bigint> {
-        return client.readContract({ address: governor(), abi: governorAbi, functionName: "proposalSnapshot", args: [proposalId] });
+        return client.readContract({
+          address: governor(),
+          abi: governorAbi,
+          functionName: "proposalSnapshot",
+          args: [proposalId],
+        });
       },
       proposalDeadline(proposalId: bigint): Promise<bigint> {
-        return client.readContract({ address: governor(), abi: governorAbi, functionName: "proposalDeadline", args: [proposalId] });
+        return client.readContract({
+          address: governor(),
+          abi: governorAbi,
+          functionName: "proposalDeadline",
+          args: [proposalId],
+        });
       },
-      hashProposal(targets: Address[], values: bigint[], calldatas: Hex[], descriptionHash: Hex): Promise<bigint> {
-        return client.readContract({ address: governor(), abi: governorAbi, functionName: "hashProposal", args: [targets, values, calldatas, descriptionHash] });
+      hashProposal(
+        targets: Address[],
+        values: bigint[],
+        calldatas: Hex[],
+        descriptionHash: Hex,
+      ): Promise<bigint> {
+        return client.readContract({
+          address: governor(),
+          abi: governorAbi,
+          functionName: "hashProposal",
+          args: [targets, values, calldatas, descriptionHash],
+        });
       },
     },
 
     // ── AgentRegistry ───────────────────────────────────────────────────────────
     registry: {
-      registerAgentRequest(agentAccount: Address, mandateHash: Hex, mandateURI: string): CallRequest {
+      registerAgentRequest(
+        agentAccount: Address,
+        mandateHash: Hex,
+        mandateURI: string,
+      ): CallRequest {
         return noValue(
           registry(),
-          encodeFunctionData({ abi: agentRegistryAbi, functionName: "registerAgent", args: [agentAccount, mandateHash, mandateURI] }),
+          encodeFunctionData({
+            abi: agentRegistryAbi,
+            functionName: "registerAgent",
+            args: [agentAccount, mandateHash, mandateURI],
+          }),
         );
       },
       // NOTE: updateMandate is a Reserved Matter (REGISTRY_ADMIN / guardian only).
@@ -108,55 +182,130 @@ export function makeContracts(client: PublicClient, addresses: ContractAddresses
       updateMandateRequest(agentAccount: Address, newHash: Hex, mandateURI: string): CallRequest {
         return noValue(
           registry(),
-          encodeFunctionData({ abi: agentRegistryAbi, functionName: "updateMandate", args: [agentAccount, newHash, mandateURI] }),
+          encodeFunctionData({
+            abi: agentRegistryAbi,
+            functionName: "updateMandate",
+            args: [agentAccount, newHash, mandateURI],
+          }),
         );
       },
       async mandateOf(agentAccount: Address): Promise<AgentRecord> {
-        const r = await client.readContract({ address: registry(), abi: agentRegistryAbi, functionName: "mandateOf", args: [agentAccount] });
-        return { principal: r.principal, mandateHash: r.mandateHash, mandateURI: r.mandateURI, active: r.active };
+        const r = await client.readContract({
+          address: registry(),
+          abi: agentRegistryAbi,
+          functionName: "mandateOf",
+          args: [agentAccount],
+        });
+        return {
+          principal: r.principal,
+          mandateHash: r.mandateHash,
+          mandateURI: r.mandateURI,
+          active: r.active,
+        };
       },
     },
 
     // ── MembershipToken ───────────────────────────────────────────────────────
     token: {
       delegateRequest(delegatee: Address): CallRequest {
-        return noValue(token(), encodeFunctionData({ abi: membershipTokenAbi, functionName: "delegate", args: [delegatee] }));
+        return noValue(
+          token(),
+          encodeFunctionData({
+            abi: membershipTokenAbi,
+            functionName: "delegate",
+            args: [delegatee],
+          }),
+        );
       },
       getVotes(account: Address): Promise<bigint> {
-        return client.readContract({ address: token(), abi: membershipTokenAbi, functionName: "getVotes", args: [account] });
+        return client.readContract({
+          address: token(),
+          abi: membershipTokenAbi,
+          functionName: "getVotes",
+          args: [account],
+        });
       },
       clock(): Promise<number> {
-        return client.readContract({ address: token(), abi: membershipTokenAbi, functionName: "clock" });
+        return client.readContract({
+          address: token(),
+          abi: membershipTokenAbi,
+          functionName: "clock",
+        });
       },
     },
 
     // ── RolesModifier (bounded operational execution) ─────────────────────────
     roles: {
-      execTransactionWithRoleRequest(to: Address, value: bigint, data: Hex, agent: Address): CallRequest {
+      execTransactionWithRoleRequest(
+        to: Address,
+        value: bigint,
+        data: Hex,
+        agent: Address,
+      ): CallRequest {
         return {
           to: roles(),
-          data: encodeFunctionData({ abi: rolesModifierAbi, functionName: "execTransactionWithRole", args: [to, value, data, agent] }),
+          data: encodeFunctionData({
+            abi: rolesModifierAbi,
+            functionName: "execTransactionWithRole",
+            args: [to, value, data, agent],
+          }),
           value: 0n,
         };
       },
       // setSpendingCap / setTargetAllowed / setAgentActive are Reserved Matters
       // (ROLES_ADMIN / guardian only); request builders exist for the guardian
       // tooling but the agent policy engine denies these selectors.
-      setSpendingCapRequest(agent: Address, tokenAddr: Address, perTx: bigint, perEpoch: bigint): CallRequest {
-        return noValue(roles(), encodeFunctionData({ abi: rolesModifierAbi, functionName: "setSpendingCap", args: [agent, tokenAddr, perTx, perEpoch] }));
+      setSpendingCapRequest(
+        agent: Address,
+        tokenAddr: Address,
+        perTx: bigint,
+        perEpoch: bigint,
+      ): CallRequest {
+        return noValue(
+          roles(),
+          encodeFunctionData({
+            abi: rolesModifierAbi,
+            functionName: "setSpendingCap",
+            args: [agent, tokenAddr, perTx, perEpoch],
+          }),
+        );
       },
-      setTargetAllowedRequest(agent: Address, target: Address, selector: Hex, allowed: boolean): CallRequest {
-        return noValue(roles(), encodeFunctionData({ abi: rolesModifierAbi, functionName: "setTargetAllowed", args: [agent, target, selector, allowed] }));
+      setTargetAllowedRequest(
+        agent: Address,
+        target: Address,
+        selector: Hex,
+        allowed: boolean,
+      ): CallRequest {
+        return noValue(
+          roles(),
+          encodeFunctionData({
+            abi: rolesModifierAbi,
+            functionName: "setTargetAllowed",
+            args: [agent, target, selector, allowed],
+          }),
+        );
       },
       epochSpend(agent: Address, tokenAddr: Address): Promise<bigint> {
-        return client.readContract({ address: roles(), abi: rolesModifierAbi, functionName: "epochSpend", args: [agent, tokenAddr] });
+        return client.readContract({
+          address: roles(),
+          abi: rolesModifierAbi,
+          functionName: "epochSpend",
+          args: [agent, tokenAddr],
+        });
       },
     },
 
     // ── RationaleAnchor ───────────────────────────────────────────────────────
     anchor: {
       anchorRequest(refId: Hex, ipfsURI: string, contentHash: Hex): CallRequest {
-        return noValue(anchor(), encodeFunctionData({ abi: rationaleAnchorAbi, functionName: "anchor", args: [refId, ipfsURI, contentHash] }));
+        return noValue(
+          anchor(),
+          encodeFunctionData({
+            abi: rationaleAnchorAbi,
+            functionName: "anchor",
+            args: [refId, ipfsURI, contentHash],
+          }),
+        );
       },
     },
   };

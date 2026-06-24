@@ -12,6 +12,7 @@ the Reserved Matters policy come from `reserved-matters.yaml` and must match the
 functions below.
 
 ## MembershipToken — soulbound ERC721Votes + AccessControl
+
 ```solidity
 function mintMembership(address member, uint256 tokenId) external;      // MEMBERSHIP_ADMIN (reserved)
 function burnMembership(uint256 tokenId) external;                      // MEMBERSHIP_ADMIN (reserved)
@@ -23,6 +24,7 @@ function CLOCK_MODE() external pure returns (string memory);           // "mode=
 ```
 
 ## DaoGovernor — OZ Governor stack
+
 ```solidity
 function propose(address[] targets, uint256[] values, bytes[] calldatas, string description) external returns (uint256);
 function castVoteWithReason(uint256 proposalId, uint8 support, string reason) external returns (uint256);
@@ -39,6 +41,7 @@ function hashProposal(address[] targets, uint256[] values, bytes[] calldatas, by
 ```
 
 ## TimelockController — OZ
+
 ```solidity
 function getMinDelay() external view returns (uint256);
 function updateDelay(uint256 newDelay) external;                       // TIMELOCK_ADMIN (reserved)
@@ -48,6 +51,7 @@ function cancel(bytes32 id) external;                                  // CANCEL
 ```
 
 ## AgentRegistry
+
 ```solidity
 struct AgentRecord { address principal; bytes32 mandateHash; string mandateURI; bool active; }
 function registerAgent(address agentAccount, bytes32 mandateHash, string mandateURI) external;   // msg.sender == principal
@@ -59,6 +63,7 @@ function mandateOf(address agentAccount) external view returns (AgentRecord memo
 ```
 
 ## RolesModifier — minimal in-house Zodiac-Roles stand-in (v1; swap to audited Zodiac before mainnet)
+
 ```solidity
 function execTransactionWithRole(address to, uint256 value, bytes data, address agent) external returns (bool);
 function setSpendingCap(address agent, address token, uint256 perTx, uint256 perEpoch) external; // ROLES_ADMIN (reserved)
@@ -70,6 +75,7 @@ function epochSpend(address agent, address token) external view returns (uint256
 ```
 
 ## RationaleAnchor — joins on-chain actions to off-chain reasoning
+
 ```solidity
 function anchor(bytes32 refId, string ipfsURI, bytes32 contentHash) external;
 // event: RationaleAnchored(bytes32 indexed refId, string ipfsURI, bytes32 contentHash)

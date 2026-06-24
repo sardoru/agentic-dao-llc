@@ -1,5 +1,11 @@
 import { describe, it, expect } from "vitest";
-import { canonicalize, hashMandate, validateMandate, verifyMandateHash, type Mandate } from "../src/index";
+import {
+  canonicalize,
+  hashMandate,
+  validateMandate,
+  verifyMandateHash,
+  type Mandate,
+} from "../src/index";
 
 const valid: Mandate = {
   version: "1.0",
@@ -12,7 +18,12 @@ const valid: Mandate = {
     proposalTypes: ["TREASURY_PAYMENT"],
     allowedTargets: ["0x3333333333333333333333333333333333333333"],
     forbiddenSelectors: [],
-    spendingCap: { token: "0x036CbD53842c5426634e7929541eC2318f3dCF7e", perTx: "1000000000", perEpoch: "10000000000", epochSeconds: 604800 },
+    spendingCap: {
+      token: "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+      perTx: "1000000000",
+      perEpoch: "10000000000",
+      epochSeconds: 604800,
+    },
   },
   requireSimulation: true,
   rationaleStorage: "ipfs",
@@ -63,7 +74,11 @@ describe("validateMandate", () => {
     expect(r.errors.join(" ")).toContain("principal");
   });
   it("rejects expiry before creation", () => {
-    const r = validateMandate({ ...valid, createdAt: "2026-12-31T00:00:00Z", expiresAt: "2026-01-01T00:00:00Z" });
+    const r = validateMandate({
+      ...valid,
+      createdAt: "2026-12-31T00:00:00Z",
+      expiresAt: "2026-01-01T00:00:00Z",
+    });
     expect(r.valid).toBe(false);
   });
   it("rejects an unknown proposal type", () => {
