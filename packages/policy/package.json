@@ -1,0 +1,31 @@
+{
+  "name": "@agentic-dao/policy",
+  "version": "0.1.0",
+  "description": "Shared mandate schema, canonical hashing, and the single-source policy engine. Imported by the MCP server, the CLI, and the signer (build spec §7).",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": ["dist"],
+  "scripts": {
+    "prebuild": "node ../../scripts/gen-reserved-matters.mjs",
+    "build": "tsup",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "viem": "^2.21.55"
+  },
+  "devDependencies": {
+    "tsup": "^8.3.5",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  }
+}

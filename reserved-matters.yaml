@@ -1,0 +1,94 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# RESERVED MATTERS — single source of truth (Build spec §14).
+#
+# The constitutional floor. Neither the AI agents nor the DaoGovernor can effect
+# any matter below without separate, explicit human action by the guardian
+# multisig. This is the safety spine of the whole system.
+#
+# This file GENERATES (run `pnpm gen:reserved`; CI asserts no drift via
+# `pnpm check:reserved`):
+#   • packages/policy/src/reservedMatters.generated.ts   → runtime enforcement
+#   • legal/reserved-matters-schedule.md                 → legal enforcement
+#
+# The on-chain layer enforces the same set structurally: each guardian role below
+# is held by the guardian multisig, and the DaoGovernor holds NONE of them
+# (constitutional separation, proven by contracts/test adversarial tests).
+#
+# Keep all three layers in sync THROUGH THIS FILE ONLY. Never hand-edit the
+# generated artifacts.
+# ─────────────────────────────────────────────────────────────────────────────
+
+version: "1.0"
+
+# AccessControl roles that gate reserved matters on-chain. Each is held by the
+# guardian multisig; the DaoGovernor holds none of them.
+roles:
+  GUARDIAN_ADMIN: "DEFAULT_ADMIN_ROLE across constitutional contracts; manages the guardian set."
+  MEMBERSHIP_ADMIN: "Mint/burn the soulbound membership token (admit/remove members)."
+  REGISTRY_ADMIN: "Update agent mandates bound in the AgentRegistry."
+  ROLES_ADMIN: "Configure agent spending caps and target/selector allowlists (Roles modifier)."
+  TIMELOCK_ADMIN: "Change the timelock minDelay (the guardian veto window)."
+  UPGRADE_ADMIN: "Authorize upgrades of upgradeable constitutional contracts."
+
+matters:
+  - id: CHANGE_GUARDIAN_SET
+    title: "Change the guardian set"
+    role: GUARDIAN_ADMIN
+    description: "Add, remove, or replace guardian signers, or transfer any constitutional admin role. Every AccessControl role grant/revoke is reserved."
+    selectors:
+      - "grantRole(bytes32,address)"
+      - "revokeRole(bytes32,address)"
+      - "renounceRole(bytes32,address)"
+
+  - id: CHANGE_TIMELOCK_DELAY
+    title: "Change the timelock minimum delay"
+    role: TIMELOCK_ADMIN
+    description: "Alter the execution delay that gives the guardian its veto window."
+    selectors:
+      - "updateDelay(uint256)"
+
+  - id: CHANGE_AGENT_CAPS_OR_ROLES
+    title: "Change agent spending caps or Roles configuration"
+    role: ROLES_ADMIN
+    description: "Modify any agent's allowed targets, allowed selectors, or per-tx / per-epoch spending allowances."
+    selectors:
+      - "setSpendingCap(address,address,uint256,uint256)"
+      - "setTargetAllowed(address,address,bytes4,bool)"
+      - "setAgentActive(address,bool)"
+
+  - id: CHANGE_AGENT_MANDATE
+    title: "Change an agent mandate"
+    role: REGISTRY_ADMIN
+    description: "Update the mandate hash/URI bound to an agent account in the AgentRegistry."
+    selectors:
+      - "updateMandate(address,bytes32,string)"
+
+  - id: MINT_OR_BURN_MEMBERSHIP
+    title: "Admit or remove members (mint/burn membership)"
+    role: MEMBERSHIP_ADMIN
+    description: "Mint or burn the soulbound membership token, i.e. admit or remove members."
+    selectors:
+      - "mintMembership(address,uint256)"
+      - "burnMembership(uint256)"
+
+  - id: UPGRADE_CONTRACTS
+    title: "Upgrade a constitutional contract"
+    role: UPGRADE_ADMIN
+    description: "Replace the implementation of an upgradeable constitutional contract. Wyoming algorithmic management requires upgradeability; the upgrade authority is itself reserved and triggers an articles-amendment obligation."
+    selectors:
+      - "upgradeTo(address)"
+      - "upgradeToAndCall(address,bytes)"
+
+  # Legal-only reserved matters: no single on-chain selector. Enforced by the
+  # operating agreement + a high-threshold human-member vote (and guardian roles).
+  - id: AMEND_CONSTITUTION
+    title: "Amend the articles / operating agreement / Reserved Matters schedule"
+    role: GUARDIAN_ADMIN
+    legalOnly: true
+    description: "Amend the articles of organization, the operating agreement, the code-deference clause, or this Reserved Matters schedule."
+
+  - id: DISSOLUTION
+    title: "Dissolve the company"
+    role: GUARDIAN_ADMIN
+    legalOnly: true
+    description: "Wind up and dissolve the DAO LLC."

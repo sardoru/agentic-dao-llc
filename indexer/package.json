@@ -1,0 +1,23 @@
+{
+  "name": "@agentic-dao/indexer",
+  "version": "0.1.0",
+  "description": "Ponder indexer: indexes Governor / Timelock / MembershipToken / AgentRegistry / RolesModifier / RationaleAnchor events into queryable proposal/member/agent/treasury views (build spec §10).",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "ponder dev",
+    "start": "ponder start",
+    "serve": "ponder serve",
+    "codegen": "ponder codegen",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@agentic-dao/chain": "workspace:*",
+    "hono": "^4.6.14",
+    "ponder": "^0.16.0",
+    "viem": "^2.21.55"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.2"
+  }
+}

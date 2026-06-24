@@ -1,0 +1,21 @@
+{
+  "version": "1.0",
+  "agentId": "governance-only-agent-02",
+  "principal": "0x6666666666666666666666666666666666666666",
+  "agentAccount": "0x7777777777777777777777777777777777777777",
+  "scope": {
+    "canPropose": true,
+    "canVote": true,
+    "proposalTypes": ["TEXT_SIGNAL", "PARAM_TUNE_NONRESERVED"],
+    "allowedTargets": [],
+    "forbiddenSelectors": [],
+    "spendingCap": null
+  },
+  "votingPolicy": "ipfs://bafyGOVERNANCEpolicyPLACEHOLDER",
+  "humanRatification": { "valueUsdGte": 0, "impact": ["HIGH"] },
+  "requireSimulation": true,
+  "rationaleStorage": "ipfs",
+  "guardian": "0x5555555555555555555555555555555555555555",
+  "createdAt": "2026-01-01T00:00:00Z",
+  "expiresAt": "2026-12-31T23:59:59Z"
+}

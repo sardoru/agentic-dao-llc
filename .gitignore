@@ -1,0 +1,46 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build output
+dist/
+build/
+out/
+*.tsbuildinfo
+.next/
+.turbo/
+
+# Foundry
+contracts/out/
+contracts/cache/
+contracts/broadcast/
+contracts/lib/
+contracts/dependencies/
+
+# Ponder
+indexer/.ponder/
+indexer/generated/
+
+# Env / secrets — NEVER commit real secrets
+.env
+.env.local
+.env.*.local
+*.keystore
+keystore/
+.keystore/
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.swp
+
+# Coverage
+coverage/
+lcov.info

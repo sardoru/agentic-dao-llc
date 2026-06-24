@@ -1,0 +1,92 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agentic-dao-llc/mandate.schema.json",
+  "title": "Agent Mandate",
+  "description": "Machine-readable policy bounding a delegated AI agent. Canonicalized (sorted keys, no insignificant whitespace) and keccak256-hashed; the hash is stored on-chain in AgentRegistry and mirrored in the legal exhibit. See build spec §7.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "version",
+    "agentId",
+    "principal",
+    "agentAccount",
+    "scope",
+    "requireSimulation",
+    "rationaleStorage",
+    "guardian",
+    "createdAt",
+    "expiresAt"
+  ],
+  "properties": {
+    "version": { "type": "string", "const": "1.0" },
+    "agentId": { "type": "string", "minLength": 1 },
+    "principal": { "$ref": "#/$defs/address", "description": "Human member who delegated." },
+    "agentAccount": { "$ref": "#/$defs/address", "description": "Agent Safe / signer address." },
+    "scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["canPropose", "canVote", "proposalTypes", "allowedTargets"],
+      "properties": {
+        "canPropose": { "type": "boolean" },
+        "canVote": { "type": "boolean" },
+        "proposalTypes": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["TREASURY_PAYMENT", "PARAM_TUNE_NONRESERVED", "TEXT_SIGNAL"]
+          },
+          "uniqueItems": true
+        },
+        "allowedTargets": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/address" },
+          "uniqueItems": true
+        },
+        "forbiddenSelectors": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/selector" },
+          "uniqueItems": true,
+          "description": "Extra denied selectors on top of the reserved set."
+        },
+        "spendingCap": {
+          "type": ["object", "null"],
+          "additionalProperties": false,
+          "required": ["token", "perTx", "perEpoch", "epochSeconds"],
+          "properties": {
+            "token": { "$ref": "#/$defs/address" },
+            "perTx": { "$ref": "#/$defs/uint256" },
+            "perEpoch": { "$ref": "#/$defs/uint256" },
+            "epochSeconds": { "type": "integer", "minimum": 1 }
+          }
+        }
+      }
+    },
+    "votingPolicy": {
+      "type": "string",
+      "description": "ipfs:// ref to a voting policy doc or model-prompt; how the agent decides its vote."
+    },
+    "humanRatification": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "valueUsdGte": { "type": "number", "minimum": 0 },
+        "impact": {
+          "type": "array",
+          "items": { "type": "string", "enum": ["LOW", "MED", "HIGH"] },
+          "uniqueItems": true
+        }
+      },
+      "description": "Above this value/impact, actions become draft-for-human rather than auto-submitted."
+    },
+    "requireSimulation": { "type": "boolean" },
+    "rationaleStorage": { "type": "string", "enum": ["ipfs", "arweave"] },
+    "guardian": { "$ref": "#/$defs/address" },
+    "createdAt": { "type": "string", "format": "date-time" },
+    "expiresAt": { "type": "string", "format": "date-time" }
+  },
+  "$defs": {
+    "address": { "type": "string", "pattern": "^0x[a-fA-F0-9]{40}$" },
+    "selector": { "type": "string", "pattern": "^0x[a-fA-F0-9]{8}$" },
+    "uint256": { "type": "string", "pattern": "^[0-9]+$" }
+  }
+}

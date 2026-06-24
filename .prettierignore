@@ -1,0 +1,19 @@
+node_modules/
+dist/
+build/
+out/
+.next/
+.turbo/
+coverage/
+pnpm-lock.yaml
+contracts/out/
+contracts/cache/
+contracts/lib/
+contracts/dependencies/
+indexer/.ponder/
+indexer/generated/
+
+# Generated artifacts — produced by scripts/gen-reserved-matters.mjs.
+# Excluded so the codegen drift check (pnpm check:reserved) compares raw output.
+packages/policy/src/reservedMatters.generated.ts
+legal/reserved-matters-schedule.md
