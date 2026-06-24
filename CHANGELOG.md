@@ -26,4 +26,13 @@ Format follows [Keep a Changelog](https://keepachangelog.com/); the project is *
 - `legal/` — Wyoming DAO LLC templates.
 - `docs/` — threat model, deployment runbook, ADRs.
 
+### Added — documentation
+- Detailed top-level `README.md` — architecture, the seven contracts, the eight Reserved
+  Matters, the policy engine's six checks, the runtime request flow, all 135 tests (incl. the
+  named adversarial safety proofs), command/config reference, project status, and the mainnet
+  gates.
+- `BUILD_SCOPE.md` — authoritative in/out-of-scope boundary, phase-by-phase delivery status
+  against the spec's acceptance criteria, deliverable inventory, the three-layer coherence
+  mechanism, the mainnet-gating checklist, and remaining work mapped to the filed issues.
+
 [Unreleased]: https://github.com/sardoru/agentic-dao-llc/commits/main
