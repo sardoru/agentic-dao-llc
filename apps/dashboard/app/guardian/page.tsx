@@ -7,6 +7,7 @@ import { TIMELOCK_ABI } from "../lib/abis";
 import type { TimelockOp } from "../lib/types";
 import { formatCountdown, formatTimestamp } from "../lib/utils";
 import { WalletConnect } from "../components/WalletConnect";
+import { useSession } from "../lib/auth/AuthProvider";
 
 const TIMELOCK_ADDRESS = (process.env["NEXT_PUBLIC_TIMELOCK_ADDRESS"] ??
   "0x0000000000000000000000000000000000000000") as `0x${string}`;
@@ -50,6 +51,8 @@ function CancelButton({ op }: { op: TimelockOp }) {
 
 export default function GuardianPage() {
   const { isConnected } = useAccount();
+  const { session } = useSession();
+  const isGuardian = !!session?.roles.includes("guardian");
   const [ops, setOps] = useState<TimelockOp[]>([]);
 
   useEffect(() => {
@@ -76,11 +79,16 @@ export default function GuardianPage() {
         <WalletConnect />
       </div>
 
-      {!isConnected && (
+      {!isConnected ? (
         <div className="bg-warn/10 border border-warn/40 rounded-lg px-4 py-3 mb-6 text-sm text-warn">
-          Connect wallet (guardian multisig required) to cancel operations.
+          Connect the guardian wallet to cancel operations.
         </div>
-      )}
+      ) : !isGuardian ? (
+        <div className="bg-warn/10 border border-warn/40 rounded-lg px-4 py-3 mb-6 text-sm text-warn">
+          This wallet is not recognized as the guardian. You can review operations, but a cancel
+          will revert on-chain (only the guardian holds the CANCELLER role).
+        </div>
+      ) : null}
 
       <div className="mb-6">
         <h2 className="text-xs font-mono text-muted uppercase tracking-widest mb-3">
@@ -108,7 +116,7 @@ export default function GuardianPage() {
                         View proposal →
                       </Link>
                     </div>
-                    {isConnected && <CancelButton op={op} />}
+                    {isConnected && isGuardian && <CancelButton op={op} />}
                   </div>
 
                   <div className="flex flex-wrap gap-4 text-xs">

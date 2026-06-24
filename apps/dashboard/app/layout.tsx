@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import "./globals.css";
 import { Providers } from "./providers";
+import { AuthStatus } from "./components/AuthStatus";
 
 export const metadata: Metadata = {
   title: "Agentic DAO LLC — Governance Dashboard",
@@ -53,7 +54,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </aside>
 
             {/* Main */}
-            <main className="ml-56 flex-1 min-h-screen">{children}</main>
+            <main className="ml-56 flex-1 min-h-screen">
+              <header className="sticky top-0 z-30 flex items-center justify-end gap-3 border-b border-border bg-canvas/80 px-8 py-3 backdrop-blur">
+                <AuthStatus />
+              </header>
+              {children}
+            </main>
           </div>
         </Providers>
       </body>

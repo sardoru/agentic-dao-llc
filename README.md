@@ -306,6 +306,14 @@ agent → MCP tool / CLI command
   queued proposal inside the delay window), **treasury**, and **compliance export**. It falls back
   to fixtures when no live indexer is configured, and shows a visible **mandate-hash-mismatch**
   warning anywhere the on-chain hash ≠ the fetched doc.
+- **Authentication** ([`apps/dashboard/app/lib/auth/`](apps/dashboard/app/lib/auth), see
+  [ADR 0006](docs/adr/0006-authentication.md)) — a multi-method `/login` whose working method is
+  **Sign-In With Ethereum (SIWE)**: connect a wallet (injected / Coinbase / WalletConnect), sign a
+  nonce-bound EIP-4361 message (free, never a transaction), and the server issues a stateless
+  `jose` session cookie. Roles (`member` / `guardian`) are resolved on-chain at login; the Next 16
+  proxy gates the guardian console behind a session. Email-magic-link and passkey are first-class
+  method slots wired to "configure to enable" stubs. Runs zero-config in dev; fails closed in prod
+  without `AUTH_SESSION_SECRET`.
 
 ## Testing & the adversarial safety proofs
 

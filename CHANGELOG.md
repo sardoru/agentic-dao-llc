@@ -5,6 +5,24 @@ Format follows [Keep a Changelog](https://keepachangelog.com/); the project is *
 
 ## [Unreleased]
 
+### Added — dashboard authentication (SIWE wallet-connect, multi-method)
+
+- **Sign-In With Ethereum** end to end (`apps/dashboard`): `GET /api/auth/nonce` →
+  client builds a nonce-bound EIP-4361 message (`viem/siwe`) → wallet `personal_sign`
+  (free, never a tx) → `POST /api/auth/verify` validates chain/nonce/domain/signature
+  (EOA **and** ERC-1271) and issues a stateless `jose` HS256 session cookie. `me` /
+  `logout` routes + a client `AuthProvider`/`useSession`.
+- **Connectors:** `injected` + `coinbaseWallet` always; `walletConnect` (mobile/QR) when
+  `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` is set. New multi-method `/login` (Wallet /
+  Email link / Passkey) with a header `AuthStatus` widget.
+- **Route gating:** Next 16 `proxy.ts` requires a session for `/guardian`; the guardian
+  cancel button is further gated on the on-chain-resolved `guardian` role.
+- **Role resolution** at login (best-effort, fail-open): `guardian` (env) + `member`
+  (`MembershipToken.balanceOf`). Magic-link + passkey are first-class extension points
+  (`/api/auth/{magic-link,passkey}` return 501 "configure to enable"). See
+  [ADR 0006](docs/adr/0006-authentication.md). Runs zero-config in dev; fails closed in
+  prod without `AUTH_SESSION_SECRET`. `pnpm verify` + `next build` green.
+
 ### Added — Working Committee DAO pilot (CGP-001)
 
 - **Profiled Reserved Matters.** `reserved-matters.yaml` now carries `pilot` / `production`
