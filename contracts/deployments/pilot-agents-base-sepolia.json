@@ -1,0 +1,47 @@
+{
+  "network": "base-sepolia",
+  "chainId": 84532,
+  "registeredAt": "2026-06-24",
+  "registry": "0xCc6A8ADd07B1fD670Da953750d8eFDa599186319",
+  "principal": "0xD3013c2b198E80806de8e7886237De5eBB8880ED",
+  "guardian": "0x924C2CF41cc502EfA98416EE42A8a05e3923baDB",
+  "note": "Testnet pilot agents. mandateURI is a placeholder until the docs are pinned to IPFS (issue #3). Mandate docs: contracts/deployments/pilot-mandates/<id>.json. Caps/delegation are the remaining activation step (issue #20).",
+  "agents": [
+    {
+      "agentId": "OPS-01",
+      "agentAccount": "0x4e9C86Fd2758A200734d2e7C6F72288dd5Be97c6",
+      "mandateHash": "0x85aec66ef8abb0c436ce196ef89672fe0048e7675619b6b5a5083e9b59c463cb",
+      "mandateURI": "ipfs://pending-OPS-01",
+      "principal": "0xD3013c2b198E80806de8e7886237De5eBB8880ED",
+      "registrationTx": "0x1230ce3810b19ceff6ab94447d01763a027a933fdc7d2996e31767942c95d19b",
+      "active": true
+    },
+    {
+      "agentId": "TREAS-01",
+      "agentAccount": "0xc9dc10c15bCBB9b1b6BEE3C6187172C2e22dC384",
+      "mandateHash": "0x8a633ddc1fb17fb1e35a46e638a7909b40ba08c3352bfc15ca091e7da324cef4",
+      "mandateURI": "ipfs://pending-TREAS-01",
+      "principal": "0xD3013c2b198E80806de8e7886237De5eBB8880ED",
+      "registrationTx": "0xe0bade07d3cf6e23a9fcdd75619e90e4310d3a028222b69c595d20110292d28f",
+      "active": true
+    },
+    {
+      "agentId": "GOV-01",
+      "agentAccount": "0x3f073C95B25D7F16770595402352e71F6345dbBe",
+      "mandateHash": "0xfb0b2d3386ec268819863a64741afef8b6e0f83e3eb3f916b2d743fc2c73b5dd",
+      "mandateURI": "ipfs://pending-GOV-01",
+      "principal": "0xD3013c2b198E80806de8e7886237De5eBB8880ED",
+      "registrationTx": "0x472ea74163a4918dee93d385b5c16c90bb8c8eb2b8f973d1406bf531113318fb",
+      "active": true
+    },
+    {
+      "agentId": "DILIGENCE-01",
+      "agentAccount": "0x63695C0b2Ee628B753bCaB2947B9059639084a65",
+      "mandateHash": "0x0a36e27c71a6ba37b334e2eda2a99715616a9e70744abb42fddfbe0c69dc66ce",
+      "mandateURI": "ipfs://pending-DILIGENCE-01",
+      "principal": "0xD3013c2b198E80806de8e7886237De5eBB8880ED",
+      "registrationTx": "0x7325e61ac3fd84a1f1646311b3ecf941c02f875936abf28b2f013ab487557542",
+      "active": true
+    }
+  ]
+}

@@ -22,7 +22,14 @@
   },
   "roles": {
     "guardian": "0x924C2CF41cc502EfA98416EE42A8a05e3923baDB",
-    "guardianHolds": ["DEFAULT_ADMIN_ROLE", "MEMBERSHIP_ADMIN", "REGISTRY_ADMIN", "ROLES_ADMIN", "TIMELOCK_ADMIN", "CANCELLER_ROLE"],
+    "guardianHolds": [
+      "DEFAULT_ADMIN_ROLE",
+      "MEMBERSHIP_ADMIN",
+      "REGISTRY_ADMIN",
+      "ROLES_ADMIN",
+      "TIMELOCK_ADMIN",
+      "CANCELLER_ROLE"
+    ],
     "governorHolds": ["PROPOSER_ROLE", "EXECUTOR_ROLE"],
     "deployerRenouncedAll": true
   },

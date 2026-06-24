@@ -1,0 +1,37 @@
+{
+  "version": "1.0",
+  "agentId": "DILIGENCE-01",
+  "principal": "0xD3013c2b198E80806de8e7886237De5eBB8880ED",
+  "agentAccount": "0x63695C0b2Ee628B753bCaB2947B9059639084a65",
+  "scope": {
+    "canPropose": true,
+    "canVote": false,
+    "proposalTypes": ["TEXT_SIGNAL"],
+    "allowedTargets": [],
+    "forbiddenSelectors": [
+      "0x2f2ff15d",
+      "0xd547741f",
+      "0x36568abe",
+      "0x64d62353",
+      "0xd8804832",
+      "0x6a3722c5",
+      "0xacb5cb8e",
+      "0xb51e77d5",
+      "0x23d91713",
+      "0xe5961754",
+      "0x3659cfe6",
+      "0x4f1ef286"
+    ],
+    "spendingCap": null
+  },
+  "votingPolicy": "ipfs://bafyDILIGENCE01votingPolicyPLACEHOLDER",
+  "humanRatification": {
+    "valueUsdGte": 0,
+    "impact": ["LOW", "MED", "HIGH"]
+  },
+  "requireSimulation": true,
+  "rationaleStorage": "ipfs",
+  "guardian": "0x924C2CF41cc502EfA98416EE42A8a05e3923baDB",
+  "createdAt": "2026-06-24T00:00:00Z",
+  "expiresAt": "2026-09-24T00:00:00Z"
+}
