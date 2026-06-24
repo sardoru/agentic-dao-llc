@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" fill="none">
+  <defs>
+    <linearGradient id="adao" x1="3" y1="2" x2="29" y2="30" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#6366f1" />
+      <stop offset="1" stop-color="#818cf8" />
+    </linearGradient>
+  </defs>
+  <!-- DAO hexagon -->
+  <path d="M16 1.5 28.99 9 V23 L16 30.5 3.01 23 V9 Z" fill="url(#adao)" />
+  <!-- delegation node graph: one principal → three agents -->
+  <g stroke="#ffffff" stroke-width="1.7" stroke-linecap="round" opacity="0.95">
+    <line x1="16" y1="16" x2="16" y2="8.6" />
+    <line x1="16" y1="16" x2="9.6" y2="21.8" />
+    <line x1="16" y1="16" x2="22.4" y2="21.8" />
+  </g>
+  <g fill="#ffffff">
+    <circle cx="16" cy="8.6" r="2" />
+    <circle cx="9.6" cy="21.8" r="2" />
+    <circle cx="22.4" cy="21.8" r="2" />
+    <circle cx="16" cy="16" r="3" />
+  </g>
+</svg>
