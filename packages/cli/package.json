@@ -18,6 +18,7 @@
   },
   "dependencies": {
     "@agentic-dao/chain": "workspace:*",
+    "@agentic-dao/mcp": "workspace:*",
     "@agentic-dao/policy": "workspace:*",
     "@agentic-dao/signer": "workspace:*",
     "@agentic-dao/sim": "workspace:*",
