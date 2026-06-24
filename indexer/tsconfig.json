@@ -1,0 +1,19 @@
+{
+  "extends": "../tsconfig.base.json",
+  "compilerOptions": {
+    // The indexer is a private app — no published types, so declaration
+    // files are not needed. Disabling them suppresses the TS2742 "cannot
+    // be named without a reference to pnpm hashed drizzle-orm path" errors
+    // that arise from the base config's declaration:true setting.
+    "declaration": false,
+    "declarationMap": false
+  },
+  "include": [
+    "ponder-env.d.ts",
+    "abis",
+    "src",
+    "ponder.config.ts",
+    "ponder.schema.ts"
+  ],
+  "exclude": ["node_modules"]
+}
