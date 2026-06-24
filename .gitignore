@@ -15,7 +15,8 @@ contracts/out/
 contracts/cache/
 contracts/broadcast/
 contracts/lib/
-contracts/dependencies/
+# contracts/dependencies/ is committed (vendored OZ + forge-std via soldeer) so the
+# repo builds offline without a soldeer-registry round-trip. soldeer.lock pins them.
 
 # Ponder
 indexer/.ponder/

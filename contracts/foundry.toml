@@ -1,0 +1,32 @@
+[profile.default]
+src = "src"
+test = "test"
+script = "script"
+out = "out"
+libs = ["dependencies"]
+solc = "0.8.24"
+optimizer = true
+optimizer_runs = 200
+evm_version = "cancun"
+# Many Governor/Votes paths in the adversarial tests intentionally revert deep in
+# the OZ stack; rich revert strings make the safety proofs legible.
+verbosity = 3
+
+# OpenZeppelin Contracts v5.1.0 installed via `forge soldeer` (registry package
+# `@openzeppelin-contracts~5.1.0`). The soldeer package layout places the contents
+# of OZ's `contracts/` directory at the root of the dependency folder, so the
+# remapping points at the package root (not a nested `contracts/`).
+remappings = [
+    "@openzeppelin/contracts/=dependencies/@openzeppelin-contracts-5.1.0/",
+    "forge-std/=dependencies/forge-std-1.9.4/src/",
+]
+
+[soldeer]
+# Pin deps as soldeer dependencies so the lockfile records exact revisions.
+remappings_generate = false
+
+[dependencies]
+"@openzeppelin-contracts" = "5.1.0"
+forge-std = "1.9.4"
+
+# See more config options in the Foundry book: https://book.getfoundry.sh/reference/config

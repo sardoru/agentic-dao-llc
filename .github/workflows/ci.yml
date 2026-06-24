@@ -41,8 +41,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          submodules: recursive
+        # contracts/dependencies (OZ + forge-std) are vendored/committed, so no
+        # submodule or soldeer-registry fetch is needed — forge builds offline.
 
       - uses: foundry-rs/foundry-toolchain@v1
 
