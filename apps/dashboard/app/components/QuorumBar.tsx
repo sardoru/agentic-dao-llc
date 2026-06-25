@@ -27,7 +27,7 @@ export function QuorumBar({ forVotes, quorumVotes, totalSupply }: QuorumBarProps
         />
       </div>
       <div className="text-xs text-muted">
-        {Number(totalSupply)} total members · 30% quorum threshold
+        {Number(totalSupply)} total members · 60% quorum threshold
       </div>
     </div>
   );

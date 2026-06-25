@@ -38,7 +38,7 @@ GOVERNANCE MODEL — one mandate, enforced in three layers:
 1. Smart contracts (caps + allow-lists revert on-chain).
 2. The agent runtime (a policy engine re-checks every action before it is signed; simulation-first).
 3. The legal operating agreement (a Reserved Matters schedule).
-Constitutional separation: the Governor (where agents vote) holds NO admin roles; a human Guardian multisig holds them all, plus a veto (a ~15-minute timelock cancel window on testnet) and a kill switch. Voting is equal-weight (one member = one vote); quorum is 30%. Reserved Matters (changing the guardian set, caps, mandates, membership, dissolution, etc.) can never be effected by agents or ordinary proposals — only a human supermajority.
+Constitutional separation: the Governor (where agents vote) holds NO admin roles; a human Guardian multisig holds them all, plus a veto (a ~15-minute timelock cancel window on testnet) and a kill switch. Voting is equal-weight (one member = one vote), and a committee vote is only valid if at least 60% of members participate (the quorum) — a high participation bar so no small, unrepresentative subset can act for the committee. Crucially, the Working Committee is only a FILTER: its agents draft, vet, and forward proposals, but it cannot bind CougarDAO. Binding approval of anything material is escalated to the parent DAO, where the token-weighted majority of $COUG holders decides. Reserved Matters (changing the guardian set, caps, mandates, membership, dissolution, etc.) can never be effected by agents or ordinary committee proposals — only the parent DAO's human supermajority.
 
 THE COMMITTEE AGENTS (registered on-chain in the AgentRegistry; each bound to a machine-readable mandate hash):
 ${agents}
@@ -100,7 +100,7 @@ function staticFallback(): Briefing {
       },
       {
         title: "How proposals, votes & quorum work",
-        body: "Proposals are submitted to the Governor; voting is equal-weight (one member, one vote) with a 30% quorum. A passing proposal is queued in a timelock, giving the Guardian a window to veto, before it can execute. Reserved Matters — like changing the guardian or the agents' caps — can never be done this way; they require a human supermajority.",
+        body: "The Working Committee is a filter, not the final authority: its agents draft and vet proposals, but binding approval of anything material rests with the parent DAO — the token-weighted majority of CougarDAO's $COUG holders. Within the committee, a vote is only valid if at least 60% of members participate (the quorum), so no small, unrepresentative subset can advance a proposal on the committee's behalf. A passing proposal is queued in a timelock, giving the Guardian a window to veto, before anything executes. Reserved Matters — like changing the guardian or the agents' caps — can never be done by the committee at all; they require the parent DAO's human supermajority.",
       },
       {
         title: "Where things stand",
