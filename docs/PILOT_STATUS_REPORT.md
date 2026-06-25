@@ -8,7 +8,7 @@ date: "2026-06-24"
 
 **Testnet status report · 2026-06-24**
 
-Repository: `github.com/sardoru/agentic-dao-llc` · main @ `ef66d84` · Network: **Base Sepolia (84532)**
+Repository: `github.com/sardoru/agentic-dao-llc` · main @ `70aae80` · Network: **Base Sepolia (84532)**
 
 ---
 
@@ -27,8 +27,9 @@ ring-fenced sandbox that proves the framework at low stakes before any CougarDAO
 - The pilot is **instantiated in code** (profiled Reserved Matters, four agent mandates, the
   CougarDAO ring-fence) and the full test gate is green.
 - The **dashboard is deployed and public** on Vercel (SIWE wallet login, branded OG/favicon).
-- The **contracts are deployed and verified on Base Sepolia**; constitutional separation holds
-  on-chain.
+- The **contracts are deployed on Base Sepolia** (constitutional separation verified on-chain), and
+  **every contract's source is verified on Basescan** (Etherscan v2, "Pass - Verified") and mirrored
+  on **Sourcify** (exact-match) — public, inspectable source, not just bytecode.
 - The **four pilot agents are registered on-chain** with their canonical mandate hashes.
 - The **guardian is funded** and the **two operational agents (OPS-01, TREAS-01) are activated** —
   on-chain spending caps + allow-list + active flag are set and verified.
@@ -47,7 +48,7 @@ mainnet gates_. Each is broken into concrete steps in §5.
 | Dashboard (public)  | **https://agentic-dao-pilot.vercel.app**                                        |
 | Vercel project      | `sardorus-projects/agentic-dao-pilot`                                           |
 | Governor (Basescan) | https://sepolia.basescan.org/address/0xcf7F6de0D63e8E239dd959b6aa8582F9Ce5465B5 |
-| Repo / branch       | `sardoru/agentic-dao-llc` @ `ef66d84`                                           |
+| Repo / branch       | `sardoru/agentic-dao-llc` @ `70aae80`                                           |
 
 **Base Sepolia deployment (pilot profile, demo timings):**
 
@@ -62,6 +63,10 @@ mainnet gates_. Each is broken into concrete steps in §5.
 | Treasury             | `0x902f219A170240218D022b35d58B4328B44562D3` |
 | Guardian (demo)      | `0x924C2CF41cc502EfA98416EE42A8a05e3923baDB` |
 | Deployer / principal | `0xD3013c2b198E80806de8e7886237De5eBB8880ED` |
+
+**Source verification:** all seven contracts are **verified on Basescan** (Etherscan v2 — "Pass -
+Verified") and **mirrored on Sourcify** (exact-match). The Basescan links in §3 open the published,
+inspectable source — not just bytecode.
 
 **Registered + activated pilot agents:**
 
@@ -187,6 +192,18 @@ The dashboard had **no prior auth**, so this added the app's first auth layer.
 OPS-01 and TREAS-01 can now execute bounded `USDC.transfer` operations within caps via
 `execTransactionWithRole`; the contract reverts anything over cap or off the allow-list.
 
+### 4.7 Contract source verification — commits `6f8f237`, `70aae80`
+
+1. **Verified all seven contracts on Sourcify** (`exact_match`) via `forge verify-contract --verifier
+sourcify` — decentralized, no API key.
+2. **Verified all seven on Basescan** (Etherscan v2 API, with `--guess-constructor-args`) — every
+   contract reports **"Pass - Verified"**. The Basescan address pages now display published,
+   human-readable source.
+
+The deployment is now fully inspectable end to end: anyone can read the source, confirm it matches the
+deployed bytecode, and re-derive the role checks (Guardian holds everything, Governor holds nothing)
+from the verified code rather than taking our word for it.
+
 ---
 
 ## 5. What still needs to be done — step by step
@@ -251,12 +268,26 @@ surfaces the YAML references ($COUG token, Fabrica/MetaStreet RWA targets, votin
 
 ## 6. How to operate the live pilot (mini-runbook)
 
+### Get Base Sepolia test ETH (free)
+
+To sign in and transact you'll need a little **Base Sepolia ETH** for gas — it's free from a faucet
+(testnet, not real money). Paste your wallet address into either faucet below; a few hundredths of an
+ETH is plenty for many transactions.
+
+| Faucet            | Scan                        | Link                                                                                                                   |
+| ----------------- | --------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| Google Cloud Web3 | ![](qr/faucet-google.png)   | [cloud.google.com/application/web3/faucet/base/sepolia](https://cloud.google.com/application/web3/faucet/base/sepolia) |
+| Coinbase (CDP)    | ![](qr/faucet-coinbase.png) | [portal.cdp.coinbase.com/products/faucet](https://portal.cdp.coinbase.com/products/faucet)                             |
+
+### Operate
+
 - **Sign in:** open the dashboard, connect a wallet, click _Sign in with Ethereum_, approve the
   "switch to Base Sepolia" prompt, and sign the (free) message. The guardian console at `/guardian`
   requires a session; the cancel button additionally requires the guardian role.
 - **Add Base Sepolia to a wallet (if needed):** Chain ID `84532`, RPC `https://sepolia.base.org`,
   currency ETH, explorer `https://sepolia.basescan.org`.
 - **Inspect on-chain** (examples):
+  - Read the **verified source**: open any contract on [Basescan](https://sepolia.basescan.org/address/0xcf7F6de0D63e8E239dd959b6aa8582F9Ce5465B5#code) — the **Contract** tab shows the published, verified code (mirrored on Sourcify).
   - Governor's timelock: `cast call 0xcf7F…65B5 "timelock()(address)" --rpc-url https://sepolia.base.org`
   - An agent's registration: `cast call 0xCc6A…6319 "mandateOf(address)" <agentAccount> --rpc-url …`
   - An agent's cap: `cast call 0xf3CB…afFc "caps(address,address)(uint256,uint256,bool)" <agent> <USDC> …`
@@ -277,6 +308,8 @@ surfaces the YAML references ($COUG token, Fabrica/MetaStreet RWA targets, votin
 | `93afcf4` | Auto-switch wallet to Base Sepolia on sign-in + record deploy     |
 | `9617f1e` | Register the 4 pilot agents in the Base Sepolia AgentRegistry     |
 | `ef66d84` | Fund the guardian + activate OPS-01/TREAS-01 in the RolesModifier |
+| `6f8f237` | Verify all 7 contracts on Sourcify (exact-match)                  |
+| `70aae80` | Verify all 7 contracts on Basescan (Etherscan v2) + Sourcify      |
 
 ### 7.2 Open issues (grouped)
 
