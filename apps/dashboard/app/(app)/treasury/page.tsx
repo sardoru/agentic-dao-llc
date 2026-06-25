@@ -1,6 +1,6 @@
 import Link from "next/link";
-import { fetchTreasury } from "../lib/client";
-import { formatAddress, formatBigInt, formatTimestamp } from "../lib/utils";
+import { fetchTreasury } from "../../lib/client";
+import { formatAddress, formatBigInt, formatTimestamp } from "../../lib/utils";
 
 const BASESCAN = "https://sepolia.basescan.org/tx/";
 

@@ -1,6 +1,6 @@
 import Link from "next/link";
-import { fetchDaoStats, fetchMembers } from "../lib/client";
-import { formatAddress } from "../lib/utils";
+import { fetchDaoStats, fetchMembers } from "../../lib/client";
+import { formatAddress } from "../../lib/utils";
 
 export default async function MembersPage() {
   const [members, stats] = await Promise.all([fetchMembers(), fetchDaoStats()]);

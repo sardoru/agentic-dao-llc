@@ -1,14 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import type { Proposal } from "../lib/types";
+import type { Proposal } from "../../lib/types";
 
 export default function CompliancePage() {
   const [proposals, setProposals] = useState<Proposal[]>([]);
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
-    import("../lib/client")
+    import("../../lib/client")
       .then(({ fetchProposals }) => fetchProposals())
       .then((data) => {
         setProposals(data);

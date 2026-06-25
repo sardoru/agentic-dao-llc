@@ -1,5 +1,5 @@
-import { getSecretaryBriefing } from "../lib/secretary";
-import { SecretaryIntake } from "../components/SecretaryIntake";
+import { getSecretaryBriefing } from "../../lib/secretary";
+import { SecretaryIntake } from "../../components/SecretaryIntake";
 
 // Regenerate the briefing at most every 30 minutes (controls Claude cost).
 export const revalidate = 1800;

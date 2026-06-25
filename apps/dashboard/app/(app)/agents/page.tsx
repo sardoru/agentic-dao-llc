@@ -1,6 +1,6 @@
-import { AGENTS, PRINCIPAL, GUARDIAN, basescan, CONTRACTS } from "../lib/deployment";
-import { CopyAddress } from "../components/CopyAddress";
-import { formatAddress } from "../lib/utils";
+import { AGENTS, PRINCIPAL, GUARDIAN, basescan, CONTRACTS } from "../../lib/deployment";
+import { CopyAddress } from "../../components/CopyAddress";
+import { formatAddress } from "../../lib/utils";
 
 export const metadata = { title: "Agents — Agentic DAO LLC" };
 

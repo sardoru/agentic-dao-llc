@@ -1,5 +1,5 @@
-import { CONTRACTS, ACCOUNTS, basescan, sourcify, CHAIN } from "../lib/deployment";
-import { CopyAddress } from "../components/CopyAddress";
+import { CONTRACTS, ACCOUNTS, basescan, sourcify, CHAIN } from "../../lib/deployment";
+import { CopyAddress } from "../../components/CopyAddress";
 
 export const metadata = {
   title: "Contracts — Agentic DAO LLC",

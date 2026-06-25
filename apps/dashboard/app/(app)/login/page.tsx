@@ -3,8 +3,8 @@
 import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAccount } from "wagmi";
-import { useSession } from "../lib/auth/AuthProvider";
-import { ConnectWallet } from "../components/ConnectWallet";
+import { useSession } from "../../lib/auth/AuthProvider";
+import { ConnectWallet } from "../../components/ConnectWallet";
 
 type Method = "wallet" | "magic-link" | "passkey";
 

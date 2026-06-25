@@ -3,11 +3,11 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useAccount, useWriteContract } from "wagmi";
-import { TIMELOCK_ABI } from "../lib/abis";
-import type { TimelockOp } from "../lib/types";
-import { formatCountdown, formatTimestamp } from "../lib/utils";
-import { WalletConnect } from "../components/WalletConnect";
-import { useSession } from "../lib/auth/AuthProvider";
+import { TIMELOCK_ABI } from "../../lib/abis";
+import type { TimelockOp } from "../../lib/types";
+import { formatCountdown, formatTimestamp } from "../../lib/utils";
+import { WalletConnect } from "../../components/WalletConnect";
+import { useSession } from "../../lib/auth/AuthProvider";
 
 const TIMELOCK_ADDRESS = (process.env["NEXT_PUBLIC_TIMELOCK_ADDRESS"] ??
   "0x0000000000000000000000000000000000000000") as `0x${string}`;
@@ -57,7 +57,7 @@ export default function GuardianPage() {
 
   useEffect(() => {
     // Load fixtures client-side (server fetch not possible in "use client" page)
-    import("../lib/client")
+    import("../../lib/client")
       .then(({ fetchTimelockOps }) => {
         fetchTimelockOps().then(setOps).catch(console.error);
       })

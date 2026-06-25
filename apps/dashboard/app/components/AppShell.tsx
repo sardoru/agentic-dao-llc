@@ -7,7 +7,7 @@ import { AuthStatus } from "./AuthStatus";
 import { ThemeToggle } from "./ThemeToggle";
 
 const NAV_ITEMS = [
-  { href: "/", label: "Proposals" },
+  { href: "/proposals", label: "Proposals" },
   { href: "/agents", label: "Agents" },
   { href: "/secretary", label: "Secretary" },
   { href: "/members", label: "Members" },
@@ -20,7 +20,7 @@ const NAV_ITEMS = [
 export function AppShell({ children }: { children: React.ReactNode }) {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
-  const isActive = (href: string) => (href === "/" ? pathname === "/" : pathname.startsWith(href));
+  const isActive = (href: string) => pathname === href || pathname.startsWith(`${href}/`);
 
   return (
     <div className="flex min-h-screen">
@@ -40,16 +40,18 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         }`}
       >
         <div className="flex items-start justify-between border-b border-border px-5 py-6">
-          <div>
+          <Link href="/" onClick={() => setOpen(false)} className="group">
             <div className="mb-1 font-mono text-xs uppercase tracking-widest text-muted">
               Wyoming DAO LLC
             </div>
-            <div className="text-sm font-semibold leading-tight text-ink">Agentic DAO</div>
+            <div className="text-sm font-semibold leading-tight text-ink group-hover:text-accent-2">
+              Agentic DAO
+            </div>
             <div className="mt-1 flex items-center gap-1.5">
               <span className="inline-block h-1.5 w-1.5 rounded-full bg-success" />
-              <span className="text-xs text-muted">Base Sepolia</span>
+              <span className="text-xs text-muted">Base Sepolia · live</span>
             </div>
-          </div>
+          </Link>
           <button
             type="button"
             onClick={() => setOpen(false)}

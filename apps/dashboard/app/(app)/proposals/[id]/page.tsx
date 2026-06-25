@@ -1,9 +1,9 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { fetchProposal, fetchRationale } from "../../lib/client";
-import { formatAddress, formatBigInt, formatCountdown, formatTimestamp } from "../../lib/utils";
-import { StateChip } from "../../components/StateChip";
-import { QuorumBar } from "../../components/QuorumBar";
+import { fetchProposal, fetchRationale } from "../../../lib/client";
+import { formatAddress, formatBigInt, formatCountdown, formatTimestamp } from "../../../lib/utils";
+import { StateChip } from "../../../components/StateChip";
+import { QuorumBar } from "../../../components/QuorumBar";
 
 const BASESCAN = "https://sepolia.basescan.org/tx/";
 

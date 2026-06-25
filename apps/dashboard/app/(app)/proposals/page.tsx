@@ -1,5 +1,5 @@
-import { fetchDaoStats, fetchProposals } from "./lib/client";
-import { ProposalCard } from "./components/ProposalCard";
+import { fetchDaoStats, fetchProposals } from "../../lib/client";
+import { ProposalCard } from "../../components/ProposalCard";
 
 export default async function ProposalsPage() {
   const [proposals, stats] = await Promise.all([fetchProposals(), fetchDaoStats()]);
