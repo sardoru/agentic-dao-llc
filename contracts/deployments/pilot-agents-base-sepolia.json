@@ -3,9 +3,12 @@
   "chainId": 84532,
   "registeredAt": "2026-06-24",
   "registry": "0xCc6A8ADd07B1fD670Da953750d8eFDa599186319",
+  "rolesModifier": "0xf3CBebdD405031c4BA0806aF62a796a78084afFc",
   "principal": "0xD3013c2b198E80806de8e7886237De5eBB8880ED",
   "guardian": "0x924C2CF41cc502EfA98416EE42A8a05e3923baDB",
-  "note": "Testnet pilot agents. mandateURI is a placeholder until the docs are pinned to IPFS (issue #3). Mandate docs: contracts/deployments/pilot-mandates/<id>.json. Caps/delegation are the remaining activation step (issue #20).",
+  "guardianFundingTx": "0xce1d3762c1a64bda01661a3851ad82fba642f0e9bf262ba2a22387f4cf3bd1cd",
+  "capToken": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+  "note": "Testnet pilot agents. OPS-01 + TREAS-01 are operationally ACTIVE in the RolesModifier (caps + USDC.transfer allow-list + active flag, set by the guardian = ROLES_ADMIN). GOV-01 + DILIGENCE-01 are governance/advisory and hold no RolesModifier role; their voting activation (MembershipToken delegation) is the remaining step. mandateURI is a placeholder until docs are pinned to IPFS (issue #3). Mandate docs: contracts/deployments/pilot-mandates/<id>.json.",
   "agents": [
     {
       "agentId": "OPS-01",
@@ -14,7 +17,15 @@
       "mandateURI": "ipfs://pending-OPS-01",
       "principal": "0xD3013c2b198E80806de8e7886237De5eBB8880ED",
       "registrationTx": "0x1230ce3810b19ceff6ab94447d01763a027a933fdc7d2996e31767942c95d19b",
-      "active": true
+      "registered": true,
+      "rolesActivation": {
+        "usesRolesModifier": true,
+        "active": true,
+        "capToken": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+        "perTx": "500000000",
+        "perEpoch": "2000000000",
+        "allowedSelector": "0xa9059cbb"
+      }
     },
     {
       "agentId": "TREAS-01",
@@ -23,7 +34,15 @@
       "mandateURI": "ipfs://pending-TREAS-01",
       "principal": "0xD3013c2b198E80806de8e7886237De5eBB8880ED",
       "registrationTx": "0xe0bade07d3cf6e23a9fcdd75619e90e4310d3a028222b69c595d20110292d28f",
-      "active": true
+      "registered": true,
+      "rolesActivation": {
+        "usesRolesModifier": true,
+        "active": true,
+        "capToken": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+        "perTx": "1000000000",
+        "perEpoch": "5000000000",
+        "allowedSelector": "0xa9059cbb"
+      }
     },
     {
       "agentId": "GOV-01",
@@ -32,7 +51,12 @@
       "mandateURI": "ipfs://pending-GOV-01",
       "principal": "0xD3013c2b198E80806de8e7886237De5eBB8880ED",
       "registrationTx": "0x472ea74163a4918dee93d385b5c16c90bb8c8eb2b8f973d1406bf531113318fb",
-      "active": true
+      "registered": true,
+      "rolesActivation": {
+        "usesRolesModifier": false,
+        "kind": "governance",
+        "note": "Proposes/votes via the Governor; no bounded spending. Activation = voting delegation (membership)."
+      }
     },
     {
       "agentId": "DILIGENCE-01",
@@ -41,7 +65,12 @@
       "mandateURI": "ipfs://pending-DILIGENCE-01",
       "principal": "0xD3013c2b198E80806de8e7886237De5eBB8880ED",
       "registrationTx": "0x7325e61ac3fd84a1f1646311b3ecf941c02f875936abf28b2f013ab487557542",
-      "active": true
+      "registered": true,
+      "rolesActivation": {
+        "usesRolesModifier": false,
+        "kind": "advisory",
+        "note": "Read/propose-only (memos + alerts); zero execution authority."
+      }
     }
   ]
 }
