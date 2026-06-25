@@ -1,4 +1,5 @@
 import { getSecretaryBriefing } from "../lib/secretary";
+import { SecretaryIntake } from "../components/SecretaryIntake";
 
 // Regenerate the briefing at most every 30 minutes (controls Claude cost).
 export const revalidate = 1800;
@@ -83,6 +84,9 @@ export default async function SecretaryPage() {
         </div>
         <p className="text-sm leading-relaxed text-ink/90">{b.minutes}</p>
       </div>
+
+      {/* Proposal intake — public feed + gated submit */}
+      <SecretaryIntake />
 
       {/* Footer note */}
       <p className="mt-6 text-xs leading-relaxed text-muted">

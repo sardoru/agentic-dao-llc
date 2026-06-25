@@ -5,6 +5,7 @@
 import "server-only";
 import Anthropic from "@anthropic-ai/sdk";
 import { AGENTS, CONTRACTS, CHAIN } from "./deployment";
+import type { ParsedProposal } from "./store";
 
 export interface BriefingSection {
   title: string;
@@ -146,5 +147,87 @@ export async function getSecretaryBriefing(): Promise<Briefing> {
   } catch {
     // Any API / parse error → never break the page; show the curated briefing.
     return staticFallback();
+  }
+}
+
+// ── Proposal intake — Secretary parses an agent's request into a machine-ingestible form ──
+
+const SYSTEM_PARSE = `You are Secretary-01, the scribe of the Working Committee DAO. Approved committee agents submit proposal requests; you parse each into a faithful, normalized, machine-ingestible structure the other approved agents can consume. Be accurate and conservative: never invent specifics (amounts, addresses, targets) the request did not state. Flag anything that would touch a Reserved Matter — those can never be effected by agents. Always record your parse via the record_proposal tool.`;
+
+const PARSE_TOOL = {
+  name: "record_proposal",
+  description:
+    "Record a normalized, machine-ingestible parse of a committee agent's proposal request.",
+  input_schema: {
+    type: "object" as const,
+    properties: {
+      proposalType: {
+        type: "string",
+        enum: ["OPERATING_EXPENSE", "TREASURY_PAYMENT", "PARAM_TUNE_NONRESERVED", "TEXT_SIGNAL"],
+      },
+      title: { type: "string", description: "A short title for the proposal." },
+      summary: { type: "string", description: "1-2 sentence plain-language summary." },
+      targets: {
+        type: "array",
+        items: { type: "string" },
+        description:
+          "On-chain contract addresses the proposal would call; [] for a text-only signal.",
+      },
+      action: {
+        type: "string",
+        description: "A concise machine-readable description of the on-chain action.",
+      },
+      estimatedValueUsd: {
+        type: ["number", "null"],
+        description: "Estimated USD value moved, or null if none/unknown.",
+      },
+      reservedMatter: {
+        type: "boolean",
+        description:
+          "True if this would touch a Reserved Matter (guardian set, caps, mandates, membership, voting params, upgrades, dissolution, or any CougarDAO production asset/$COUG) — which agents can never effect.",
+      },
+      reservedMatterReason: { type: ["string", "null"] },
+      rationale: {
+        type: "string",
+        description: "Why the proposal is being made (faithful to the request).",
+      },
+    },
+    required: [
+      "proposalType",
+      "title",
+      "summary",
+      "targets",
+      "action",
+      "estimatedValueUsd",
+      "reservedMatter",
+      "reservedMatterReason",
+      "rationale",
+    ],
+  },
+};
+
+export type ParseResult = { ok: true; parsed: ParsedProposal } | { ok: false; error: string };
+
+export async function parseProposalRequest(rawRequest: string): Promise<ParseResult> {
+  const apiKey = process.env["ANTHROPIC_API_KEY"];
+  if (!apiKey)
+    return { ok: false, error: "Secretary is not configured (ANTHROPIC_API_KEY missing)." };
+  try {
+    const client = new Anthropic({ apiKey });
+    const prompt = `Governance context (for grounding only):\n${governanceFacts()}\n\nAn approved committee agent submitted this proposal request:\n"""\n${rawRequest}\n"""\n\nParse it into a normalized, machine-ingestible structure for the other approved agents. Classify the proposalType, capture targets/action/value faithfully, and flag any Reserved Matter. Record it via the record_proposal tool.`;
+    const msg = await client.messages.create({
+      model: MODEL,
+      max_tokens: 1500,
+      system: SYSTEM_PARSE,
+      tools: [PARSE_TOOL],
+      tool_choice: { type: "tool", name: "record_proposal" },
+      messages: [{ role: "user", content: prompt }],
+    });
+    const block = msg.content.find((b) => b.type === "tool_use");
+    if (!block || block.type !== "tool_use")
+      return { ok: false, error: "Parse produced no result." };
+    return { ok: true, parsed: block.input as ParsedProposal };
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : "Parse failed." };
   }
 }
