@@ -5,6 +5,52 @@ Format follows [Keep a Changelog](https://keepachangelog.com/); the project is *
 
 ## [Unreleased]
 
+### Live on Base Sepolia — deploy, verification, activation, dashboard, Secretary (2026-06-24)
+
+**The pilot went from code-complete to live on testnet, with a working public dashboard.**
+
+- **Deployed to Base Sepolia** (`forge script Deploy.s.sol --broadcast --slow`): DaoGovernor
+  `0xcf7F…65B5`, GuardedTimelock `0xCCea…36CD`, MembershipToken `0x6521…2c01`, AgentRegistry
+  `0xCc6A…6319`, RolesModifier `0xf3CB…afFc`, RationaleAnchor `0x84F1…6037`, Treasury `0x902f…62D3`.
+  Demo timings (15-min timelock veto, 5-min voting delay, 1-h voting period). Constitutional
+  separation verified on-chain (guardian holds every admin role; Governor + deployer hold none).
+  Recorded in `contracts/deployments/base-sepolia.json`.
+- **Source verified** — all 7 contracts on **Sourcify** (`exact_match`, `6f8f237`) **and Basescan**
+  (Etherscan v2, "Pass - Verified", `70aae80`). Source is public + inspectable.
+- **Four pilot agents registered on-chain** in the AgentRegistry with canonical mandate hashes
+  (`9617f1e`); **OPS-01 + TREAS-01 activated** in the RolesModifier (guardian-set caps + allow-list +
+  active flag — $500/$2,000 and $1,000/$5,000 USDC) (`ef66d84`). Guardian funded.
+- **Dashboard live + public** — https://agentic-dao-pilot.vercel.app (Vercel `sardorus-projects/agentic-dao-pilot`):
+  - **Light/dark mode** (next-themes + CSS-variable `@theme inline` tokens + a toggle) and full
+    **mobile responsiveness** (client AppShell: hamburger drawer, scrollable tables) (`3f0559e`).
+  - **Contracts page** (`/contracts`) — every deployed contract + key accounts with a copyable
+    address, Basescan link, "Verified" badge, and Sourcify mirror; the **Agents page** now renders the
+    real on-chain agents (OPS-01/TREAS-01/GOV-01/DILIGENCE-01) (`3f0559e`).
+  - Branded OG image + favicon; SIWE sign-in auto-switches the wallet to Base Sepolia (`59f0c16`, `93afcf4`).
+- **Secretary-01** (`fed3dd5`, `9a95e87`) — a 5th, off-chain committee agent: a **Claude-powered public
+  governance narrator** (claude-sonnet-4-6, forced tool-use; `/secretary`) that explains the DAO and keeps
+  public "minutes", **plus a gated proposal-intake** — approved agents/members submit requests that the
+  Secretary parses into a machine-ingestible record (type · targets · action · value · Reserved-Matter
+  flag · rationale), stored in **Supabase** and exposed as a **public, machine-readable feed** all approved
+  agents can ingest. Gating verified: public can read the feed (200) but **cannot prompt** the AI (401).
+  Graceful static fallback when `ANTHROPIC_API_KEY` is absent.
+- **Persistent store** — a dedicated Supabase Postgres project (`proposal_intake` + `secretary_minutes`,
+  RLS on; server-only service-role access). Vercel env wired (`ANTHROPIC_API_KEY`, `ANTHROPIC_MODEL`,
+  `NEXT_PUBLIC_SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`) — none committed.
+- **Docs / marketing:** a full **Pilot Status Report** (`docs/PILOT_STATUS_REPORT.md` → PDF + Markdown +
+  QR codes + test-ETH faucet links; `8a308c9` / `439009c` / `fa46e80`) and a CougarDAO-voiced **Substack
+  announcement** of the experiment (delivered to Downloads, not committed).
+
+### Known / open
+
+- Delegate voting weight to the agents + fund the agent accounts with gas + pin the mandate docs to IPFS
+  (then the agents can fully transact). Wire the live Ponder indexer (the dashboard reads fixtures except
+  the Secretary/Contracts/Agents pages). Magic-link + passkey login (stubs; configure to enable). v2
+  Secretary: consolidate *live* agent-to-agent discussions/disagreements (depends on the agent runtime
+  loop — issue #12). Replace the demo guardian with a real multisig. Mainnet gates (Turnkey/KMS, Zodiac
+  Roles v2, formal verification, UUPS, counsel review). Rotate the chat-shared Anthropic / Supabase /
+  Etherscan keys.
+
 ### Added — dashboard authentication (SIWE wallet-connect, multi-method)
 
 - **Sign-In With Ethereum** end to end (`apps/dashboard`): `GET /api/auth/nonce` →

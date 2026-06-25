@@ -21,7 +21,35 @@
 
 ---
 
+## Live on Base Sepolia (testnet)
+
+**The Working Committee DAO pilot (CGP-001) is deployed and live.**
+
+- **Public dashboard:** **https://agentic-dao-pilot.vercel.app** — SIWE wallet login, light/dark,
+  mobile-responsive, the **Secretary-01** governance scribe, and a **Contracts** page. Vercel
+  project `sardorus-projects/agentic-dao-pilot`.
+- **All 7 contracts deployed + verified** on **Basescan** (Etherscan v2, "Pass - Verified") and
+  mirrored on **Sourcify** (`exact_match`) — the source is public and inspectable:
+
+| Contract        | Address (Base Sepolia)                                                                                      |
+| --------------- | ---------------------------------------------------------------------------------------------------------- |
+| DaoGovernor     | [`0xcf7F…65B5`](https://sepolia.basescan.org/address/0xcf7F6de0D63e8E239dd959b6aa8582F9Ce5465B5#code)       |
+| GuardedTimelock | [`0xCCea…36CD`](https://sepolia.basescan.org/address/0xCCea7837Ae5C555c13F9bb984A39C39d4C8736CD#code)       |
+| MembershipToken | [`0x6521…2c01`](https://sepolia.basescan.org/address/0x6521A771CA57fD2e22C76486FE17830E3D742c01#code)       |
+| AgentRegistry   | [`0xCc6A…6319`](https://sepolia.basescan.org/address/0xCc6A8ADd07B1fD670Da953750d8eFDa599186319#code)       |
+| RolesModifier   | [`0xf3CB…afFc`](https://sepolia.basescan.org/address/0xf3CBebdD405031c4BA0806aF62a796a78084afFc#code)       |
+| RationaleAnchor | [`0x84F1…6037`](https://sepolia.basescan.org/address/0x84F19BA66D0a779C38FF14102ddd448996136037#code)       |
+| Treasury        | [`0x902f…62D3`](https://sepolia.basescan.org/address/0x902f219A170240218D022b35d58B4328B44562D3#code)       |
+
+The **four pilot agents** (OPS-01, TREAS-01, GOV-01, DILIGENCE-01) are registered on-chain; OPS-01 +
+TREAS-01 are activated with USDC caps. Full deploy + verification + activation detail is in
+[`docs/PILOT_STATUS_REPORT.md`](docs/PILOT_STATUS_REPORT.md) and [`CHANGELOG.md`](CHANGELOG.md).
+
+---
+
 ## Table of contents
+
+- [Live on Base Sepolia (testnet)](#live-on-base-sepolia-testnet)
 
 - [The core idea: one mandate, three enforcement points](#the-core-idea-one-mandate-three-enforcement-points)
 - [Constitutional separation (the safety spine)](#constitutional-separation-the-safety-spine)
@@ -37,6 +65,7 @@
 - [Command reference](#command-reference)
 - [Configuration](#configuration)
 - [Project status](#project-status)
+- [Changelog](#changelog)
 - [Mainnet gating](#mainnet-gating)
 - [Documentation map](#documentation-map)
 - [Security model in one paragraph](#security-model-in-one-paragraph)
@@ -400,10 +429,12 @@ indexer + IPFS gateway URLs. **Never commit real secrets.** `.gitignore` exclude
 
 ## Project status
 
-All six build phases are complete **at the code level**; Phase 6's on-chain deploy and the
-external integrations it needs (Tenderly, IPFS, a funded testnet guardian) are tracked as issues
-and require human/infra action. See [`BUILD_SCOPE.md`](BUILD_SCOPE.md) for the authoritative,
-phase-by-phase delivery status, acceptance criteria, and the in/out-of-scope boundary.
+All six build phases are complete **and the CGP-001 pilot is live on Base Sepolia** — deployed,
+verified (Basescan + Sourcify), with the four agents registered on-chain and a public dashboard +
+Secretary-01 scribe. Remaining integrations (live Ponder indexer, agent funding/delegation, IPFS
+mandate pinning) are tracked as issues. See [`CHANGELOG.md`](CHANGELOG.md) for the per-session
+delivery log and [`BUILD_SCOPE.md`](BUILD_SCOPE.md) for the authoritative, phase-by-phase delivery
+status, acceptance criteria, and the in/out-of-scope boundary.
 
 | Phase | Scope                                                              | Status                                                                                                                                                                                                                            |
 | ----- | ------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -413,7 +444,13 @@ phase-by-phase delivery status, acceptance criteria, and the in/out-of-scope bou
 | 3     | Indexer (Ponder views)                                             | ✅ Complete (views finalize against live events — [#16](https://github.com/sardoru/agentic-dao-llc/issues/16))                                                                                                                    |
 | 4     | Runtime — MCP + CLI + signer + simulation                          | ✅ Complete                                                                                                                                                                                                                       |
 | 5     | Dashboard + guardian console                                       | ✅ Complete                                                                                                                                                                                                                       |
-| 6     | Testnet deploy + legal + docs                                      | ◑ Docs/legal/scripts ready; **deploy pending** ([#1](https://github.com/sardoru/agentic-dao-llc/issues/1)–[#4](https://github.com/sardoru/agentic-dao-llc/issues/4), [#13](https://github.com/sardoru/agentic-dao-llc/issues/13)) |
+| 6     | Testnet deploy + legal + docs                                      | ✅ **Deployed + verified on Base Sepolia** — 7 contracts (Basescan + Sourcify), 4 agents registered (2 activated), public dashboard + Secretary-01 ([report](docs/PILOT_STATUS_REPORT.md)) |
+
+## Changelog
+
+A per-session, Keep-a-Changelog log of every meaningful change (features, deploys, verification,
+decisions) lives in [`CHANGELOG.md`](CHANGELOG.md); session transcripts are pointered from
+[`docs/`](docs/).
 
 ## Mainnet gating
 
