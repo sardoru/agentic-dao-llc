@@ -43,11 +43,13 @@
   "explorer": "https://sepolia.basescan.org/address/0xcf7F6de0D63e8E239dd959b6aa8582F9Ce5465B5",
   "dashboard": "https://agentic-dao-pilot.vercel.app",
   "verification": {
-    "verifier": "sourcify",
-    "status": "exact_match",
+    "verifiers": ["etherscan-basescan", "sourcify"],
+    "etherscanStatus": "Pass - Verified",
+    "sourcifyStatus": "exact_match",
     "verifiedAt": "2026-06-24",
     "allContracts": true,
-    "note": "All 7 contracts verified on Sourcify (exact_match) via `forge verify-contract --verifier sourcify`. Basescan native verification still pending a (free) Etherscan API key.",
-    "lookup": "https://sourcify.dev/#/lookup/0xcf7F6de0D63e8E239dd959b6aa8582F9Ce5465B5"
+    "note": "All 7 contracts verified on Basescan (Etherscan v2 API) AND Sourcify. Source is published and inspectable on both.",
+    "basescan": "https://sepolia.basescan.org/address/0xcf7F6de0D63e8E239dd959b6aa8582F9Ce5465B5#code",
+    "sourcifyLookup": "https://sourcify.dev/#/lookup/0xcf7F6de0D63e8E239dd959b6aa8582F9Ce5465B5"
   }
 }
