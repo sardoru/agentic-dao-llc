@@ -44,19 +44,19 @@ export const CONTRACTS: DeployedContract[] = [
   {
     name: "DaoGovernor",
     address: "0xcf7F6de0D63e8E239dd959b6aa8582F9Ce5465B5",
-    role: "Equal-weight Governor — agents propose & vote; holds no admin roles.",
+    role: "Equal-weight Governor. Agents propose & vote; holds no admin roles.",
     verified: true,
   },
   {
     name: "GuardedTimelock",
     address: "0xCCea7837Ae5C555c13F9bb984A39C39d4C8736CD",
-    role: "Execution delay + guardian veto — the guardian is the sole canceller.",
+    role: "Execution delay + guardian veto. The guardian is the sole canceller.",
     verified: true,
   },
   {
     name: "MembershipToken",
     address: "0x6521A771CA57fD2e22C76486FE17830E3D742c01",
-    role: "Soulbound membership — voting weight is delegated to agent accounts.",
+    role: "Soulbound membership. Voting weight is delegated to agent accounts.",
     verified: true,
   },
   {
@@ -80,7 +80,7 @@ export const CONTRACTS: DeployedContract[] = [
   {
     name: "Treasury",
     address: "0x902f219A170240218D022b35d58B4328B44562D3",
-    role: "ETH / ERC-20 vault — owner is the Timelock.",
+    role: "ETH / ERC-20 vault. Owner is the Timelock.",
     verified: true,
   },
 ];
@@ -104,7 +104,7 @@ export const AGENTS: DeployedAgent[] = [
     address: "0x4e9C86Fd2758A200734d2e7C6F72288dd5Be97c6",
     kind: "operational",
     summary:
-      "Operations — pays the committee's allow-listed operating expenses; drafts larger spends for ratification.",
+      "Operations. Pays the committee's allow-listed operating expenses; drafts larger spends for ratification.",
     canPropose: true,
     canVote: false,
     status: "active",
@@ -116,7 +116,7 @@ export const AGENTS: DeployedAgent[] = [
     address: "0xc9dc10c15bCBB9b1b6BEE3C6187172C2e22dC384",
     kind: "operational",
     summary:
-      "Treasury — rebalances the ring-fenced float among allow-listed addresses; votes on routine treasury matters.",
+      "Treasury. Rebalances the ring-fenced float among allow-listed addresses; votes on routine treasury matters.",
     canPropose: true,
     canVote: true,
     status: "active",
@@ -128,7 +128,7 @@ export const AGENTS: DeployedAgent[] = [
     address: "0x3f073C95B25D7F16770595402352e71F6345dbBe",
     kind: "governance",
     summary:
-      "Governance — drafts and posts proposals, votes on routine matters. No spending authority.",
+      "Governance. Drafts and posts proposals, votes on routine matters. No spending authority.",
     canPropose: true,
     canVote: true,
     status: "registered",
@@ -140,7 +140,7 @@ export const AGENTS: DeployedAgent[] = [
     address: "0x63695C0b2Ee628B753bCaB2947B9059639084a65",
     kind: "advisory",
     summary:
-      "Monitoring (read / propose-only) — watches CougarDAO portfolio + MetaStreet risk, drafts memos. Zero execution authority.",
+      "Monitoring (read / propose-only). Watches CougarDAO portfolio + MetaStreet risk, drafts memos. Zero execution authority.",
     canPropose: true,
     canVote: false,
     status: "registered",

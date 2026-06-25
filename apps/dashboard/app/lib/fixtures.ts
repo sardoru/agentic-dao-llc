@@ -62,7 +62,7 @@ export const FIXTURE_MEMBERS: Member[] = [
 export const FIXTURE_PROPOSALS: Proposal[] = [
   {
     id: "0x1a2b3c4d5e6f7890000000000000000000000000000000000000000000000001",
-    title: "Q3 Vendor Payment — Chainlink Keeper Services",
+    title: "Q3 Vendor Payment, Chainlink Keeper Services",
     description:
       "Authorize payment of 2,300 USDC to Chainlink keeper subscription address for automated upkeep of the DAO treasury rebalancing contract through Q3 2026.",
     state: "Active",
@@ -169,7 +169,7 @@ export const FIXTURE_PROPOSALS: Proposal[] = [
         agentId: "governance-only-agent-02",
         principal: "0x6666666666666666666666666666666666666666",
         support: 1,
-        reason: "Proposer vote — consistent with governance mandate.",
+        reason: "Proposer vote, consistent with governance mandate.",
         weight: BigInt(1),
         txHash: "0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567895",
       },
@@ -179,7 +179,7 @@ export const FIXTURE_PROPOSALS: Proposal[] = [
         agentId: "self",
         principal: "0xcccccccccccccccccccccccccccccccccccccccc",
         support: 2,
-        reason: "Abstain — no strong view.",
+        reason: "Abstain, no strong view.",
         weight: BigInt(1),
         txHash: "0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567896",
       },
@@ -187,7 +187,7 @@ export const FIXTURE_PROPOSALS: Proposal[] = [
   },
   {
     id: "0x1a2b3c4d5e6f7890000000000000000000000000000000000000000000000003",
-    title: "Executed: Initial Treasury Seed — 0.1 ETH Operational Reserve",
+    title: "Executed: Initial Treasury Seed, 0.1 ETH Operational Reserve",
     description:
       "Authorize transfer of 0.1 ETH from founding multisig to DAO Treasury Safe as operational reserve for gas and keeper fees.",
     state: "Executed",
@@ -312,7 +312,7 @@ export const FIXTURE_PROPOSALS: Proposal[] = [
         principal: "0x1111111111111111111111111111111111111111",
         support: 0,
         reason:
-          "Simulation shows this would require TIMELOCK_ADMIN role — a Reserved Matter. Voting against.",
+          "Simulation shows this would require TIMELOCK_ADMIN role, a Reserved Matter. Voting against.",
         weight: BigInt(1),
         txHash: "0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567903",
       },
@@ -322,7 +322,7 @@ export const FIXTURE_PROPOSALS: Proposal[] = [
         agentId: "self",
         principal: "0xcccccccccccccccccccccccccccccccccccccccc",
         support: 0,
-        reason: "Constitutional concern — reserved matter.",
+        reason: "Constitutional concern, reserved matter.",
         weight: BigInt(1),
         txHash: "0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567904",
       },
@@ -399,7 +399,7 @@ export const FIXTURE_TIMELOCK_OPS: TimelockOp[] = [
   {
     opId: "0xop2000000000000000000000000000000000000000000000000000000000000",
     proposalId: "0x1a2b3c4d5e6f7890000000000000000000000000000000000000000000000003",
-    proposalTitle: "Executed: Initial Treasury Seed — 0.1 ETH Operational Reserve",
+    proposalTitle: "Executed: Initial Treasury Seed, 0.1 ETH Operational Reserve",
     eta: NOW - 3600 * 24 * 6,
     queuedAt: NOW - 3600 * 24 * 7,
     status: "Done",
@@ -407,7 +407,7 @@ export const FIXTURE_TIMELOCK_OPS: TimelockOp[] = [
   {
     opId: "0xop3000000000000000000000000000000000000000000000000000000000000",
     proposalId: "0x1a2b3c4d5e6f7890000000000000000000000000000000000000000000000001",
-    proposalTitle: "Q3 Vendor Payment — Chainlink Keeper Services",
+    proposalTitle: "Q3 Vendor Payment, Chainlink Keeper Services",
     eta: NOW + 3600 * 46,
     queuedAt: NOW - 3600 * 1,
     status: "Queued",

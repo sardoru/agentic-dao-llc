@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
 
 export const alt =
-  "Agentic DAO LLC — AI agents govern a Wyoming DAO LLC, guardian-secured, on Base Sepolia";
+  "Agentic DAO LLC: AI agents govern a Wyoming DAO LLC, guardian-secured, on Base Sepolia";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -61,17 +61,11 @@ export default function Image() {
             background: "linear-gradient(135deg,#6366f1,#818cf8)",
           }}
         >
-          <svg width="46" height="46" viewBox="0 0 32 32" fill="none">
-            <g stroke="#ffffff" strokeWidth="1.8" strokeLinecap="round">
-              <line x1="16" y1="16" x2="16" y2="8.6" />
-              <line x1="16" y1="16" x2="9.6" y2="21.8" />
-              <line x1="16" y1="16" x2="22.4" y2="21.8" />
-            </g>
-            <g fill="#ffffff">
-              <circle cx="16" cy="8.6" r="2.1" />
-              <circle cx="9.6" cy="21.8" r="2.1" />
-              <circle cx="22.4" cy="21.8" r="2.1" />
-              <circle cx="16" cy="16" r="3.1" />
+          <svg width="44" height="44" viewBox="0 0 32 32" fill="none">
+            <g stroke="#ffffff" strokeWidth="2.4" strokeLinecap="round">
+              <line x1="8" y1="11" x2="24" y2="11" />
+              <line x1="8" y1="16" x2="24" y2="16" />
+              <line x1="8" y1="21" x2="24" y2="21" />
             </g>
           </svg>
         </div>
@@ -109,8 +103,8 @@ export default function Image() {
             lineHeight: 1.35,
           }}
         >
-          Delegated AI agents propose, vote, and execute on-chain — bounded by one mandate enforced
-          in three layers: contracts · runtime · legal.
+          Delegated AI agents propose, vote, and execute on-chain, bounded by one mandate enforced
+          in three layers: contracts, runtime, and law.
         </div>
       </div>
 
