@@ -12,7 +12,7 @@ export default async function TreasuryPage() {
   );
 
   return (
-    <div className="px-8 py-8 max-w-4xl">
+    <div className="px-4 py-8 sm:px-8 max-w-4xl">
       <div className="mb-8">
         <h1 className="text-xl font-semibold text-ink mb-1">Treasury</h1>
         <p className="text-sm text-muted">
@@ -25,7 +25,7 @@ export default async function TreasuryPage() {
       {/* Balances */}
       <section className="mb-8">
         <h2 className="text-xs font-mono text-muted uppercase tracking-widest mb-3">Balances</h2>
-        <div className="bg-surface-2 border border-border rounded-lg overflow-hidden">
+        <div className="bg-surface-2 border border-border rounded-lg overflow-x-auto">
           <table className="w-full text-xs">
             <thead>
               <tr className="border-b border-border text-muted">
@@ -82,7 +82,7 @@ export default async function TreasuryPage() {
         <h2 className="text-xs font-mono text-muted uppercase tracking-widest mb-3">
           Recent Executed Spends
         </h2>
-        <div className="bg-surface-2 border border-border rounded-lg overflow-hidden">
+        <div className="bg-surface-2 border border-border rounded-lg overflow-x-auto">
           <table className="w-full text-xs">
             <thead>
               <tr className="border-b border-border text-muted">

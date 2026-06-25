@@ -21,7 +21,7 @@ export default async function ProposalDetailPage({ params }: { params: Promise<{
   const rationale = await fetchRationale(proposal.rationaleURI, proposal.rationaleHash);
 
   return (
-    <div className="px-8 py-8 max-w-4xl space-y-8">
+    <div className="px-4 py-8 sm:px-8 max-w-4xl space-y-8">
       {/* Header */}
       <div>
         <div className="flex items-start gap-3 mb-2">
@@ -60,7 +60,7 @@ export default async function ProposalDetailPage({ params }: { params: Promise<{
           <h2 className="text-xs font-mono text-muted uppercase tracking-widest mb-3">
             Decoded Actions
           </h2>
-          <div className="bg-surface-2 border border-border rounded-lg overflow-hidden">
+          <div className="bg-surface-2 border border-border rounded-lg overflow-x-auto">
             <table className="w-full text-xs">
               <thead>
                 <tr className="border-b border-border text-muted">
@@ -163,7 +163,7 @@ export default async function ProposalDetailPage({ params }: { params: Promise<{
         </div>
 
         {/* Votes table */}
-        <div className="bg-surface-2 border border-border rounded-lg overflow-hidden">
+        <div className="bg-surface-2 border border-border rounded-lg overflow-x-auto">
           <table className="w-full text-xs">
             <thead>
               <tr className="border-b border-border text-muted">

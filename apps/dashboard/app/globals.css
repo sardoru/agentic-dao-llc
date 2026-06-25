@@ -1,16 +1,75 @@
 @import "tailwindcss";
 
-@theme {
-  --color-ink: #f0f0f0;
-  --color-muted: #a0a0b0;
-  --color-surface: #111118;
-  --color-surface-2: #18181f;
-  --color-surface-3: #22222c;
-  --color-border: #2a2a38;
-  --color-accent: #6366f1;
-  --color-accent-2: #818cf8;
-  --color-warn: #f59e0b;
-  --color-danger: #ef4444;
-  --color-success: #22c55e;
-  --color-canvas: #0a0a10;
+/* next-themes toggles `.dark` on <html>; enable the class-based dark variant. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Semantic tokens map to CSS variables so utilities (bg-canvas, text-ink, …)
+   flip between light and dark at runtime. */
+@theme inline {
+  --color-canvas: var(--canvas);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
+  --color-border: var(--border);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-accent: var(--accent);
+  --color-accent-2: var(--accent-2);
+  --color-warn: var(--warn);
+  --color-danger: var(--danger);
+  --color-success: var(--success);
+}
+
+/* Light theme (default) */
+:root {
+  --canvas: #f7f7fb;
+  --surface: #ffffff;
+  --surface-2: #f2f2f8;
+  --surface-3: #e7e7f1;
+  --border: #e1e1ec;
+  --ink: #1a1a22;
+  --muted: #5b5b6b;
+  --accent: #4f46e5;
+  --accent-2: #6366f1;
+  --warn: #b45309;
+  --danger: #dc2626;
+  --success: #16a34a;
+}
+
+/* Dark theme */
+.dark {
+  --canvas: #0a0a10;
+  --surface: #111118;
+  --surface-2: #18181f;
+  --surface-3: #22222c;
+  --border: #2a2a38;
+  --ink: #f0f0f0;
+  --muted: #a0a0b0;
+  --accent: #6366f1;
+  --accent-2: #818cf8;
+  --warn: #f59e0b;
+  --danger: #ef4444;
+  --success: #22c55e;
+}
+
+html {
+  color-scheme: light dark;
+}
+
+body {
+  background-color: var(--canvas);
+  color: var(--ink);
+}
+
+/* Smooth theme transition (but not on first paint / reduced-motion). */
+@media (prefers-reduced-motion: no-preference) {
+  body,
+  aside,
+  header,
+  .theme-transition {
+    transition:
+      background-color 0.2s ease,
+      border-color 0.2s ease,
+      color 0.2s ease;
+  }
 }

@@ -5,7 +5,7 @@ export default async function ProposalsPage() {
   const [proposals, stats] = await Promise.all([fetchProposals(), fetchDaoStats()]);
 
   return (
-    <div className="px-8 py-8 max-w-4xl">
+    <div className="px-4 py-8 sm:px-8 max-w-4xl">
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-xl font-semibold text-ink mb-1">Governance Proposals</h1>

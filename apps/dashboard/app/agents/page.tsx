@@ -1,129 +1,125 @@
-import Link from "next/link";
-import { fetchAgents } from "../lib/client";
+import { AGENTS, PRINCIPAL, GUARDIAN, basescan, CONTRACTS } from "../lib/deployment";
+import { CopyAddress } from "../components/CopyAddress";
 import { formatAddress } from "../lib/utils";
-import { MandateHashWarning } from "../components/MandateHashWarning";
 
-export default async function AgentsPage() {
-  const agents = await fetchAgents();
+export const metadata = { title: "Agents — Agentic DAO LLC" };
 
+const REGISTRY = CONTRACTS.find((c) => c.name === "AgentRegistry")!.address;
+
+const KIND_LABEL: Record<string, string> = {
+  operational: "Operational",
+  governance: "Governance",
+  advisory: "Advisory",
+};
+
+function Cap({ children }: { children: React.ReactNode }) {
   return (
-    <div className="px-8 py-8 max-w-4xl">
-      <div className="mb-8">
-        <h1 className="text-xl font-semibold text-ink mb-1">Registered Agents</h1>
+    <span className="rounded bg-surface-3 px-2 py-0.5 font-mono text-xs text-muted">
+      {children}
+    </span>
+  );
+}
+
+export default function AgentsPage() {
+  return (
+    <div className="mx-auto max-w-4xl px-4 py-8 sm:px-8">
+      <div className="mb-6">
+        <h1 className="mb-1 text-xl font-semibold text-ink">Committee Agents</h1>
         <p className="text-sm text-muted">
-          {agents.length} agents · On-chain mandate hashes verified against IPFS documents
+          {AGENTS.length} agents registered on-chain in the{" "}
+          <a
+            href={basescan(REGISTRY)}
+            target="_blank"
+            rel="noreferrer"
+            className="text-accent hover:underline"
+          >
+            AgentRegistry
+          </a>{" "}
+          — each bound to a machine-readable mandate hash. Live on Base Sepolia.
         </p>
       </div>
 
       <div className="space-y-4">
-        {agents.map((agent) => (
-          <div
-            key={agent.address}
-            className="bg-surface-2 border border-border rounded-lg p-5 space-y-4"
-          >
-            {/* Header row */}
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="font-mono text-accent-2 text-sm">
-                    {formatAddress(agent.address)}
-                  </span>
-                  <span className="text-xs text-muted">({agent.agentId})</span>
-                  <span
-                    className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs border ${
-                      agent.active
-                        ? "text-success border-success/40 bg-success/10"
-                        : "text-muted border-border bg-surface-3"
-                    }`}
+        {AGENTS.map((agent) => {
+          const active = agent.status === "active";
+          return (
+            <div key={agent.address} className="rounded-lg border border-border bg-surface-2 p-5">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                <div className="min-w-0">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="font-semibold text-ink">{agent.id}</span>
+                    <span
+                      className={`inline-flex items-center rounded-full border px-2 py-0.5 text-xs ${
+                        active
+                          ? "border-success/40 bg-success/10 text-success"
+                          : "border-accent/40 bg-accent/10 text-accent-2"
+                      }`}
+                    >
+                      {active ? "Active" : "Registered"}
+                    </span>
+                    <span className="rounded-full border border-border bg-surface-3 px-2 py-0.5 text-xs text-muted">
+                      {KIND_LABEL[agent.kind]}
+                    </span>
+                  </div>
+                  <p className="mt-1.5 text-xs leading-relaxed text-muted">{agent.summary}</p>
+                </div>
+                <div className="flex flex-shrink-0 flex-wrap items-center gap-2">
+                  <CopyAddress address={agent.address} />
+                  <a
+                    href={basescan(agent.address)}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-1 rounded border border-border px-2 py-1 text-xs text-accent transition-colors hover:bg-surface-3"
                   >
-                    {agent.active ? "Active" : "Inactive"}
-                  </span>
-                </div>
-                <div className="text-xs text-muted">
-                  Principal:{" "}
-                  <span className="text-ink">
-                    {agent.principalName ?? formatAddress(agent.principal)}
-                  </span>{" "}
-                  <span className="font-mono text-muted/60">
-                    ({formatAddress(agent.principal)})
-                  </span>
+                    Basescan
+                    <svg
+                      width="11"
+                      height="11"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M7 17 17 7M7 7h10v10" />
+                    </svg>
+                  </a>
                 </div>
               </div>
-              <Link
-                href={`/?agent=${agent.address}`}
-                className="text-xs text-accent hover:underline shrink-0"
-              >
-                View proposals →
-              </Link>
-            </div>
 
-            {/* Mandate hash warning */}
-            <MandateHashWarning mismatch={agent.mandateHashMismatch} />
-
-            {/* Mandate info */}
-            <div className="grid grid-cols-1 gap-2 text-xs">
-              <div className="flex items-start gap-2">
-                <span className="text-muted w-24 shrink-0">Mandate URI</span>
-                <a
-                  href={agent.mandateURI.replace("ipfs://", "https://ipfs.io/ipfs/")}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="font-mono text-accent hover:underline truncate"
-                >
-                  {agent.mandateURI}
-                </a>
+              {/* Capabilities */}
+              <div className="mt-4 flex flex-wrap items-center gap-2">
+                {agent.canPropose && (
+                  <span className="rounded bg-accent/10 px-2 py-0.5 font-mono text-xs text-accent-2">
+                    can-propose
+                  </span>
+                )}
+                {agent.canVote && (
+                  <span className="rounded bg-accent/10 px-2 py-0.5 font-mono text-xs text-accent-2">
+                    can-vote
+                  </span>
+                )}
+                {agent.cap ? <Cap>cap {agent.cap}</Cap> : <Cap>no spending authority</Cap>}
               </div>
-              <div className="flex items-start gap-2">
-                <span className="text-muted w-24 shrink-0">Mandate hash</span>
-                <span className="font-mono text-muted/80 truncate">{agent.mandateHash}</span>
+
+              {/* Mandate hash */}
+              <div className="mt-3 flex items-start gap-2 text-xs">
+                <span className="w-24 shrink-0 text-muted">Mandate hash</span>
+                <span className="break-all font-mono text-muted/80">{agent.mandateHash}</span>
               </div>
             </div>
-
-            {/* Capabilities */}
-            <div className="flex flex-wrap gap-2">
-              {agent.proposalTypes.map((pt) => (
-                <span
-                  key={pt}
-                  className="text-xs font-mono bg-surface-3 text-muted/80 px-2 py-0.5 rounded"
-                >
-                  {pt}
-                </span>
-              ))}
-              {agent.canPropose && (
-                <span className="text-xs font-mono bg-accent/10 text-accent-2 px-2 py-0.5 rounded">
-                  can-propose
-                </span>
-              )}
-              {agent.canVote && (
-                <span className="text-xs font-mono bg-accent/10 text-accent-2 px-2 py-0.5 rounded">
-                  can-vote
-                </span>
-              )}
-            </div>
-
-            {/* Epoch spend */}
-            {agent.epochCapUsd > 0 && (
-              <div className="space-y-1">
-                <div className="flex items-center justify-between text-xs text-muted">
-                  <span>Epoch spend</span>
-                  <span>
-                    ${agent.epochSpendUsd.toLocaleString()} / ${agent.epochCapUsd.toLocaleString()}{" "}
-                    USDC
-                  </span>
-                </div>
-                <div className="h-1.5 bg-surface-3 rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-accent rounded-full"
-                    style={{
-                      width: `${Math.min(100, (agent.epochSpendUsd / agent.epochCapUsd) * 100)}%`,
-                    }}
-                  />
-                </div>
-              </div>
-            )}
-          </div>
-        ))}
+          );
+        })}
       </div>
+
+      <p className="mt-6 text-xs leading-relaxed text-muted">
+        All four were registered by the principal{" "}
+        <span className="font-mono text-ink">{formatAddress(PRINCIPAL)}</span>; the guardian{" "}
+        <span className="font-mono text-ink">{formatAddress(GUARDIAN)}</span> set the operational
+        caps. OPS-01 and TREAS-01 are activated and can execute bounded USDC transfers within their
+        caps; GOV-01 and DILIGENCE-01 are governance/advisory and hold no spending role.
+      </p>
     </div>
   );
 }
