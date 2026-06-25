@@ -9,6 +9,7 @@ import { ThemeToggle } from "./ThemeToggle";
 const NAV_ITEMS = [
   { href: "/", label: "Proposals" },
   { href: "/agents", label: "Agents" },
+  { href: "/secretary", label: "Secretary" },
   { href: "/members", label: "Members" },
   { href: "/treasury", label: "Treasury" },
   { href: "/contracts", label: "Contracts" },
